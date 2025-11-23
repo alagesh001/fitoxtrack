@@ -81,7 +81,7 @@ const workouts = [
     name: "Squat Form Corrector AI",
     emoji: "🏋️",
     description:
-      "Precision squat coaching powered by advanced motion tracking and AI biomechanics.",
+      "Precision squat coaching powered by fitox advanced motion tracking and AI biomechanics.",
   },
   // {
   //   key: "bicep",
@@ -95,14 +95,14 @@ const workouts = [
     name: "Form Compare AI (Front/Back)",
     emoji: "🧍‍♂️",
     description:
-      "Enhance your workouts with precise AI Form Tracker.",
+      "Anterior and Posterior View Real-time skeletal overlay powered by fitox advanced motion tracking for perfect technique refinement.",
   },
   {
     key: "lateralSide",
     name: "Form Compare AI (Left/Right)",
     emoji: "🏃‍♂️",
     description:
-      "Enhance your workouts with precise AI Form Tracker.",
+      "Lateral View Real-time skeletal overlay powered by fitox advanced motion tracking for perfect technique refinement.",
   },
   // Add more workouts here
 ];
@@ -392,10 +392,10 @@ return (
 <div className="flex gap-3 justify-center mb-4">
   <button
     onClick={() => setFacingMode("user")} // front camera
-    className={`flex-1 py-2 rounded-xl font-semibold shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 ${
+    className={`flex-1 py-2 rounded-xl font-regular shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 ${
       facingMode === "user"
-        ? "bg-gradient-to-r from-green-500 to-teal-500 text-white shadow-green-400/40"
-        :"bg-gray-100 text-gray-500 hover:bg-gray-200"
+        ? "bg-gradient-to-r from-gray-800 to-gray-700 text-white text-sm shadow-purple-400/40"
+        :"bg-gray-100 text-gray-400 text-sm hover:bg-gray-200"
     }`}
   >
     Front Cam
@@ -403,10 +403,10 @@ return (
 
   <button
     onClick={() => setFacingMode("environment")} // back camera
-    className={`flex-1 py-2 rounded-xl font-semibold shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 ${
+    className={`flex-1 py-2 rounded-xl font-regular shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 ${
       facingMode === "environment"
-        ? "bg-gradient-to-r from-green-500 to-teal-500 text-white shadow-green-400/40"
-        : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+        ? "bg-gradient-to-r from-gray-800 to-gray-700 text-sm text-white shadow-purple-400/40"
+        : "bg-gray-100 text-gray-400 hover:bg-gray-200 text-sm"
     }`}
   >
     Back Cam
@@ -417,7 +417,7 @@ return (
   onClick={() => handleGenerate(w.key)}
   className="w-full py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold shadow-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105"
 >
-  Enter
+  Start
 </button>
 
                 </div>
