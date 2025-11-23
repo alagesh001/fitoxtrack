@@ -16,7 +16,7 @@ import addleadIcon from "./assets/lead.png"; // adjust path to match your projec
 import leadIcon from "./assets/leadfunnel.png"; // adjust path to match your project
 import upgradeIcon from "./assets/upgrade.png"; // adjust path to match your project
 import hubIcon from "./assets/hubicn.png"; // adjust path to match your project
-import aiIcon from "./assets/aiicon.png"; // adjust path to match your project
+import aiIcon from "./assets/aiicon2.png"; // adjust path to match your project
 import { toast } from "react-toastify";
 
 import { showUpgradePopup } from './helper/reuse.js';

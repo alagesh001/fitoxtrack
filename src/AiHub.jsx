@@ -277,11 +277,12 @@ const fetchCheck = async (gymId,token,retryCount = 0) => {
         navigate("/login", { replace: true });
     };
 return (
- <div className="min-h-screen p-8">
-  <div
-  className={`fixed inset-0 bg-center bg-black transition-opacity duration-1000 ${
-    isLoaded ? "opacity-100 bg-cover" : "opacity-0"
-  } -z-10`}
+ <div className="min-h-screen p-8 ">
+    <div className="fixed inset-0 bg-black -z-20"></div>
+
+<div
+  className={`fixed inset-0 w-screen h-screen bg-center bg-black transition-opacity duration-1000 
+    ${isLoaded ? "opacity-100 bg-cover" : "opacity-0"} -z-10`}
   style={{
     backgroundImage: isLoaded ? `url(${myBackground})` : "none",
   }}
@@ -313,19 +314,20 @@ return (
 
 
     {/* Loading Overlay */}
-    {loading && (
-      <div className="absolute inset-0 bg-white/60 backdrop-blur-md flex flex-col items-center justify-center z-50">
-        <div className="w-3/4 h-4 bg-gray-200 rounded-full overflow-hidden shadow-inner">
-          <div
-            className="h-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-200"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-        <p className="mt-4 text-sm text-gray-700 font-semibold animate-pulse tracking-wide">
-          Loading your premium AI tool...
-        </p>
-      </div>
-    )}
+   {loading && (
+  <div className="fixed inset-0 bg-white/60 backdrop-blur-md flex flex-col items-center justify-center z-[9999]">
+    <div className="w-3/4 h-4 bg-gray-200 rounded-full overflow-hidden shadow-inner">
+      <div
+        className="h-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-200"
+        style={{ width: `${progress}%` }}
+      />
+    </div>
+
+    <p className="mt-4 text-sm text-gray-700 font-semibold animate-pulse tracking-wide">
+      Loading your premium AI tool...
+    </p>
+  </div>
+)}
 
    <div className="md:flex">
 
@@ -340,7 +342,7 @@ return (
                      bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-300
                      text-transparent bg-clip-text drop-shadow-lg"
         >
-          ⭐ Body Tracker
+          ⭐ Motion Tracker
         </h2>
 
         <div className="space-y-6">
