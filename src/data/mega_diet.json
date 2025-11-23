@@ -1,0 +1,1992 @@
+{
+  "north": {
+    "veg": {
+      "breakfast": [
+        {
+          "name": "Poha",
+          "c": 110,
+          "p": 2.5,
+          "cb": 25,
+          "f": 1.5,
+          "dsf": false,
+          "psf": false,
+          "fsf": true
+        },
+         {
+    "name": "Stuffed Gobhi Paratha",
+    "c": 240,
+    "p": 7,
+    "cb": 34,
+    "f": 9,
+    "dsf": false,
+    "psf": false,
+    "fsf": true
+  },
+  {
+    "name": "Stuffed Mooli Paratha",
+    "c": 250,
+    "p": 8,
+    "cb": 35,
+    "f": 10,
+    "dsf": false,
+    "psf": false,
+    "fsf": true
+  },
+  {
+    "name": "Methi Paratha",
+    "c": 300,
+    "p": 5,
+    "cb": 45,
+    "f": 11,
+    "dsf": false,
+    "psf": false,
+    "fsf": true
+  },
+  {
+    "name": "Paneer Paratha",
+    "c": 300,
+    "p": 10,
+    "cb": 35,
+    "f": 16,
+    "dsf": false,
+    "psf": false,
+    "fsf": true
+  },
+  {
+    "name": "Chole Kulche ",
+    "c": 245,
+    "p": 10,
+    "cb": 43,
+    "f": 11,
+    "dsf": false,
+    "psf": false,
+    "fsf": true
+  },
+  {
+    "name": "Rajma Chawal Bowl ",
+    "c": 300,
+    "p": 8.7,
+    "cb": 47,
+    "f": 6,
+    "dsf": false,
+    "psf": false,
+    "fsf": true
+  },
+  {
+    "name": "Vegetable Dalia Khichdi",
+    "c": 150,
+    "p": 6,
+    "cb": 25,
+    "f": 4,
+    "dsf": false,
+    "psf": false,
+    "fsf": true
+  },
+  {
+    "name": "Suji Cheela",
+    "c": 150,
+    "p": 6,
+    "cb": 25,
+    "f": 4,
+    "dsf": false,
+    "psf": false,
+    "fsf": true
+  },
+  {
+    "name": "Ajwain Paratha",
+    "c": 150,
+    "p": 6,
+    "cb": 25,
+    "f": 4,
+    "dsf": false,
+    "psf": false,
+    "fsf": true
+  },
+  {
+    "name": "Sweet Dalia (Lite)",
+    "c": 150,
+    "p": 4,
+    "cb": 28,
+    "f": 3,
+    "dsf": false,
+    "psf": false,
+    "fsf": true
+  },
+        {
+          "name": "Upma",
+          "c": 150,
+          "p": 6,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Aloo Paratha",
+          "c": 150,
+          "p": 6,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Paneer Sandwich",
+          "c": 150,
+          "p": 6,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Moong Dal Chilla",
+          "c": 150,
+          "p": 6,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Vegetable Sandwich",
+          "c": 150,
+          "p": 6,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Besan Chilla",
+          "c": 150,
+          "p": 6,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Sprouts Bowl",
+          "c": 150,
+          "p": 6,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Dalia Porridge",
+          "c": 150,
+          "p": 6,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Thepla",
+          "c": 150,
+          "p": 6,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": false,
+          "fsf": true
+        }
+      ],
+      "lunch": [
+        {
+          "name": "Dal Chawal",
+          "c": 200,
+          "p": 12,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        
+  {
+    "name": "Mix Veg + Roti",
+    "c": 200,
+    "p": 12,
+    "cb": 35,
+    "f": 8,
+    "dsf": false,
+    "psf": true,
+    "fsf": false
+  },
+  {
+    "name": "Baingan Bharta + Roti",
+    "c": 200,
+    "p": 12,
+    "cb": 35,
+    "f": 8,
+    "dsf": false,
+    "psf": true,
+    "fsf": false
+  },
+  {
+    "name": "Mutter Paneer + Roti",
+    "c": 200,
+    "p": 12,
+    "cb": 35,
+    "f": 8,
+    "dsf": false,
+    "psf": true,
+    "fsf": false
+  },
+  {
+    "name": "Soya Chaap Masala + Roti",
+    "c": 200,
+    "p": 14,
+    "cb": 30,
+    "f": 8,
+    "dsf": false,
+    "psf": true,
+    "fsf": false
+  },
+  {
+    "name": "Aloo Mattar + Roti",
+    "c": 200,
+    "p": 10,
+    "cb": 35,
+    "f": 8,
+    "dsf": false,
+    "psf": true,
+    "fsf": false
+  },
+  {
+    "name": "Paneer Bhurji + Roti",
+    "c": 200,
+    "p": 12,
+    "cb": 30,
+    "f": 10,
+    "dsf": false,
+    "psf": true,
+    "fsf": false
+  },
+  {
+    "name": "Dal Makhani + Rice (Lite)",
+    "c": 200,
+    "p": 12,
+    "cb": 32,
+    "f": 8,
+    "dsf": false,
+    "psf": true,
+    "fsf": false
+  },
+  {
+    "name": "Jeera Aloo + Roti",
+    "c": 200,
+    "p": 8,
+    "cb": 35,
+    "f": 8,
+    "dsf": false,
+    "psf": true,
+    "fsf": false
+  },
+  {
+    "name": "Gajar Matar + Roti",
+    "c": 200,
+    "p": 10,
+    "cb": 35,
+    "f": 7,
+    "dsf": false,
+    "psf": true,
+    "fsf": false
+  },
+  {
+    "name": "Paneer Do Pyaza + Roti",
+    "c": 200,
+    "p": 12,
+    "cb": 30,
+    "f": 10,
+    "dsf": false,
+    "psf": true,
+    "fsf": false
+  },
+
+
+        {
+          "name": "Rajma Chawal",
+          "c": 200,
+          "p": 12,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Chole Rice",
+          "c": 200,
+          "p": 12,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Veg Biryani",
+          "c": 200,
+          "p": 12,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Palak Paneer + Roti",
+          "c": 200,
+          "p": 12,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Kadhi Chawal",
+          "c": 200,
+          "p": 12,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Vegetable Pulao",
+          "c": 200,
+          "p": 12,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Aloo Gobi + Roti",
+          "c": 200,
+          "p": 12,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Paneer Tikka Masala",
+          "c": 200,
+          "p": 12,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Khichdi",
+          "c": 200,
+          "p": 12,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        }
+      ],
+      "snacks": [
+        {
+          "name": "Fruit Bowl",
+          "c": 120,
+          "p": 6,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Chana Jor Garam",
+          "c": 120,
+          "p": 6,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Roasted Chana",
+          "c": 120,
+          "p": 6,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Sprouts Chaat",
+          "c": 120,
+          "p": 6,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Bhel Puri",
+          "c": 120,
+          "p": 6,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Masala Corn",
+          "c": 120,
+          "p": 6,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Popcorn",
+          "c": 120,
+          "p": 6,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Peanut Salad",
+          "c": 120,
+          "p": 6,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Vegetable Soup",
+          "c": 120,
+          "p": 6,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Buttermilk",
+          "c": 120,
+          "p": 6,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": false,
+          "fsf": true
+        }
+      ],
+      "dinner": [
+        {
+          "name": "Roti + Dal",
+          "c": 180,
+          "p": 10,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        
+  {
+    "name": "Lauki Sabzi + Roti",
+    "c": 180,
+    "p": 10,
+    "cb": 30,
+    "f": 6,
+    "dsf": false,
+    "psf": true,
+    "fsf": true
+  },
+  {
+    "name": "Methi Aloo + Roti",
+    "c": 180,
+    "p": 10,
+    "cb": 30,
+    "f": 6,
+    "dsf": false,
+    "psf": true,
+    "fsf": true
+  },
+  {
+    "name": "Bhindi Masala + Roti",
+    "c": 180,
+    "p": 10,
+    "cb": 30,
+    "f": 6,
+    "dsf": false,
+    "psf": true,
+    "fsf": true
+  },
+  {
+    "name": "Paneer Tawa Masala",
+    "c": 180,
+    "p": 10,
+    "cb": 30,
+    "f": 6,
+    "dsf": false,
+    "psf": true,
+    "fsf": true
+  },
+  {
+    "name": "Gajar Matar Sabzi + Roti",
+    "c": 180,
+    "p": 10,
+    "cb": 30,
+    "f": 6,
+    "dsf": false,
+    "psf": true,
+    "fsf": true
+  },
+  {
+    "name": "Aloo Tamatar Sabzi + Roti",
+    "c": 180,
+    "p": 10,
+    "cb": 30,
+    "f": 6,
+    "dsf": false,
+    "psf": true,
+    "fsf": true
+  },
+  {
+    "name": "Soya Chunk Curry",
+    "c": 180,
+    "p": 14,
+    "cb": 25,
+    "f": 5,
+    "dsf": false,
+    "psf": true,
+    "fsf": true
+  },
+  {
+    "name": "Mutter Paneer (Lite)",
+    "c": 180,
+    "p": 12,
+    "cb": 28,
+    "f": 6,
+    "dsf": false,
+    "psf": true,
+    "fsf": true
+  },
+  {
+    "name": "Tinda Sabzi + Roti",
+    "c": 180,
+    "p": 9,
+    "cb": 30,
+    "f": 6,
+    "dsf": false,
+    "psf": true,
+    "fsf": true
+  },
+  {
+    "name": "Vegetable Stew + Roti",
+    "c": 180,
+    "p": 10,
+    "cb": 28,
+    "f": 6,
+    "dsf": false,
+    "psf": true,
+    "fsf": true
+  },
+
+
+        {
+          "name": "Roti + Paneer",
+          "c": 180,
+          "p": 10,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Rice + Sabzi",
+          "c": 180,
+          "p": 10,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Khichdi",
+          "c": 180,
+          "p": 10,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Veg Soup + Roti",
+          "c": 180,
+          "p": 10,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Palak Paneer",
+          "c": 180,
+          "p": 10,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Mix Veg Curry",
+          "c": 180,
+          "p": 10,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Tawa Roti + Sabzi",
+          "c": 180,
+          "p": 10,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Paneer Bhurji",
+          "c": 180,
+          "p": 10,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Dal Fry",
+          "c": 180,
+          "p": 10,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        }
+      ]
+    },
+    "nonveg": {
+      "breakfast": [
+        {
+          "name": "Boiled Eggs + Oats",
+          "c": 150,
+          "p": 10,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        
+  {
+    "name": "Egg Parantha",
+    "c": 150,
+    "p": 10,
+    "cb": 25,
+    "f": 4,
+    "dsf": false,
+    "psf": true,
+    "fsf": true
+  },
+  
+  {
+    "name": "Egg Curry + Roti",
+    "c": 150,
+    "p": 11,
+    "cb": 23,
+    "f": 4,
+    "dsf": false,
+    "psf": true,
+    "fsf": true
+  },
+  {
+    "name": "Chicken Upma",
+    "c": 150,
+    "p": 10,
+    "cb": 25,
+    "f": 4,
+    "dsf": false,
+    "psf": true,
+    "fsf": true
+  },
+  {
+    "name": "Egg Roll ",
+    "c": 150,
+    "p": 10,
+    "cb": 25,
+    "f": 4,
+    "dsf": false,
+    "psf": true,
+    "fsf": true
+  },
+ 
+  {
+    "name": "Chicken Stuffed Paratha",
+    "c": 150,
+    "p": 12,
+    "cb": 22,
+    "f": 4,
+    "dsf": false,
+    "psf": true,
+    "fsf": true
+  },
+  {
+    "name": "Egg & Veg Sandwich",
+    "c": 150,
+    "p": 10,
+    "cb": 25,
+    "f": 4,
+    "dsf": false,
+    "psf": true,
+    "fsf": true
+  },
+  
+  {
+    "name": "Keema Parantha (Lite)",
+    "c": 150,
+    "p": 12,
+    "cb": 20,
+    "f": 5,
+    "dsf": false,
+    "psf": true,
+    "fsf": true
+  },
+
+
+      
+        {
+          "name": "Egg Sandwich",
+          "c": 150,
+          "p": 10,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Chicken Sandwich",
+          "c": 150,
+          "p": 10,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Egg Bhurji Roll",
+          "c": 150,
+          "p": 10,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Chicken Wrap",
+          "c": 150,
+          "p": 10,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        
+        {
+          "name": "Egg Fried Rice",
+          "c": 150,
+          "p": 10,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        }
+       
+       
+      ],
+      "lunch": [
+        {
+          "name": "Chicken Curry + Rice",
+          "c": 200,
+          "p": 16,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Butter Chicken",
+          "c": 200,
+          "p": 16,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Egg Curry",
+          "c": 200,
+          "p": 16,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Fish Curry",
+          "c": 200,
+          "p": 16,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Mutton Curry",
+          "c": 200,
+          "p": 16,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Chicken Tikka Masala",
+          "c": 200,
+          "p": 16,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Fish Fry + Rice",
+          "c": 200,
+          "p": 16,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Mutton Rogan Josh",
+          "c": 200,
+          "p": 16,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Chicken Biryani",
+          "c": 200,
+          "p": 16,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Egg Biryani",
+          "c": 200,
+          "p": 16,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        }
+      ],
+      "snacks": [
+        {
+          "name": "Boiled Eggs",
+          "c": 120,
+          "p": 12,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Chicken Soup",
+          "c": 120,
+          "p": 12,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Fish Tikka",
+          "c": 120,
+          "p": 12,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Chicken Tikka",
+          "c": 120,
+          "p": 12,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Egg Sandwich",
+          "c": 120,
+          "p": 12,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Chicken Salad",
+          "c": 120,
+          "p": 12,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Egg Salad",
+          "c": 120,
+          "p": 12,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Chicken Seekh",
+          "c": 120,
+          "p": 12,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Fish Fry",
+          "c": 120,
+          "p": 12,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Grilled Chicken",
+          "c": 120,
+          "p": 12,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": true,
+          "fsf": true
+        }
+      ],
+      "dinner": [
+        {
+          "name": "Chicken Curry + Roti",
+          "c": 180,
+          "p": 18,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Grilled Chicken",
+          "c": 180,
+          "p": 18,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Egg Curry + Roti",
+          "c": 180,
+          "p": 18,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Fish Curry + Rice",
+          "c": 180,
+          "p": 18,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Mutton Curry",
+          "c": 180,
+          "p": 18,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Chicken Kebab + Roti",
+          "c": 180,
+          "p": 18,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Prawn Curry",
+          "c": 180,
+          "p": 18,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Egg Bhurji",
+          "c": 180,
+          "p": 18,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Fish Fry + Roti",
+          "c": 180,
+          "p": 18,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Chicken Keema",
+          "c": 180,
+          "p": 18,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        }
+      ]
+    }
+  },
+  "south": {
+    "veg": {
+      "breakfast": [
+        {
+          "name": "Idli Sambar",
+          "c": 150,
+          "p": 6,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Dosa with Chutney",
+          "c": 150,
+          "p": 6,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Rava Upma",
+          "c": 150,
+          "p": 6,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Pongal",
+          "c": 150,
+          "p": 6,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Appam with Stew",
+          "c": 150,
+          "p": 6,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Puttu with Banana",
+          "c": 150,
+          "p": 6,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Idiyappam with Coconut Milk",
+          "c": 150,
+          "p": 6,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Masala Dosa",
+          "c": 150,
+          "p": 6,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Vegetable Adai",
+          "c": 150,
+          "p": 6,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Ragi Dosa",
+          "c": 150,
+          "p": 6,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": false,
+          "fsf": true
+        }
+      ],
+      "lunch": [
+        {
+          "name": "Sambar Rice",
+          "c": 200,
+          "p": 12,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Curd Rice",
+          "c": 200,
+          "p": 12,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Vegetable Biryani",
+          "c": 200,
+          "p": 12,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Lemon Rice",
+          "c": 200,
+          "p": 12,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Tomato Rice",
+          "c": 200,
+          "p": 12,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Veg Meals (Mini)",
+          "c": 200,
+          "p": 12,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Bisibelebath",
+          "c": 200,
+          "p": 12,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Vegetable Kootu + Rice",
+          "c": 200,
+          "p": 12,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Avial + Rice",
+          "c": 200,
+          "p": 12,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Mor Kuzhambu + Rice",
+          "c": 200,
+          "p": 12,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        }
+      ],
+      "snacks": [
+        {
+          "name": "Sundal",
+          "c": 120,
+          "p": 6,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Murukku",
+          "c": 120,
+          "p": 6,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Banana Chips",
+          "c": 120,
+          "p": 6,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Masala Peanuts",
+          "c": 120,
+          "p": 6,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Idli Fry",
+          "c": 120,
+          "p": 6,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Boiled Corn",
+          "c": 120,
+          "p": 6,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Veg Puff",
+          "c": 120,
+          "p": 6,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Masala Vada",
+          "c": 120,
+          "p": 6,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Sweet Potato (boiled)",
+          "c": 120,
+          "p": 6,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": false,
+          "fsf": true
+        },
+        {
+          "name": "Paniyaram",
+          "c": 120,
+          "p": 6,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": false,
+          "fsf": true
+        }
+      ],
+      "dinner": [
+        {
+          "name": "Chapati + Veg Kurma",
+          "c": 180,
+          "p": 10,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Ragi Mudde + Sambar",
+          "c": 180,
+          "p": 10,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Vegetable Dosa",
+          "c": 180,
+          "p": 10,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Idli + Sambar",
+          "c": 180,
+          "p": 10,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Kambu Chapati + Kurma",
+          "c": 180,
+          "p": 10,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Vegetable Uthappam",
+          "c": 180,
+          "p": 10,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Tomato Rice (light)",
+          "c": 180,
+          "p": 10,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Curd Rice (light)",
+          "c": 180,
+          "p": 10,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Pesarattu Dosa",
+          "c": 180,
+          "p": 10,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Vegetable Stew + Idiyappam",
+          "c": 180,
+          "p": 10,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        }
+      ]
+    },
+    "nonveg": {
+      "breakfast": [
+        {
+          "name": "Egg Dosa",
+          "c": 150,
+          "p": 10,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Keema Uttapam",
+          "c": 150,
+          "p": 10,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Chicken Puttu",
+          "c": 150,
+          "p": 10,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Egg Appam",
+          "c": 150,
+          "p": 10,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Fish Omelette",
+          "c": 150,
+          "p": 10,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Egg Pesarattu",
+          "c": 150,
+          "p": 10,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Chicken Upma (small)",
+          "c": 150,
+          "p": 10,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Egg Sandwich (south)",
+          "c": 150,
+          "p": 10,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Tuna Idli",
+          "c": 150,
+          "p": 10,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Boiled Eggs (south)",
+          "c": 150,
+          "p": 10,
+          "cb": 25,
+          "f": 4,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        }
+      ],
+      "lunch": [
+        {
+          "name": "Fish Curry + Rice",
+          "c": 200,
+          "p": 16,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Chicken Chettinad + Rice",
+          "c": 200,
+          "p": 16,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Prawn Masala + Rice",
+          "c": 200,
+          "p": 16,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Mutton Curry South",
+          "c": 200,
+          "p": 16,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Kerala Fish Fry + Rice",
+          "c": 200,
+          "p": 16,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Chicken Stew + Rice",
+          "c": 200,
+          "p": 16,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Egg Curry South",
+          "c": 200,
+          "p": 16,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Fish Moilee + Rice",
+          "c": 200,
+          "p": 16,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Prawn Curry + Rice",
+          "c": 200,
+          "p": 16,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        },
+        {
+          "name": "Keema Curry + Rice",
+          "c": 200,
+          "p": 16,
+          "cb": 35,
+          "f": 8,
+          "dsf": false,
+          "psf": true,
+          "fsf": false
+        }
+      ],
+      "snacks": [
+        {
+          "name": "Fish Cutlet",
+          "c": 120,
+          "p": 12,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Prawn Fry",
+          "c": 120,
+          "p": 12,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Chicken Sukka Bites",
+          "c": 120,
+          "p": 12,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Egg Podimas",
+          "c": 120,
+          "p": 12,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Kozhi Varuval (chicken fry)",
+          "c": 120,
+          "p": 12,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Small Fish Fry",
+          "c": 120,
+          "p": 12,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Chicken Seekh (south)",
+          "c": 120,
+          "p": 12,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Egg Salad (south)",
+          "c": 120,
+          "p": 12,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Prawn Cutlet",
+          "c": 120,
+          "p": 12,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Tandoori Chicken (small)",
+          "c": 120,
+          "p": 12,
+          "cb": 18,
+          "f": 4,
+          "dsf": true,
+          "psf": true,
+          "fsf": true
+        }
+      ],
+      "dinner": [
+        {
+          "name": "Fish Curry + Roti",
+          "c": 180,
+          "p": 18,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Chicken Korma + Roti",
+          "c": 180,
+          "p": 18,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Prawn Curry + Rice",
+          "c": 180,
+          "p": 18,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Grilled Fish South",
+          "c": 180,
+          "p": 18,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Kerala Mutton Curry",
+          "c": 180,
+          "p": 18,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Chicken Chettinad (dinner)",
+          "c": 180,
+          "p": 18,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Egg Curry + Roti (south)",
+          "c": 180,
+          "p": 18,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Fish Pollichathu",
+          "c": 180,
+          "p": 18,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Prawn Thokku + Rice",
+          "c": 180,
+          "p": 18,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        },
+        {
+          "name": "Tandoori Chicken + Veg",
+          "c": 180,
+          "p": 18,
+          "cb": 30,
+          "f": 6,
+          "dsf": false,
+          "psf": true,
+          "fsf": true
+        }
+      ]
+    }
+  }
+}
