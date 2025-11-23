@@ -1,10 +1,10 @@
 const CACHE_NAME = 'fitox-cache-v4.5';
 const urlsToCache = [
-  '/fitoxme/',
-  '/fitoxme/index.html',
-  '/fitoxme/manifest.webmanifest',
-  '/fitoxme/fc-icon-192x192.png',
-  '/fitoxme/fc-icon-512x512.png'
+  '/fitoxai/',
+  '/fitoxai/index.html',
+  '/fitoxai/manifest.webmanifest',
+  '/fitoxai/fc-icon-192x192.png',
+  '/fitoxai/fc-icon-512x512.png'
 ];
 
 // Install service worker and cache required files

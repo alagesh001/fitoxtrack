@@ -172,7 +172,7 @@ const refreshAccessToken = async () => {
     };
 
     return (
-        <div className="p-4">
+        <div className="p-10">
             <h1 className="text-2xl font-bold mb-6">⚙️ Settings</h1>
 
             {/* 📝 Gym Info */}
@@ -216,7 +216,7 @@ const refreshAccessToken = async () => {
                 {/* Toggle Change Password */}
                 <button
                     onClick={() => setShowChangePassword(!showChangePassword)}
-                    className="w-full p-3 rounded-lg bg-gradient-to-r from-purple-500 to-purple-700 text-white font-semibold shadow hover:scale-105 transform transition"
+                    className="w-full p-3 rounded-lg bg-gradient-to-r from-purple-500 to-purple-700 text-white font-semibold shadow hover:scale-101 transform transition"
                 >
                     🔑 {showChangePassword ? "Cancel Password Change" : "Change Password"}
                 </button>
@@ -272,7 +272,7 @@ const refreshAccessToken = async () => {
                 {/* Contact Support */}
                 <button
                     onClick={handleContactSupport}
-                    className="w-full p-3 rounded-lg bg-gradient-to-r from-green-500 to-green-700 text-white font-semibold shadow hover:scale-105 transform transition"
+                    className="w-full p-3 rounded-lg bg-gradient-to-r from-green-500 to-green-700 text-white font-semibold shadow hover:scale-101 transform transition"
                 >
                     💬 Contact Support
                 </button>
@@ -300,7 +300,7 @@ const refreshAccessToken = async () => {
                             // });
                           }
                         });}}
-                    className="w-full p-3 rounded-lg bg-gradient-to-r from-red-500 to-red-700 text-white font-semibold shadow hover:scale-105 transform transition"
+                    className="w-full p-3 rounded-lg bg-gradient-to-r from-red-500 to-red-700 text-white font-semibold shadow hover:scale-101 transform transition"
                 >
                     🚪 Logout
                 </button>

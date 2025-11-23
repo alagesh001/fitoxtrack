@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { showUpgradePopup } from './helper/reuse.js';
 import { toast } from "react-toastify";
+import myBackground from "./assets/fitgymbg.png";
 
 export default function AIhubHere() {
   const [active, setActive] = useState(null);
@@ -17,6 +18,54 @@ const storedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
 const bicepRef = useRef(null);
 const lateralRef = useRef(null);
 const lateralSideRef = useRef(null);
+const panelRefs = useRef({});
+ const [backgroundImage, setBackgroundImage] = useState(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  useEffect(() => {
+    const img = new Image();
+    img.src = myBackground;
+    img.onload = () => {
+      setBackgroundImage(myBackground); // use imported image
+      setIsLoaded(true);
+    };
+  }, []);
+const aiTools = [
+  {
+    key: "workout",
+    icon: "📝",
+    title: "Workout Card AI",
+    description:
+      "Instantly create personalized workout plans powered by smart AI.",
+  },
+  {
+    key: "diet",
+    icon: "🥗",
+    title: "Diet AI",
+    description:
+      "Deliver personalized AI-powered diet plans crafted for fitness and health.",
+  },
+  {
+    key: "birthday",
+    icon: "🎉",
+    title: "Birthday Card AI",
+    description:
+      "Surprise members with AI-generated birthday messages that feel personal.",
+  },
+  {
+    key: "poster",
+    icon: "🎨",
+    title: "Offer Post Design AI",
+    description:
+      "Create premium offer posters for Instagram, WhatsApp, and print instantly.",
+  },
+  {
+    key: "transform",
+    icon: "🎨",
+    title: "Transformation Post Design AI",
+    description:
+      "Showcase transformation stories with AI-crafted posters.",
+  },
+];
 
 const refs = {
   squat: squatRef,
@@ -228,320 +277,219 @@ const fetchCheck = async (gymId,token,retryCount = 0) => {
         navigate("/login", { replace: true });
     };
 return (
-  <div className="min-h-screen bg-gradient-to-br from-gray-100 via-white to-gray-200 p-8">
+ <div className="min-h-screen p-8">
+  <div
+  className={`fixed inset-0 bg-center bg-black transition-opacity duration-1000 ${
+    isLoaded ? "opacity-100 bg-cover" : "opacity-0"
+  } -z-10`}
+  style={{
+    backgroundImage: isLoaded ? `url(${myBackground})` : "none",
+  }}
+>
+  <div className="absolute inset-0 bg-black/50"></div>
+</div>
+
   {showAuthBlock && (
-  <div className="px-10 fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[9999]">
-    <div className="bg-white p-6 rounded-xl shadow-xl max-w-sm w-full text-center">
-      <h2 className="text-xl font-bold text-red-600 mb-3">
-        Not Authorised
-      </h2>
-      <p className="text-gray-700 text-base">
-        Kindly login through authorized account to access.
-      </p>
+    <div className="px-10 fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999]">
+      <div className="bg-white p-7 rounded-2xl shadow-2xl max-w-sm w-full text-center border border-red-200">
+        <h2 className="text-2xl font-extrabold text-red-600 mb-3 drop-shadow">
+          Not Authorised
+        </h2>
+        <p className="text-gray-700 text-base">
+          Kindly login through an authorized account to access.
+        </p>
+      </div>
     </div>
-  </div>
-)}
+  )}
 
-    <h1 className="text-4xl font-extrabold text-center mb-8 text-indigo-700 tracking-tight drop-shadow-sm">
-      Fitox AI Hub
-    </h1>
+<h1
+  className="text-5xl font-extrabold text-center mb-10 tracking-tight drop-shadow-lg
+             bg-gradient-to-r from-blue-500 via-teal-400 to-cyan-400
+             text-transparent bg-clip-text"
+>
+  Fitox AI Hub
+</h1>
 
-    <div className="max-w-5xl mx-auto bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-black overflow-hidden relative">
 
-      {/* Loading Overlay */}
-      {loading && (
-        <div className="absolute inset-0 bg-white/70 backdrop-blur-md flex flex-col items-center justify-center z-50">
-          <div className="w-3/4 h-4 bg-gray-200 rounded-full overflow-hidden shadow-inner">
-            <div
-              className="h-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-200"
-              style={{ width: `${progress}%` }}
-            />
+
+    {/* Loading Overlay */}
+    {loading && (
+      <div className="absolute inset-0 bg-white/60 backdrop-blur-md flex flex-col items-center justify-center z-50">
+        <div className="w-3/4 h-4 bg-gray-200 rounded-full overflow-hidden shadow-inner">
+          <div
+            className="h-4 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-200"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+        <p className="mt-4 text-sm text-gray-700 font-semibold animate-pulse tracking-wide">
+          Loading your premium AI tool...
+        </p>
+      </div>
+    )}
+
+   <div className="md:flex">
+
+
+    <nav className="flex flex-col gap-14">
+
+      {/* ---------------- PREMIUM SECTION (DARK THEME) ---------------- */}
+      <div className="bg-[#0b0c12]/60 border border-[#191c29] rounded-2xl p-6 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+
+        <h2
+          className="text-lg font-bold mb-5 tracking-wide
+                     bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-300
+                     text-transparent bg-clip-text drop-shadow-lg"
+        >
+          ⭐ Body Tracker
+        </h2>
+
+        <div className="space-y-6">
+
+          {workouts.slice(0, 3).map((w) => (
+            <div key={w.key}>
+              <button
+                onClick={() => setActive(active === w.key ? null : w.key)}
+                className={`w-full text-left rounded-xl px-5 py-4 border transition-all duration-300 shadow-sm
+                ${
+                  active === w.key
+                    ? "bg-gradient-to-br from-[#1b1e2d] to-[#131522] border-indigo-500/50 shadow-[0_0_18px_rgba(99,102,241,0.4)]"
+                    : "bg-[#0f111a]/80 border-white hover:bg-[#171924] hover:border-[#3d4160]"
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <div
+                    className={`flex items-center justify-center w-12 h-12 rounded-xl text-xl transition
+                    ${
+                      active === w.key
+                        ? "bg-indigo-600/20 text-indigo-400"
+                        : "bg-[#161825] text-gray-400"
+                    }`}
+                  >
+                    {w.emoji}
+                  </div>
+
+                  <h3 className="text-base font-semibold text-white drop-shadow-sm">
+                    {w.name}
+                  </h3>
+                </div>
+              </button>
+
+              {active === w.key && (
+                <div
+                  ref={refs[w.key]}
+                  className="mt-3 ml-2 p-4 rounded-xl bg-white border border-[#292c40] shadow-inner"
+                >
+                  <p className="text-sm text-black mb-4 leading-relaxed">
+                    {w.description}
+                  </p>
+
+                  <button
+                    onClick={() => handleGenerate(w.key)}
+                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition w-full font-semibold shadow-md"
+                  >
+                    Enter
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+
+        </div>
+      </div>
+
+
+      {/* ---------------- EXTRAS SECTION (LIGHT THEME) ---------------- */}
+      <div className="bg-white/40  rounded-2xl p-6 shadow-md">
+
+        <h2 className="text-lg font-bold text-white mb-5 tracking-wide">
+          🧰 Premium Extras
+        </h2>
+
+      <div className="space-y-7">
+  {aiTools.map((tool) => (
+    <div key={tool.key}>
+
+      {/* Main Tab */}
+      <button
+        onClick={() => {
+          const newActive = active === tool.key ? null : tool.key;
+          setActive(newActive);
+
+          if (newActive !== null) {
+            setTimeout(() => {
+              panelRefs.current[newActive]?.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+              });
+            }, 150);
+          }
+        }}
+        className={`group w-full text-left rounded-xl p-4 transition-all duration-300 border 
+          ${
+            active === tool.key
+              ? "text-white border-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 shadow-[0_4px_14px_rgba(99,102,241,0.35)]"
+              : "bg-gray-200/80 border-gray-300 hover:from-indigo-100 hover:via-purple-100 hover:to-white"
+          }
+        `}
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className={`p-2 rounded-xl transition
+              ${
+                active === tool.key
+                  ? "bg-white/20"
+                  : "bg-white group-hover:bg-indigo-200"
+              }
+            `}
+          >
+            {tool.icon}
           </div>
-          <p className="mt-4 text-sm text-gray-700 font-medium animate-pulse">
-            Loading your AI tool...
+
+          <span
+            className={`font-semibold text-lg ${
+              active === tool.key ? "text-white" : "text-gray-700"
+            }`}
+          >
+            {tool.title}
+          </span>
+        </div>
+      </button>
+
+      {/* Expanded Panel */}
+      {active === tool.key && (
+        <div
+          ref={(el) => (panelRefs.current[tool.key] = el)}
+          className="mt-3 ml-3 p-4 bg-white rounded-xl border border-gray-200 shadow-sm"
+        >
+          <p className="text-sm text-gray-700 mb-3 leading-relaxed">
+            {tool.description}
           </p>
+
+          <button
+            onClick={() => handleGenerate(tool.key)}
+            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 shadow-md w-full font-semibold"
+          >
+            Generate Now
+          </button>
         </div>
       )}
 
-      <div className="md:flex">
+    </div>
+  ))}
+</div>
 
-        {/* Vertical Tabs */}
-        <aside className="md:w-72 bg-gradient-to-b from-white to-gray-100 px-6 py-8 border-r shadow-sm">
-          <nav className="flex flex-col gap-4">
 
-            {/* Workout Tab */}
-            <div>
-              <button
-                onClick={() => setActive(active === "workout" ? null : "workout")}
-             className={`group text-left w-full rounded-2xl p-4 transition-all duration-300
-  ${
-    active === "workout"
-      ? "text-white border-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 shadow-[0_4px_12px_rgba(99,102,241,0.4)]"
-      : "bg-gradient-to-r from-indigo-50 via-purple-50 to-white border border-black text-gray-700 hover:from-indigo-100 hover:via-purple-100 hover:to-white"
-  }
-`}
-
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`p-2 rounded-xl transition ${
-                      active === "workout" ? "bg-white/20" : "bg-indigo-100 group-hover:bg-indigo-200"
-                    }`}
-                  >
-                    📝
-                  </div>
-                  <span className="font-semibold text-lg">Workout Card AI</span>
-                </div>
-              </button>
-
-              {active === "workout" && (
-                <div className="mt-3 ml-3 p-4 bg-indigo-50 rounded-xl shadow-sm border border-indigo-100">
-                  <p className="text-sm text-gray-700 mb-3 leading-relaxed">
-                    Instantly create personalized workout plans powered by smart AI.
-                    Whether strength, endurance, or fat loss — deliver routines that keep
-                    every member inspired and consistent.
-                  </p>
-
-                  <button
-                    onClick={() => handleGenerate("workout")}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 shadow-md w-full"
-                  >
-                    Generate Now
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Diet Tab */}
-            <div>
-              <button
-                onClick={() => setActive(active === "diet" ? null : "diet")}
-             className={`group text-left w-full rounded-2xl p-4 transition-all duration-300
-  ${
-    active === "diet"
-      ? "text-white border-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 shadow-[0_4px_12px_rgba(99,102,241,0.4)]"
-: "bg-gradient-to-r from-indigo-50 via-purple-50 to-white border border-black text-gray-700 hover:from-indigo-100 hover:via-purple-100 hover:to-white"
-  }  
-`}
-
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`p-2 rounded-xl transition ${
-                      active === "diet" ? "bg-white/20" : "bg-indigo-100 group-hover:bg-indigo-200"
-                    }`}
-                  >
-                    🥗
-                  </div>
-                  <span className="font-semibold text-lg">Diet AI</span>
-                </div>
-              </button>
-
-              {active === "diet" && (
-                <div className="mt-3 ml-3 p-4 bg-indigo-50 rounded-xl border shadow-sm border-indigo-100">
-                  <p className="text-sm text-gray-700 mb-3 leading-relaxed">
-                    Deliver personalized AI-powered diet plans crafted for fitness,
-                    health goals, and medical considerations — faster than ever.
-                  </p>
-
-                  <button
-                    onClick={() => handleGenerate("diet")}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 shadow-md w-full"
-                  >
-                    Generate Now
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Birthday Tab */}
-            <div>
-              <button
-                onClick={() => setActive(active === "birthday" ? null : "birthday")}
-             className={`group text-left w-full rounded-2xl p-4 transition-all duration-300
-  ${
-    active === "birthday"
-      ? "text-white border-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 shadow-[0_4px_12px_rgba(99,102,241,0.4)]"
-: "bg-gradient-to-r from-indigo-50 via-purple-50 to-white border border-black text-gray-700 hover:from-indigo-100 hover:via-purple-100 hover:to-white"
-  }  
-`}
-
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`p-2 rounded-xl transition ${
-                      active === "birthday" ? "bg-white/20" : "bg-indigo-100 group-hover:bg-indigo-200"
-                    }`}
-                  >
-                    🎉
-                  </div>
-                  <span className="font-semibold text-lg">Birthday Card AI</span>
-                </div>
-              </button>
-
-              {active === "birthday" && (
-                <div className="mt-3 ml-3 p-4 bg-indigo-50 rounded-xl border border-indigo-100 shadow-sm">
-                  <p className="text-sm text-gray-700 mb-3 leading-relaxed">
-                    Surprise your gym members with AI-generated birthday messages
-                    that make them feel appreciated and valued.
-                  </p>
-
-                  <button
-                    onClick={() => handleGenerate("birthday")}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 shadow-md w-full"
-                  >
-                    Generate Now
-                  </button>
-                </div>
-              )}
-            </div>
-             {/* Offer Tab */}
-            <div>
-              <button
-                onClick={() => setActive(active === "poster" ? null : "poster")}
-              className={`group text-left w-full rounded-2xl p-4 transition-all duration-300
-  ${
-    active === "poster"
-      ? "text-white border-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 shadow-[0_4px_12px_rgba(99,102,241,0.4)]"
-: "bg-gradient-to-r from-indigo-50 via-purple-50 to-white border border-black text-gray-700 hover:from-indigo-100 hover:via-purple-100 hover:to-white"
-  }  
-`}
-
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`p-2 rounded-xl transition ${
-                      active === "poster" ? "bg-white/20" : "bg-indigo-100 group-hover:bg-indigo-200"
-                    }`}
-                  >
-                    🎨
-                  </div>
-                  <span className="font-semibold text-lg">Offer Post Design AI</span>
-                </div>
-              </button>
-
-              {active === "poster" && (
-                <div className="mt-3 ml-3 p-4 bg-indigo-50 rounded-xl border border-indigo-100 shadow-sm">
-                  <p className="text-sm text-gray-700 mb-3 leading-relaxed">
-                    Create premium AI-powered offer posters instantly. Perfect for
-        Instagram, WhatsApp, print, and digital boards.
-                  </p>
-
-                  <button
-                    onClick={() => handleGenerate("poster")}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 shadow-md w-full"
-                  >
-                    Generate Now
-                  </button>
-                </div>
-              )}
-            </div>
-             {/* Transform Tab */}
-            <div>
-              <button
-                onClick={() => setActive(active === "transform" ? null : "transform")}
-          className={`group text-left w-full rounded-2xl p-4 transition-all duration-300
-  ${
-    active === "transform"
-      ? "text-white border-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 shadow-[0_4px_12px_rgba(99,102,241,0.4)]"
-: "bg-gradient-to-r from-indigo-50 via-purple-50 to-white border border-black text-gray-700 hover:from-indigo-100 hover:via-purple-100 hover:to-white"
-  }  
-`}
-
-              >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`p-2 rounded-xl transition ${
-                      active === "transform" ? "bg-white/20" : "bg-indigo-100 group-hover:bg-indigo-200"
-                    }`}
-                  >
-                    🎨
-                  </div>
-                  <span className="font-semibold text-lg">Transformation Post Design AI</span>
-                </div>
-              </button>
-
-              {active === "transform" && (
-                <div className="mt-3 ml-3 p-4 bg-indigo-50 rounded-xl border border-indigo-100 shadow-sm">
-                  <p className="text-sm text-gray-700 mb-3 leading-relaxed">
-                   Showcase powerful transformation stories with AI-crafted posters, ready for social media and print.
-                  </p>
-
-                  <button
-                    onClick={() => handleGenerate("transform")}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 shadow-md w-full"
-                  >
-                    Generate Now
-                  </button>
-                </div>
-              )}
-            </div>
-           <div className="space-y-5">
-  {workouts.map((w) => (
-  <div key={w.key}>
-
-    {/* Workout Tab */}
-    <button
-      onClick={() => setActive(active === w.key ? null : w.key)}
-      className={`w-full text-left rounded-xl px-4 py-3 border transition
-      ${
-        active === w.key
-          ? "bg-[#1a1c29] border-[#3d4160]"
-          : "bg-[#0f111a] border-[#23263a] hover:bg-[#171924]"
-      }`}
-    >
-      <div className="flex items-center gap-3">
-        <div
-          className={`flex items-center justify-center w-10 h-10 rounded-xl text-lg
-          ${
-            active === w.key
-              ? "bg-[#24273a] text-indigo-400"
-              : "bg-[#161825] text-gray-400"
-          }`}
-        >
-          {w.emoji}
-        </div>
-
-        <div className="flex-1">
-          <h3 className="text-base font-semibold text-white">{w.name}</h3>
-        </div>
       </div>
-    </button>
 
-    {/* Expanded Panel */}
-    {active === w.key && (
-      <div
-        ref={refs[w.key]}
-        className="mt-3 ml-2 p-4 rounded-xl bg-[#13141e] border border-[#292c40]"
-      >
-        <p className="text-sm text-gray-300 mb-4">{w.description}</p>
+    </nav>
 
-        <button
-          onClick={() => handleGenerate(w.key)}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 shadow-md w-full"
-        >
-          Enter
-        </button>
-      </div>
-    )}
-  </div>
-))}
 
 </div>
 
-          </nav>
-        </aside>
+ 
+</div>
 
-        {/* Main content placeholder */}
-        <main className="flex-1 p-10 text-center flex items-center justify-center">
-          <p className="text-gray-600 text-lg">
-            Select a tab and click <span className="font-semibold">Generate Now</span> to continue.
-          </p>
-        </main>
 
-      </div>
-    </div>
-  </div>
 );
 
 }

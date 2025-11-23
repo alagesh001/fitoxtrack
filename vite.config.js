@@ -52,7 +52,7 @@ export default defineConfig({
               cert: fs.readFileSync("localhost+2.pem"),
              },
            },
-  base: '/fitoxme/', // <-- your subdirectory path
+  base: '/fitoxai/', // <-- your subdirectory path
   build: {
     rollupOptions: {
       output: {

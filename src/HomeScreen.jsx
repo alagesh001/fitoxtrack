@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { UserPlusIcon } from "@heroicons/react/24/outline";
-import myBackground from "./assets/fitxgym.jpg";
+import myBackground from "./assets/fitgymbg.png";
 //import UpgradeDialog from "./UpgradeDialog";
 import Swal from 'sweetalert2';
 import clientIcon from "./assets/clienticn.png"; // adjust path to match your project
@@ -46,17 +46,7 @@ useEffect(() => {
 setSelectedGym(parsedGym);
         const token = localStorage.getItem("accessToken");
         const cachedTrainers = localStorage.getItem(`trainersdata_${parsedGym.GymId}`);
- 
-        if (cachedTrainers) {
-           const parsedTrainers = JSON.parse(cachedTrainers);
-
-  //  console.log("📦 Loaded trainers from localStorage:", parsedTrainers);
-
-    setTrainers(parsedTrainers);
-   
-        } else {
-            console.log("🌐 Fetching trainers from API...");
-             const iso = parsedGym.renewaldate; // "2025-10-16T18:30:00.000Z"
+  const iso = parsedGym.renewaldate; // "2025-10-16T18:30:00.000Z"
 const d = new Date(iso);
 
 // Format to dd-mm-yyyy
@@ -66,9 +56,28 @@ const year = d.getFullYear();
 
 const formatted = `${day}-${month}-${year}`; 
         localStorage.setItem(`renew_data_${parsedGym.GymId}`, formatted);
-            fetchTrainers(parsedGym.GymId, token); // ✅ use parsedGym directly
+//         if (cachedTrainers) {
+//            const parsedTrainers = JSON.parse(cachedTrainers);
+
+//   //  console.log("📦 Loaded trainers from localStorage:", parsedTrainers);
+
+//     setTrainers(parsedTrainers);
+   
+//         } else {
+//             console.log("🌐 Fetching trainers from API...");
+//              const iso = parsedGym.renewaldate; // "2025-10-16T18:30:00.000Z"
+// const d = new Date(iso);
+
+// // Format to dd-mm-yyyy
+// const day = String(d.getDate()).padStart(2, "0");
+// const month = String(d.getMonth() + 1).padStart(2, "0");
+// const year = d.getFullYear();
+
+// const formatted = `${day}-${month}-${year}`; 
+//         localStorage.setItem(`renew_data_${parsedGym.GymId}`, formatted);
+//             fetchTrainers(parsedGym.GymId, token); // ✅ use parsedGym directly
             
-        }
+//         }
     }
 }, []);
 
@@ -115,19 +124,19 @@ const fetchTrainers = async (gymId,token) => {
     }
 };
     const tabs = [
-        { name: "Active Clients", gradient: "from-green-400 to-green-600" },
-        { name: "Admins", gradient: "from-orange-400 to-orange-600" },
-        { name: "Transaction History", gradient: "from-purple-400 to-purple-600" },
+        // { name: "Active Clients", gradient: "from-green-400 to-green-600" },
+        // { name: "Admins", gradient: "from-orange-400 to-orange-600" },
+        // { name: "Transaction History", gradient: "from-purple-400 to-purple-600" },
 { name: "AI Hub", gradient: "from-blue-600 via-cyan-400 to-teal-300" },
 
-        { name: "Dashboard", gradient: "from-red-400 to-red-600" },
-        { name: "Analytics", gradient: "from-blue-400 to-blue-600" },
-        { name: "Inactive Clients", gradient: "from-gray-800 to-gray-500" },
+        // { name: "Dashboard", gradient: "from-red-400 to-red-600" },
+        // { name: "Analytics", gradient: "from-blue-400 to-blue-600" },
+        // { name: "Inactive Clients", gradient: "from-gray-800 to-gray-500" },
         { name: "Settings", gradient: "from-pink-800 to-pink-500" },
-        { name: "Leads", gradient: "from-yellow-800 to-yellow-500" },
-        { name: "Add Lead", gradient: "from-violet-800 to-violet-500" },
-            //    { name: "Biometric", gradient: "from-blue-800 to-blue-500" },
-        { name: "My Hub", gradient: "from-blue-800 to-blue-500" },
+        // { name: "Leads", gradient: "from-yellow-800 to-yellow-500" },
+        // { name: "Add Lead", gradient: "from-violet-800 to-violet-500" },
+        //     //    { name: "Biometric", gradient: "from-blue-800 to-blue-500" },
+        // { name: "My Hub", gradient: "from-blue-800 to-blue-500" },
 
 //{ name: "Upgrade", gradient: "from-[#FFD700] to-[#FFA500]" }
 
@@ -225,195 +234,79 @@ navigate("/inactive-screen");
 
         }
     };
-  return (
+return (
+  <div className="fixed inset-0 bg-black overflow-hidden">
     
-<div className="fixed inset-0 bg-black min-h-screen relative">
-
-<div
-  className={`fixed inset-0 bg-center bg-black transition-opacity duration-1000 ${
-    isLoaded ? "opacity-100 bg-cover" : "opacity-0"
-  }`}
-  style={{
-        backgroundColor: "black", // always black base
-
-    backgroundImage: isLoaded ? `url(${myBackground})` : "none",
-  }}
->
-  {/* Black overlay */}
-  <div className="absolute inset-0 bg-black/50"></div>
-</div>
+    {/* BACKDROP */}
+    <div
+      className={`fixed inset-0 bg-center bg-black transition-opacity duration-1000 ${
+        isLoaded ? "opacity-100 bg-cover" : "opacity-0"
+      }`}
+      style={{
+        backgroundColor: "black",
+        backgroundImage: isLoaded ? `url(${myBackground})` : "none",
+        zIndex: 0
+      }}
+    >
+      <div className="absolute inset-0 bg-black/50"></div>
+    </div>
     
-  
-    {/*   <UpgradeDialog
-        isOpen={showUpgradeDialog}
-        onClose={() => setShowUpgradeDialog(false)}
-        gymName={selectedGym?.GymName}
-        gymId={selectedGym?.GymId}
-      /> */}
-   
-      {/* Background overlay for contrast 
-{selectedGym && (
-  <div
-    className={`sticky top-0 z-50 w-full text-black text-center py-3 font-bold shadow-md
-      ${selectedGym.is_active > 1 ? 'bg-[#FFD700]' : 'bg-yellow-500'}`}
-  >
-    {selectedGym.is_active > 1 ? (
-    <>
-  <span className="drop-shadow-[0_0_2px_black]">🌟</span>
-  <span className="text-black font-semibold ml-2">
-    Fitox Premium
-  </span>
-</>
-    ) : (
-      <>
-        🎯 You’re on Freemium —{" "}
-        <span
-          className="underline cursor-pointer"
-          onClick={() => {
-           showUpgradePopup({
-  price: "₹5000 / Year",
-  titleIs: "Upgrade Now"
- });
-          }}
-        >
-          Upgrade Now
-        </span>
-      </>
-    )}
-  </div>
-)}
-*/}
-{/* Gym name below upgrade */}
-<div
-//  className="sticky top-[48px] z-40 bg-black w-full p-4 pt-6 pb-6 text-center"
+    {/* TITLE FRAME */}
+    <div className="absolute top-0 z-30 bg-black/70 w-full p-5 text-center shadow-lg">
+      <h1 className="text-3xl font-bold text-white/90">
+        {selectedGym?.GymName}
+        {selectedGym?.Location && `, ${selectedGym.Location}`}
+      </h1>
+    </div>
+    
+    {/* CENTER CONTAINER (holds button + settings) */}
+<div className="absolute inset-0 flex flex-col items-center justify-center z-50">
 
-  className="sticky top-[0px] z-40 bg-black w-full p-4 pt-6 pb-6 text-center"
->
-  <h1 className="text-3xl font-bold text-white/90">
-    {selectedGym?.GymName}
-    {selectedGym?.Location && `, ${selectedGym.Location}`}
-  </h1>
-</div>
-
-    <div className="relative z-10 min-h-screen overflow-y-auto ">
-
-        {/* Content section */}
-<div className="flex-1 overflow-y-auto p-5 w-full">
-        
-
-          <div className="grid grid-cols-2 sm:grid-cols-2 gap-4">
-  {tabs.map((tab, index) => (
-  <div
-    key={index}
-      className={`h-48 p-8 rounded-xl text-white text-lg font-semibold shadow-lg bg-gradient-to-r ${tab.gradient} hover:scale-102 transform transition flex flex-col items-center justify-center gap-3 opacity-85 hover:opacity-100`}
-    onClick={() => handleTabClick(tab.name)}
-  >
-    {/* Show image above Active Clients */}
-    {tab.name === "Active Clients" && (
-      <img
-        src={clientIcon}
-        alt="Client Icon"
-        className="w-12 h-12 filter brightness-0 invert" // white tint
-      />
-    )}
- {tab.name === "Admins" && (
-      <img
-        src={adminIcon}
-        alt="Client Icon"
-        className="w-12 h-12 filter brightness-0 invert" // white tint
-      />
-    )}
-     {tab.name === "Transaction History" && (
-      <img
-        src={transacIcon}
-        alt="Client Icon"
-        className="w-12 h-12 filter brightness-0 invert" // white tint
-      />
-    )}
-     {tab.name === "AI Hub" && (
-      <img
-        src={aiIcon}
-        alt="AI Icon"
-        className="w-12 h-12 filter brightness-0 invert" // white tint
-      />
-    )}
-    {tab.name === "Dashboard" && (
-      <img
-        src={dashIcon}
-        alt="Client Icon"
-        className="w-12 h-12 filter brightness-0 invert" // white tint
-      />
-    )}
-        {tab.name === "Analytics" && (
-      <img
-        src={anaIcon}
-        alt="Client Icon"
-        className="w-12 h-12 filter brightness-0 invert" // white tint
-      />
-    )}
-       {tab.name === "Inactive Clients" && (
-      <img
-        src={inactiveIcon}
-        alt="Client Icon"
-        className="w-12 h-12 filter brightness-0 invert" // white tint
-      />
-    )}
-    {tab.name === "Settings" && (
+  {/* Row containing settings aligned to right */}
+  <div className="w-full max-w-xl flex justify-end pr-4 mb-4">
+    <div
+      onClick={() => handleTabClick("Settings")}
+      className="cursor-pointer p-3 rounded-full bg-red-600/60 hover:bg-red-700 transition shadow-lg"
+    >
       <img
         src={settingIcon}
-        alt="Client Icon"
-        className="w-12 h-12 filter brightness-0 invert" // white tint
+        alt="Settings"
+        className="w-6 h-6 filter brightness-0 invert"
       />
-    )}
-    {tab.name === "Leads" && (
-      <img
-        src={leadIcon}
-        alt="Client Icon"
-        className="w-12 h-12 filter brightness-0 invert" // white tint
-      />
-    )}
-      {tab.name === "Add Lead" && (
-      <img
-        src={addleadIcon}
-        alt="Client Icon"
-        className="w-12 h-12 filter brightness-0 invert" // white tint
-      />
-    )}
-     {tab.name === "My Hub" && (
-      <img
-        src={hubIcon}
-        alt="Hub Icon"
-        className="w-12 h-12 filter brightness-0 invert" // white tint
-      />
-    )}
-    {/* Name and add member icon in one row */}
-    <div className="flex items-center gap-2">
-      <span>{tab.name}</span>
-
-      {tab.name === "Active Clients" && (
-        <div className="relative group">
-          <div
-            onClick={(e) => {
-              e.stopPropagation();
-              handleAddMember();
-            }}
-            className="flex items-center justify-center rounded-full bg-white hover:bg-gray-200 active:scale-95 cursor-pointer p-2 shadow transition"
-          >
-            <UserPlusIcon className="h-5 w-5 text-black" />
-          </div>
-          <span className="absolute bottom-full mb-2 text-xs text-white bg-black px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
-            Add Member
-          </span>
-        </div>
-      )}
     </div>
   </div>
-))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+
+  {/* Centered AI Hub Button */}
+  <div
+  className="w-[80%] max-w-xl p-10 rounded-2xl text-white text-2xl font-semibold
+             bg-gradient-to-r 
+             from-blue-600/80 via-cyan-400/80 to-teal-300/80 
+             hover:from-blue-600/90 hover:via-cyan-400/90 hover:to-teal-300/90
+             hover:scale-105 cursor-pointer
+             transition-all shadow-2xl flex flex-col items-center gap-4"
+  onClick={() => handleTabClick("AI Hub")}
+>
+  <img
+    src={aiIcon}
+    alt="AI Icon"
+    className="w-20 h-20 filter brightness-0 invert opacity-90"
+  />
+  <span className="opacity-95">Enter Fitox AI</span>
+</div>
+
+
+</div>
+
+    
+  </div>
+);
+
 }
 
 export default HomeScreen;
+
+
+
+
+
+

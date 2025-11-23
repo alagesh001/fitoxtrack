@@ -195,7 +195,7 @@ if(!deferredPrompt){
           className="w-20 h-20 rounded-lg"
         />
         <div className="flex-1">
-          <h1 className="text-2xl font-medium">Fitox Admin - Gym Management</h1>
+          <h1 className="text-2xl font-medium">Fitox AI - Gym Management</h1>
           <p className="text-green-600 mt-4 font-semibold">Productivity App</p>
         </div>
       </div>
