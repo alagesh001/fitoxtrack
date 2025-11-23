@@ -1,8 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Pose } from "@mediapipe/pose";
 import { Camera } from "@mediapipe/camera_utils";
+import { useLocation } from "react-router-dom";
 
 const LiveSkeletonTracker = () => {
+  const location = useLocation();
+    const { facing } = location.state || { facing: "user" }; // default front
+    const [facingMode, setFacingMode] = useState(facing);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const playbackCanvasRef = useRef(null);
@@ -72,7 +76,6 @@ const clientIntervalRef = useRef(null);
 
 const [trainerPlaying, setTrainerPlaying] = useState(false);
 const [trainerPaused, setTrainerPaused] = useState(false);
-  const [facingMode, setFacingMode] = useState("user"); // 'user' or 'environment'
   const [running, setRunning] = useState(false);
 
 const [clientPlaying, setClientPlaying] = useState(false);
@@ -615,7 +618,7 @@ const drawPlayback = (landmarks, canvas) => {
     >
       Stop
     </button>
-   <button
+   {/* <button
   onClick={() => {
     const newMode = facingMode === "user" ? "environment" : "user";
     setFacingMode(newMode);
@@ -628,7 +631,7 @@ const drawPlayback = (landmarks, canvas) => {
 >
   <span className="text-lg">🔄</span>
   <span className="font-medium">Switch Camera</span>
-</button>
+</button> */}
 
   </div>
 

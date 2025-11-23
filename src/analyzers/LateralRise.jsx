@@ -1,8 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Pose } from "@mediapipe/pose";
 import { Camera } from "@mediapipe/camera_utils";
+import { useLocation } from "react-router-dom";
 
 const LiveSkeletonTracker = () => {
+    const location = useLocation();
+  const { facing } = location.state || { facing: "user" }; // default front
+  const [facingMode, setFacingMode] = useState(facing);
+
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const playbackCanvasRef = useRef(null);
@@ -72,7 +77,6 @@ const clientIntervalRef = useRef(null);
 
 const [trainerPlaying, setTrainerPlaying] = useState(false);
 const [trainerPaused, setTrainerPaused] = useState(false);
-  const [facingMode, setFacingMode] = useState("user"); // 'user' or 'environment'
   const [running, setRunning] = useState(false);
 
 const [clientPlaying, setClientPlaying] = useState(false);
@@ -135,96 +139,42 @@ useEffect(() => {
 useEffect(() => {
   if (!videoRef.current) return;
 
-  // Initialize Pose
-  poseRef.current = new Pose({
-    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
-  });
+  // Initialize Pose only once
+  if (!poseRef.current) {
+    poseRef.current = new Pose({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
+    });
 
-  poseRef.current.setOptions({
-    selfieMode: facingMode === "user",
-    modelComplexity: 1,
-    smoothLandmarks: true,
-    enableSegmentation: false,
-    smoothSegmentation: false,
-    minDetectionConfidence: 0.6,
-    minTrackingConfidence: 0.6,
-  });
+    poseRef.current.setOptions({
+      selfieMode: facingMode === "user",
+      modelComplexity: 1,
+      smoothLandmarks: true,
+      enableSegmentation: false,
+      smoothSegmentation: false,
+      minDetectionConfidence: 0.6,
+      minTrackingConfidence: 0.6,
+    });
 
-//  const drawSkeleton = (landmarks, canvas, drawVideo = true) => {
-//     if (!landmarks || !canvas) return;
-//     const ctx = canvas.getContext("2d");
-//     const width = canvas.width;
-//     const height = canvas.height;
+    poseRef.current.onResults((results) => {
+      if (!results.poseLandmarks) return;
+      const ctx = canvasRef.current?.getContext("2d");
+      if (ctx) drawLandmarks(ctx, results);
 
-//     ctx.clearRect(0, 0, width, height);
-
-//     if (drawVideo) {
-//       ctx.drawImage(videoRef.current, 0, 0, width, height);
-//     }
-
-//     const connections = [
-//       [11, 13], [13, 15], [12, 14], [14, 16],
-//       [11, 12], [23, 24], [11, 23], [12, 24],
-//       [23, 25], [25, 27], [24, 26], [26, 28]
-//     ];
-
-//     ctx.strokeStyle = "#00ff00";
-//     ctx.lineWidth = 2;
-
-//     connections.forEach(([s, e]) => {
-//       const start = landmarks[s];
-//       const end = landmarks[e];
-//       if (start && end) {
-//         ctx.beginPath();
-//         ctx.moveTo(start.x * width, start.y * height);
-//         ctx.lineTo(end.x * width, end.y * height);
-//         ctx.stroke();
-//       }
-//     });
-
-//     landmarks.forEach((lm) => {
-//       ctx.beginPath();
-//       ctx.arc(lm.x * width, lm.y * height, 4, 0, Math.PI * 2);
-//       ctx.fillStyle = "red";
-//       ctx.fill();
-//     });
-//   };
-
-  poseRef.current.onResults((results) => {
-    
-
-  });
-  poseRef.current.onResults((results) => {
-    if (!results.poseLandmarks) return;
-
-const ctx = canvasRef.current?.getContext("2d");
-    if (ctx) drawLandmarks(ctx, results);
-    // ✅ RECORD SAFELY
-if (isRecordingRef.current) {
-      const clonedLandmarks = results.poseLandmarks.map(lm => ({ ...lm }));
-        const role = userRoleRef.current; // ✅ always latest
-
-                console.log("userrole ",role);
-
-      if (role === "trainer"){
-
-                recordedFramesRef.current.push(clonedLandmarks);
-
+      if (isRecordingRef.current) {
+        const clonedLandmarks = results.poseLandmarks.map((lm) => ({ ...lm }));
+        const role = userRoleRef.current;
+        if (role === "trainer") recordedFramesRef.current.push(clonedLandmarks);
+        if (role === "client") recordedFramesClientRef.current.push(clonedLandmarks);
       }
+    });
+  }
 
-      if (role === "client"){
+  // Stop previous camera stream
+  cameraRef.current?.stop?.();
 
-        recordedFramesClientRef.current.push(clonedLandmarks);
-
-      }
-    }
-  });
-
-
-  // Initialize Camera
+  // Start new camera
   cameraRef.current = new Camera(videoRef.current, {
     onFrame: async () => {
-      if (!poseRef.current) return;
       await poseRef.current.send({ image: videoRef.current });
     },
     facingMode: facingMode,
@@ -237,21 +187,19 @@ if (isRecordingRef.current) {
     setRunning(false);
   });
 
-  // Cleanup function
+  // Cleanup only on unmount
   return () => {
     setRunning(false);
-
     try {
       cameraRef.current?.stop?.();
-      poseRef.current?.close?.();
+      // don't close poseRef.current
     } catch (err) {
       console.warn("Error during cleanup", err);
     }
-
     cameraRef.current = null;
-    poseRef.current = null;
   };
-}, [facingMode]); // restart only if facingMode changes
+}, [facingMode]);
+
 function drawLandmarks(ctx, results) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   ctx.save();
@@ -577,11 +525,11 @@ const stopClient = () => {
     >
       Stop
     </button>
-   <button
+   {/* <button
   onClick={() => {
     const newMode = facingMode === "user" ? "environment" : "user";
     setFacingMode(newMode);
-    startCamera(newMode);
+   // startCamera(newMode);
   }}
   className="flex items-center gap-2 px-4 py-2 bg-white text-gray-800 
              rounded-xl shadow-md border border-gray-200 
@@ -590,7 +538,7 @@ const stopClient = () => {
 >
   <span className="text-lg">🔄</span>
   <span className="font-medium">Switch Camera</span>
-</button>
+</button> */}
 
   </div>
 

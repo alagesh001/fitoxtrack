@@ -1,15 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 
 
 import { Pose } from "@mediapipe/pose";
 import { Camera } from "@mediapipe/camera_utils";
 
 export default function SquatFormCorrector() {
+      const location = useLocation();
+  const { facing } = location.state || { facing: "user" }; // default front
+  const [facingMode, setFacingMode] = useState(facing);
+
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const poseRef = useRef(null);
   const cameraRef = useRef(null);
-  const [facingMode, setFacingMode] = useState("user"); // 'user' or 'environment'
   const [running, setRunning] = useState(false);
   const [repCount, setRepCount] = useState(0);
   const [stage, setStage] = useState("down"); // 'down' or 'up'
@@ -475,7 +479,7 @@ poseRef.current.setOptions({
   </svg>
 </div>
 
-        <div className="flex gap-3 mb-4 mt-5">
+        {/* <div className="flex gap-3 mb-4 mt-5">
           <button
             onClick={() => setFacingMode("user")}
             className={`px-3 py-2 rounded-md font-medium ${facingMode === "user" ? "bg-indigo-500" : "bg-slate-600/40"}`}>
@@ -487,7 +491,7 @@ poseRef.current.setOptions({
             Back Camera
           </button>
          
-        </div>
+        </div> */}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
   <div className="relative bg-black rounded-lg overflow-hidden">

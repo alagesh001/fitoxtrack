@@ -21,6 +21,8 @@ const lateralSideRef = useRef(null);
 const panelRefs = useRef({});
  const [backgroundImage, setBackgroundImage] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
+    const [facingMode, setFacingMode] = useState("user"); // 'user' or 'environment'
+  
   useEffect(() => {
     const img = new Image();
     img.src = myBackground;
@@ -185,6 +187,8 @@ return prev +7;
 
 setTimeout(() => {
 setLoading(false);
+  const params = { facing: facingMode }; // pass current facingMode
+
 if (type === "workout") navigate("/workout-ai");
 if (type === "diet") navigate("/diet-ai");
 
@@ -192,9 +196,9 @@ if (type === "birthday") navigate("/birthday-ai");
 if (type === "poster") navigate("/offer-ai");
 if (type === "transform") navigate("/transform-ai");
 if (type === "bicep") navigate("/bicep-ai");
-if (type === "squat") navigate("/squat-ai");
-if (type === "lateral") navigate("/lateral-ai");
-if (type === "lateralSide") navigate("/lateralside-ai");
+ if (type === "squat") navigate("/squat-ai", { state: params });
+   if (type === "lateral") navigate("/lateral-ai", { state: params });
+   if (type === "lateralSide") navigate("/lateralside-ai", { state: params });
 
 
 }, 1000);
@@ -385,12 +389,37 @@ return (
                     {w.description}
                   </p>
 
-                  <button
-                    onClick={() => handleGenerate(w.key)}
-                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition w-full font-semibold shadow-md"
-                  >
-                    Enter
-                  </button>
+<div className="flex gap-3 justify-center mb-4">
+  <button
+    onClick={() => setFacingMode("user")} // front camera
+    className={`flex-1 py-2 rounded-xl font-semibold shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 ${
+      facingMode === "user"
+        ? "bg-gradient-to-r from-green-500 to-teal-500 text-white shadow-green-400/40"
+        :"bg-gray-100 text-gray-500 hover:bg-gray-200"
+    }`}
+  >
+    Front Cam
+  </button>
+
+  <button
+    onClick={() => setFacingMode("environment")} // back camera
+    className={`flex-1 py-2 rounded-xl font-semibold shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 ${
+      facingMode === "environment"
+        ? "bg-gradient-to-r from-green-500 to-teal-500 text-white shadow-green-400/40"
+        : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+    }`}
+  >
+    Back Cam
+  </button>
+</div>
+
+<button
+  onClick={() => handleGenerate(w.key)}
+  className="w-full py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold shadow-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105"
+>
+  Enter
+</button>
+
                 </div>
               )}
             </div>
