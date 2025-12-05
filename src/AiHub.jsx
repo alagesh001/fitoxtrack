@@ -11,8 +11,28 @@ export default function AIhubHere() {
 const [loading, setLoading] = useState(false);
 const [progress, setProgress] = useState(0);
     const [selectedGym, setSelectedGym] = useState(null);
-const storedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
-  const gymid = storedGym?.GymId;
+const [accessToken, setAccessToken] = useState(null);
+const [authErrorMsg, setAuthErrorMsg] = useState("");
+  const token = localStorage.getItem("accessToken");
+  const storedGym = localStorage.getItem("selectedGym");
+
+useEffect(() => {
+
+  if (storedGym) {
+    try {
+      const parsedGym = JSON.parse(storedGym);
+      setSelectedGym(parsedGym);
+    } catch (err) {
+      console.error("❌ Invalid gym data in localStorage");
+      localStorage.removeItem("selectedGym");
+    }
+  }
+
+  if (token) {
+    setAccessToken(token);
+  }
+}, []);
+
   const [showAuthBlock, setShowAuthBlock] = useState(false);
   const squatRef = useRef(null);
 const bicepRef = useRef(null);
@@ -22,7 +42,8 @@ const panelRefs = useRef({});
  const [backgroundImage, setBackgroundImage] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
     const [facingMode, setFacingMode] = useState("user"); // 'user' or 'environment'
-  
+      const apiBase = "https://oxadmedia.online";
+
   useEffect(() => {
     const img = new Image();
     img.src = myBackground;
@@ -30,6 +51,7 @@ const panelRefs = useRef({});
       setBackgroundImage(myBackground); // use imported image
       setIsLoaded(true);
     };
+    
   }, []);
 const aiTools = [
   {
@@ -141,36 +163,38 @@ useEffect(() => {
     }, 120);
   }
 }, [active]);
-useEffect(() => {
-  const storedGymRaw = localStorage.getItem("selectedGym");
-  const storedGym = storedGymRaw ? JSON.parse(storedGymRaw) : null;
+// useEffect(() => {
+//   const storedGymRaw = localStorage.getItem("selectedGym");
+//   const storedGym = storedGymRaw ? JSON.parse(storedGymRaw) : null;
 
-  const storedRenew = localStorage.getItem(`renew_data_${gymid}`);
+//   const storedRenew = localStorage.getItem(`renew_data_${gymid}`);
 
 
-  if (!storedGym || !storedRenew) {
-    console.log("Access Blocked: Missing required localStorage data");
-    setShowAuthBlock(true);
-    return;
-  }
-   const now = new Date();
+//   if (!storedGym || !storedRenew) {
+//     console.log("Access Blocked: Missing required localStorage data");
+//     setShowAuthBlock(true);
+//     return;
+//   }
+//    const now = new Date();
 
-  // storedRenew.expiresAt = "17-07-2025"
-  const [day, month, year] = storedRenew.split("-");
+//   // storedRenew.expiresAt = "17-07-2025"
+//   const [day, month, year] = storedRenew.split("-");
 
-  // Convert to JS date: yyyy-mm-ddT23:59:59
-  const expiryDate = new Date(`${year}-${month}-${day}T23:59:59`);
+//   // Convert to JS date: yyyy-mm-ddT23:59:59
+//   const expiryDate = new Date(`${year}-${month}-${day}T23:59:59`);
 
-  if (now > expiryDate) {
-    console.log("Access Blocked: Renew date expired");
-    setShowAuthBlock(true);
-    return;
-  }
+//   if (now > expiryDate) {
+//     console.log("Access Blocked: Renew date expired");
+//     setShowAuthBlock(true);
+//     return;
+//   }
 
-  console.log("Access Allowed");
-}, []);
+//   console.log("Access Allowed");
+// }, []);
 
-const handleGenerate = (type) => {
+const handleGenerate = async (type,tokenIs=token,retryCount = 0) => {
+      const MAX_RETRIES = 1; // or 2
+
 setLoading(true);
 setProgress(0);
 
@@ -184,7 +208,26 @@ return prev +7;
 });
 }, 100);
 
+ try {
+  const gymid = selectedGym?.GymId;
+const mob = selectedGym?.mob;
+const uniqueId = localStorage.getItem("device_idfitox");
+                      //  console.log("✅uid",uniqueId);
 
+    // ✅ AUTH CHECK API
+    const response = await axios.get(`${apiBase}/api/check_tok_ai`, {
+  params: {
+    gymid: gymid,
+    device_id: uniqueId,
+  },
+  headers: {
+    Authorization: `Bearer ${tokenIs}`,
+  },
+});
+
+
+    // ❌ AUTH FAILED → BLOCK UI
+    if(response.data.success){
 setTimeout(() => {
 setLoading(false);
   const params = { facing: facingMode }; // pass current facingMode
@@ -202,8 +245,37 @@ if (type === "bicep") navigate("/bicep-ai", { state: { fromButton: true } });
 
 
 }, 1000);
-};
-    const apiBase = "https://oxadmedia.online";
+    }else{
+      if (response.data.error === 1 && retryCount < MAX_RETRIES) {
+      console.log("⚠️ Token expired. Refreshing...");
+      const newToken = await refreshAccessToken();
+
+      if (newToken) {
+        // 🔁 Retry API call with refreshed token
+        return await handleGenerate(type,newToken,retryCount + 1);
+      }
+    }else{
+ setLoading(false);
+      clearInterval(progressInterval);
+      setAuthErrorMsg(response.data.message || "You are not authorized to continue.");
+
+      setShowAuthBlock(true);
+      return;
+    }
+     
+    
+    }
+    
+
+} catch (err) {
+    console.error("🔥 Auth check failed:", err);
+    setLoading(false);
+    clearInterval(progressInterval);
+    setAuthErrorMsg("Check your internet.");
+
+    setShowAuthBlock(true);
+  }
+}
 
 // useEffect(() => {
    
@@ -251,9 +323,10 @@ const fetchCheck = async (gymId,token,retryCount = 0) => {
 };
   const refreshAccessToken = async () => {
     try {
+      const mobile = selectedGym?.mob;
       const res = await axios.post(
-        `${apiBase}/api/refresh-token`,
-        { mob: storedGym.mob },
+        `${apiBase}/api/refresh-token-ai`,
+        { mob: mobile},
         { withCredentials: true }
       );
 
@@ -262,13 +335,20 @@ const fetchCheck = async (gymId,token,retryCount = 0) => {
         console.log("✅ Access token refreshed");
         return res.data.access_token;
       } else {
-        console.log("❌ Refresh token invalid. Logging out...");
+        if (res.data.error !== 111) {
+        console.log("❌ Refresh token invalid or expired. Logging out...");
         handleLogout();
         return null;
+      } else {
+        console.log("⚠️ Server returned error 111. Not logging out.");
+      }
       }
     } catch (err) {
       console.error("🔥 Failed to refresh token:", err);
-      handleLogout();
+      //handleLogout();
+      setAuthErrorMsg("Check your internet.");
+
+    setShowAuthBlock(true);
       return null;
     }
   };
@@ -294,18 +374,28 @@ return (
   <div className="absolute inset-0 bg-black/50"></div>
 </div>
 
-  {showAuthBlock && (
-    <div className="px-10 fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999]">
-      <div className="bg-white p-7 rounded-2xl shadow-2xl max-w-sm w-full text-center border border-red-200">
-        <h2 className="text-2xl font-extrabold text-red-600 mb-3 drop-shadow">
-          Not Authorised
-        </h2>
-        <p className="text-gray-700 text-base">
-          Kindly login through an authorized account to access.
-        </p>
-      </div>
+{showAuthBlock && (
+  <div className="px-10 fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999]">
+    <div className="bg-white p-7 rounded-2xl shadow-2xl max-w-sm w-full text-center border border-red-200">
+      
+      <h2 className="text-2xl font-extrabold text-red-600 mb-3 drop-shadow">
+        ⚠️ Access Denied
+      </h2>
+
+      <p className="text-gray-700 text-base">
+        {authErrorMsg}
+      </p>
+
+      <button
+        onClick={() => setShowAuthBlock(false)}
+        className="mt-5 w-full bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700 transition"
+      >
+        Close
+      </button>
+
     </div>
-  )}
+  </div>
+)}
 
 <h1
   className="text-5xl font-extrabold text-center mb-10 tracking-tight drop-shadow-lg

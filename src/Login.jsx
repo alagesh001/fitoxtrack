@@ -16,8 +16,8 @@ function Login() {
 
     let accessToken = null;
     let mobileSaved = null;
-const uniqueId = Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
 
+const [uniqueId, setDeviceId] = useState(null);
     useEffect(() => {
         const isLoggedIn = localStorage.getItem("isLoggedInWeb");
         const roleType = localStorage.getItem("type");
@@ -27,6 +27,12 @@ const uniqueId = Date.now().toString(36) + Math.random().toString(36).substr(2, 
             accessToken = localStorage.getItem("accessToken");
             navigate("/GymList");
         }
+
+          const did = Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+                                            setDeviceId(did);
+  localStorage.setItem("device_idfitox", did);
+
+         // console.log("✅uidaaa",did);
     }, []);
 
     useEffect(() => {
@@ -152,6 +158,9 @@ const uniqueId = Date.now().toString(36) + Math.random().toString(36).substr(2, 
             password: password,
             device_id: uniqueId,
         };
+
+                        //console.log("✅uid",uniqueId);
+
          //   const response = await fetch(`${apiBase}/getgymwlist`, {
 
         try {

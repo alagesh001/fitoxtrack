@@ -174,36 +174,37 @@ const handleTabClick = (tabName) => {
 
         
         }else if (tabName === "AI Hub"){
-             const storedGym = localStorage.getItem("selectedGym");
-        const parsedGym = JSON.parse(storedGym);
-  const stored = localStorage.getItem(`renew_data_${parsedGym.GymId}`);
-  if (!stored) {
-    toast.success("Refresh the active clients list once to access this section.");
+          navigate("/ai-hub");
+//              const storedGym = localStorage.getItem("selectedGym");
+//         const parsedGym = JSON.parse(storedGym);
+//   const stored = localStorage.getItem(`renew_data_${parsedGym.GymId}`);
+//   if (!stored) {
+//     toast.success("Refresh the active clients list once to access this section.");
 
-    return;
-  }
+//     return;
+//   }
 
-  // stored = "17-02-2026"
-  const [day, month, year] = stored.split("-").map(Number);
+//   // stored = "17-02-2026"
+//   const [day, month, year] = stored.split("-").map(Number);
 
-  const renewDate = new Date(year, month - 1, day); // JS date
-  const today = new Date();
+//   const renewDate = new Date(year, month - 1, day); // JS date
+//   const today = new Date();
 
-  renewDate.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-//console.log("Expired ",parsedGym.GymId,stored);
-  if (renewDate <= today) {
-    console.log("Expired");
-    showUpgradePopup({
-   price: "₹5000 / Year",
-   titleIs: "Renew Now"
-  });
-    // your logic here
-  } else {
-    console.log("Active");
-                navigate("/ai-hub");
+//   renewDate.setHours(0, 0, 0, 0);
+//   today.setHours(0, 0, 0, 0);
+// //console.log("Expired ",parsedGym.GymId,stored);
+//   if (renewDate <= today) {
+//     console.log("Expired");
+//     showUpgradePopup({
+//    price: "₹5000 / Year",
+//    titleIs: "Renew Now"
+//   });
+//     // your logic here
+//   } else {
+//     console.log("Active");
+//                 navigate("/ai-hub");
 
-  }
+//   }
 
         }else if (tabName === "Inactive Clients"){
         //      const storedGym = localStorage.getItem("selectedGym");

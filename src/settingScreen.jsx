@@ -21,9 +21,17 @@ function SettingsScreen() {
 const handleLogout = async () => {
   try {
     // 🧹 Clear all localStorage data
-     const response = await fetch(`${apiBase}/api/logout-ai`, {
+     const deviceId = localStorage.getItem("device_idfitox"); // ✅ get from storage
+
+    const response = await fetch(`${apiBase}/api/logout-ai`, {
       method: "POST",
-      credentials: "include", // send httpOnly cookie
+      credentials: "include", // ✅ sends refresh_token cookie
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        device_id: deviceId, // ✅ send to backend
+      }),
     });
 
     const data = await response.json();
@@ -51,7 +59,6 @@ localStorage.setItem("isLoggedInWeb", "false"); // optional flag
 localStorage.setItem("isLoggedInWeb", "false"); // optional flag
   navigate("/login", { replace: true });
     console.log("✅ Cleared localStorage and IndexedDB");
-      console.log("✅ Logout success:", data.message);
     console.error("⚠️ Error clearing IndexedDB:", err);
   }
 
