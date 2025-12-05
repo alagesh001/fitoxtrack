@@ -1,12 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation,useNavigate } from "react-router-dom";
 
 
 import { Pose } from "@mediapipe/pose";
 import { Camera } from "@mediapipe/camera_utils";
 
 export default function SquatFormCorrector() {
-      const location = useLocation();
+          const location = useLocation();
+
   const { facing } = location.state || { facing: "user" }; // default front
   const [facingMode, setFacingMode] = useState(facing);
 
@@ -28,34 +29,44 @@ const storedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
   const gymid = storedGym?.GymId;
   const [showAuthBlock, setShowAuthBlock] = useState(false);
 
-useEffect(() => {
-  const storedGymRaw = localStorage.getItem("selectedGym");
-  const storedGym = storedGymRaw ? JSON.parse(storedGymRaw) : null;
+ const navigate = useNavigate();
 
-  const storedRenew = localStorage.getItem(`renew_data_${gymid}`);
+    useEffect(() => {
+    // Check if navigation came from button click
+    if (!location.state?.fromButton) {
+      // Redirect or hide
+      navigate("/", { replace: true }); // or just return null
+       return null;
+    }
+  }, [location.state, navigate]);
+// useEffect(() => {
+//   const storedGymRaw = localStorage.getItem("selectedGym");
+//   const storedGym = storedGymRaw ? JSON.parse(storedGymRaw) : null;
+
+//   const storedRenew = localStorage.getItem(`renew_data_${gymid}`);
 
 
-  if (!storedGym || !storedRenew) {
-    console.log("Access Blocked: Missing required localStorage data");
-    setShowAuthBlock(true);
-    return;
-  }
-   const now = new Date();
+//   if (!storedGym || !storedRenew) {
+//     console.log("Access Blocked: Missing required localStorage data");
+//     setShowAuthBlock(true);
+//     return;
+//   }
+//    const now = new Date();
 
-  // storedRenew.expiresAt = "17-07-2025"
-  const [day, month, year] = storedRenew.split("-");
+//   // storedRenew.expiresAt = "17-07-2025"
+//   const [day, month, year] = storedRenew.split("-");
 
-  // Convert to JS date: yyyy-mm-ddT23:59:59
-  const expiryDate = new Date(`${year}-${month}-${day}T23:59:59`);
+//   // Convert to JS date: yyyy-mm-ddT23:59:59
+//   const expiryDate = new Date(`${year}-${month}-${day}T23:59:59`);
 
-  if (now > expiryDate) {
-    console.log("Access Blocked: Renew date expired");
-    setShowAuthBlock(true);
-    return;
-  }
+//   if (now > expiryDate) {
+//     console.log("Access Blocked: Renew date expired");
+//     setShowAuthBlock(true);
+//     return;
+//   }
 
-  console.log("Access Allowed");
-}, []);
+//   console.log("Access Allowed");
+// }, []);
   const elbowAngleRef = useRef(40);
   const stageRef = useRef("down");
   const directionRef = useRef(1);

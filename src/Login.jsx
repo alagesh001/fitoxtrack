@@ -16,6 +16,7 @@ function Login() {
 
     let accessToken = null;
     let mobileSaved = null;
+const uniqueId = Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
 
     useEffect(() => {
         const isLoggedIn = localStorage.getItem("isLoggedInWeb");
@@ -149,6 +150,7 @@ function Login() {
         const payload = {
             mobile: userId,
             password: password,
+            device_id: uniqueId,
         };
          //   const response = await fetch(`${apiBase}/getgymwlist`, {
 
@@ -156,7 +158,7 @@ function Login() {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-            const response = await fetch(`${apiBase}/api/fetch-gymlist`, {
+            const response = await fetch(`${apiBase}/api/new-ai-login`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

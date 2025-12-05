@@ -4,6 +4,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { Download } from "lucide-react";
+import { useLocation,useNavigate } from "react-router-dom";
 
 export default function GymOfferCanvasFullBackground() {
   // Inputs
@@ -35,35 +36,46 @@ const [patternShape, setPatternShape] = useState("triangle");
 const storedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
   const gymid = storedGym?.GymId;
   const [showAuthBlock, setShowAuthBlock] = useState(false);
+const location = useLocation();
 
-useEffect(() => {
-  const storedGymRaw = localStorage.getItem("selectedGym");
-  const storedGym = storedGymRaw ? JSON.parse(storedGymRaw) : null;
+ const navigate = useNavigate();
 
-  const storedRenew = localStorage.getItem(`renew_data_${gymid}`);
+    useEffect(() => {
+    // Check if navigation came from button click
+    if (!location.state?.fromButton) {
+      // Redirect or hide
+      navigate("/", { replace: true }); // or just return null
+       return null;
+    }
+  }, [location.state, navigate]);
+// useEffect(() => {
+//   const storedGymRaw = localStorage.getItem("selectedGym");
+//   const storedGym = storedGymRaw ? JSON.parse(storedGymRaw) : null;
+
+//   const storedRenew = localStorage.getItem(`renew_data_${gymid}`);
 
 
-  if (!storedGym || !storedRenew) {
-    console.log("Access Blocked: Missing required localStorage data");
-    setShowAuthBlock(true);
-    return;
-  }
-   const now = new Date();
+//   if (!storedGym || !storedRenew) {
+//     console.log("Access Blocked: Missing required localStorage data");
+//     setShowAuthBlock(true);
+//     return;
+//   }
+//    const now = new Date();
 
-  // storedRenew.expiresAt = "17-07-2025"
-  const [day, month, year] = storedRenew.split("-");
+//   // storedRenew.expiresAt = "17-07-2025"
+//   const [day, month, year] = storedRenew.split("-");
 
-  // Convert to JS date: yyyy-mm-ddT23:59:59
-  const expiryDate = new Date(`${year}-${month}-${day}T23:59:59`);
+//   // Convert to JS date: yyyy-mm-ddT23:59:59
+//   const expiryDate = new Date(`${year}-${month}-${day}T23:59:59`);
 
-  if (now > expiryDate) {
-    console.log("Access Blocked: Renew date expired");
-    setShowAuthBlock(true);
-    return;
-  }
+//   if (now > expiryDate) {
+//     console.log("Access Blocked: Renew date expired");
+//     setShowAuthBlock(true);
+//     return;
+//   }
 
-  console.log("Access Allowed");
-}, []);
+//   console.log("Access Allowed");
+// }, []);
   // refs for images and canvas
   const canvasRef = useRef(null);
   const bgImgRef = useRef(null);

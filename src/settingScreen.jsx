@@ -21,24 +21,47 @@ function SettingsScreen() {
 const handleLogout = async () => {
   try {
     // 🧹 Clear all localStorage data
-    localStorage.clear();
+     const response = await fetch(`${apiBase}/api/logout-ai`, {
+      method: "POST",
+      credentials: "include", // send httpOnly cookie
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      console.warn("⚠️ Logout failed:", data.message);
+      // Optionally still clear localStorage and redirect
+    } else {
+         localStorage.clear();
 
     // 🧹 Clear all IndexedDB databases
     await clearAllIndexedDB();
-
+localStorage.setItem("isLoggedInWeb", "false"); // optional flag
+  navigate("/login", { replace: true });
     console.log("✅ Cleared localStorage and IndexedDB");
+      console.log("✅ Logout success:", data.message);
+    }
+
+   
   } catch (err) {
+     localStorage.clear();
+
+    // 🧹 Clear all IndexedDB databases
+    await clearAllIndexedDB();
+localStorage.setItem("isLoggedInWeb", "false"); // optional flag
+  navigate("/login", { replace: true });
+    console.log("✅ Cleared localStorage and IndexedDB");
+      console.log("✅ Logout success:", data.message);
     console.error("⚠️ Error clearing IndexedDB:", err);
   }
 
-  localStorage.setItem("isLoggedInWeb", "false"); // optional flag
-  navigate("/login", { replace: true });
+  
 };
 
 const refreshAccessToken = async () => {
     try {
         const res = await axios.post(
-            `${apiBase}/api/refresh-token`,
+            `${apiBase}/api/refresh-token-ai`,
             { mob: selectedGym.mob },
             { withCredentials: true }
         );
@@ -49,9 +72,14 @@ const refreshAccessToken = async () => {
             console.log("✅ Access token refreshed");
             return res.data.access_token;
         } else {
-            console.log("❌ Refresh token invalid or expired. Logging out...");
-            handleLogout();
-            return null;
+            // ❌ Only handle logout if error is NOT 111
+      if (data.error !== 111) {
+        console.log("❌ Refresh token invalid or expired. Logging out...");
+        handleLogout();
+      } else {
+        console.log("⚠️ Server returned error 111. Not logging out.");
+      }
+      return null;
         }
     } catch (err) {
         console.error("🔥 Failed to refresh token:", err);

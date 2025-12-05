@@ -189,16 +189,16 @@ setTimeout(() => {
 setLoading(false);
   const params = { facing: facingMode }; // pass current facingMode
 
-if (type === "workout") navigate("/workout-ai");
-if (type === "diet") navigate("/diet-ai");
+if (type === "workout") navigate("/workout-ai", { state: { fromButton: true } });
+if (type === "diet") navigate("/diet-ai", { state: { fromButton: true } });
 
-if (type === "birthday") navigate("/birthday-ai");
-if (type === "poster") navigate("/offer-ai");
-if (type === "transform") navigate("/transform-ai");
-if (type === "bicep") navigate("/bicep-ai");
- if (type === "squat") navigate("/squat-ai", { state: params });
-   if (type === "lateral") navigate("/lateral-ai", { state: params });
-   if (type === "lateralSide") navigate("/lateralside-ai", { state: params });
+if (type === "birthday") navigate("/birthday-ai", { state: { fromButton: true } });
+if (type === "poster") navigate("/offer-ai", { state: { fromButton: true } });
+if (type === "transform") navigate("/transform-ai", { state: { fromButton: true } });
+if (type === "bicep") navigate("/bicep-ai", { state: { fromButton: true } });
+ if (type === "squat") navigate("/squat-ai", { state: { fromButton: true, params } });
+   if (type === "lateral") navigate("/lateral-ai", { state: { fromButton: true, params } });
+   if (type === "lateralSide") navigate("/lateralside-ai", { state: { fromButton: true,params } });
 
 
 }, 1000);
