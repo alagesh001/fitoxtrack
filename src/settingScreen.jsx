@@ -14,6 +14,8 @@ function SettingsScreen() {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
     const apiBase = "https://oxadmedia.online";
+  const [showAuthBlock, setShowAuthBlock] = useState(false);
+const [authErrorMsg, setAuthErrorMsg] = useState("");
 
     // 🏋️ Fetch selected gym details from localStorage
     const selectedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
@@ -37,6 +39,10 @@ const handleLogout = async () => {
     const data = await response.json();
 
     if (!data.success) {
+       setAuthErrorMsg(data.message || "You are not authorized to continue.");
+
+      setShowAuthBlock(true);
+    
       console.warn("⚠️ Logout failed:", data.message);
       // Optionally still clear localStorage and redirect
     } else {
@@ -52,14 +58,10 @@ localStorage.setItem("isLoggedInWeb", "false"); // optional flag
 
    
   } catch (err) {
-     localStorage.clear();
+     setAuthErrorMsg("Check your internet.");
 
-    // 🧹 Clear all IndexedDB databases
-    await clearAllIndexedDB();
-localStorage.setItem("isLoggedInWeb", "false"); // optional flag
-  navigate("/login", { replace: true });
-    console.log("✅ Cleared localStorage and IndexedDB");
-    console.error("⚠️ Error clearing IndexedDB:", err);
+      setShowAuthBlock(true);
+    
   }
 
   
@@ -208,6 +210,28 @@ const refreshAccessToken = async () => {
 
     return (
         <div className="p-10">
+        {showAuthBlock && (
+  <div className="px-10 fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999]">
+    <div className="bg-white p-7 rounded-2xl shadow-2xl max-w-sm w-full text-center border border-red-200">
+      
+      <h2 className="text-2xl font-extrabold text-red-600 mb-3 drop-shadow">
+        ⚠️ Access Denied
+      </h2>
+
+      <p className="text-gray-700 text-base">
+        {authErrorMsg}
+      </p>
+
+      <button
+        onClick={() => setShowAuthBlock(false)}
+        className="mt-5 w-full bg-red-600 text-white py-2 rounded-lg font-semibold hover:bg-red-700 transition"
+      >
+        Close
+      </button>
+
+    </div>
+  </div>
+)}
             <h1 className="text-2xl font-bold mb-6">⚙️ Settings</h1>
 
             {/* 📝 Gym Info */}
