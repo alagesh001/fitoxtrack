@@ -26,6 +26,7 @@ const [uniqueId, setDeviceId] = useState(null);
             mobileSaved = localStorage.getItem("mobileIs");
             accessToken = localStorage.getItem("accessToken");
             navigate("/GymList");
+            return;
         }
 
           const did = Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
