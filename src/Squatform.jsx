@@ -8,8 +8,8 @@ import { Camera } from "@mediapipe/camera_utils";
 export default function SquatFormCorrector() {
           const location = useLocation();
 
-  const { facing } = location.state || { facing: "user" }; // default front
-  const [facingMode, setFacingMode] = useState(facing);
+const { facing = "user" } = location.state || {}; // ✅ DIRECT READ
+const [facingMode, setFacingMode] = useState(facing);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);

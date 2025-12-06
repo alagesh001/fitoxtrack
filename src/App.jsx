@@ -37,7 +37,9 @@ import BicepCurlFormCorrector from "./BicepForm";
 import SquatFormCorrector from "./Squatform";
 import LiveSkeletonTracker from "./analyzers/LateralRise";
 import LiveSkeletonTrackerSide from "./analyzers/Formtrackside";
-
+// import SquatFormCorrector from "./analyzers/SquatFormTrack";
+// import LiveSkeletonTracker from "./analyzers/FrontFormTrack";
+// import LiveSkeletonTrackerSide from "./analyzers/SideFormTrack";
 
 function App() {
   // Helper function to check standalone mode
