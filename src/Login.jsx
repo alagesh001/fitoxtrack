@@ -252,6 +252,8 @@ const [uniqueId, setDeviceId] = useState(null);
                 </div>
 
                 <p className="text-gray-500 text-sm mt-6">Version {version_n}</p>
+                                <p className="text-gray-500 text-m mt-6">For Support: +91 85955 09389</p>
+
             </div>
         </div>
     );
