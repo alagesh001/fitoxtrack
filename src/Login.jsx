@@ -212,13 +212,13 @@ const [uniqueId, setDeviceId] = useState(null);
                     </button>
                 )}
 
-                <h2 className="text-2xl font-bold text-gray-800">Fitox Gym Admin Panel</h2>
-                <p className="text-gray-600 mt-2">Complete Gym Solution for Owners</p>
+                <h2 className="text-2xl font-bold text-gray-800">TennisX Login</h2>
+                <p className="text-gray-600 mt-2">Tennis Stroke Motion Tracker</p>
 
                 <div className="mt-6">
                     <input
                         type="text"
-                        placeholder="User ID"
+                        placeholder="Mobile"
                         value={userId}
                         onChange={(e) => setUserId(e.target.value)}
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -241,12 +241,12 @@ const [uniqueId, setDeviceId] = useState(null);
                     </button>
 
                     <div className="mt-6">
-                        <p className="text-sm text-gray-600">New Gym Owner?</p>
+                        <p className="text-sm text-gray-600">New Here?</p>
                         <button
                             onClick={() => navigate("/register-screen")}
                             className="mt-2 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition"
                         >
-                            Register Your Gym
+                            Register Now
                         </button>
                     </div>
                 </div>

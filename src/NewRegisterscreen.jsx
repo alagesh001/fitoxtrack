@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import appIcon from './assets/ftox_icon.png'; // Import app icon
+import appIcon from './assets/tennisxicn.png'; // Import app icon
 import { FaWindows, FaApple, FaAndroid, FaLaptop, FaTabletAlt, FaMobileAlt } from "react-icons/fa";
 import Swal from "sweetalert2";
 
@@ -45,7 +45,7 @@ function GymRegistration() {
  Swal.fire({
     iconHtml: '🏋️', // gym emoji instead of default icon
     title: 'Under Verification',
-    html: `<p style="font-size:16px;color:#444;">You will receive a call from Fitox once your account is verified and activated.</p>`,
+    html: `<p style="font-size:16px;color:#444;">You will receive a call from TennisX once your account is verified and activated.</p>`,
     background: '#f0f8ff', // light sporty feel
     confirmButtonText: 'OK 💪',
     confirmButtonColor: '#ff5722', // sporty orange
@@ -99,7 +99,7 @@ function GymRegistration() {
 <div className="text-center mb-6">
   <img src={appIcon} alt="Fitox Logo" className="h-16 mx-auto rounded-lg mb-3" />
   
-  <h1 className="text-2xl font-bold text-gray-800">Fitox Gym Management</h1>
+  <h1 className="text-2xl font-bold text-gray-800">TennisX</h1>
   
   {/* Icons Row */}
   <div className="flex justify-center items-center mt-4 divide-x divide-gray-300">
@@ -123,7 +123,7 @@ function GymRegistration() {
 </div>
 
   <p className="text-gray-600 mt-4">
-    Manage your entire gym at one place
+    Motion tracker App
   </p>
  
 </div>
@@ -136,7 +136,7 @@ function GymRegistration() {
         <div className="space-y-4">
           {/* Owner Name */}
           <div>
-            <label className="block font-medium mb-1">Gym Owner Name</label>
+            <label className="block font-medium mb-1">Name</label>
             <input
               type="text"
               name="ownerName"
@@ -149,7 +149,7 @@ function GymRegistration() {
 
           {/* Gym Name */}
           <div>
-            <label className="block font-medium mb-1">Gym Name</label>
+            <label className="block font-medium mb-1">Academy Name</label>
             <input
               type="text"
               name="gymName"
