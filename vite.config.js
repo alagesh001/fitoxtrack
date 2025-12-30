@@ -52,7 +52,7 @@ export default defineConfig({
               cert: fs.readFileSync("localhost+2.pem"),
              },
            },
-  base: '/fitoxai/', // <-- your subdirectory path
+  base: '/tennisx/', // <-- your subdirectory path
   build: {
     rollupOptions: {
       output: {

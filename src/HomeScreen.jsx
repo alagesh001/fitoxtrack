@@ -16,7 +16,7 @@ import addleadIcon from "./assets/lead.png"; // adjust path to match your projec
 import leadIcon from "./assets/leadfunnel.png"; // adjust path to match your project
 import upgradeIcon from "./assets/upgrade.png"; // adjust path to match your project
 import hubIcon from "./assets/hubicn.png"; // adjust path to match your project
-import aiIcon from "./assets/aiicon2.png"; // adjust path to match your project
+import aiIcon from "./assets/tennisicn.png"; // adjust path to match your project
 import { toast } from "react-toastify";
 
 import { showUpgradePopup } from './helper/reuse.js';
@@ -290,9 +290,9 @@ return (
   <img
     src={aiIcon}
     alt="AI Icon"
-    className="w-20 h-20 filter brightness-0 invert opacity-90"
+    className="w-15 h-15 opacity-90"
   />
-  <span className="opacity-95">Enter Fitox AI</span>
+  <span className="opacity-95">Enter TennisX AI</span>
 </div>
 
 

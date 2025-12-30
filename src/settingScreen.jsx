@@ -237,7 +237,7 @@ const refreshAccessToken = async () => {
             {/* 📝 Gym Info */}
             <div className="p-4 rounded-lg shadow bg-gradient-to-r from-blue-50 to-green-50 mb-6">
                 <p className="font-semibold text-lg text-gray-800">
-                    🏋️ Gym: <span className="text-blue-700">{selectedGym?.GymName || "N/A"}</span>
+                    🎾 Academy: <span className="text-blue-700">{selectedGym?.GymName || "N/A"}</span>
                 </p>
                 <p className="text-gray-700">
                     📍 Location: <span className="font-medium">{selectedGym?.Location || "N/A"}</span>

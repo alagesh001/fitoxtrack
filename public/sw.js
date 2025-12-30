@@ -1,10 +1,10 @@
-const CACHE_NAME = 'fitox-cache-v4.5';
+const CACHE_NAME = 'tennisx-cache-v4.5';
 const urlsToCache = [
-  '/fitoxai/',
-  '/fitoxai/index.html',
-  '/fitoxai/manifest.webmanifest',
-  '/fitoxai/fc-icon-192x192.png',
-  '/fitoxai/fc-icon-512x512.png'
+  '/tennisx/',
+  '/tennisx/index.html',
+  '/tennisx/manifest.webmanifest',
+  '/tennisx/fc-icon-192x192.png',
+  '/tennisx/fc-icon-512x512.png'
 ];
 
 // Install service worker and cache required files

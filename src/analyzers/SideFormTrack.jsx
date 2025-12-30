@@ -529,7 +529,7 @@ const drawPlayback = (landmarks, canvas) => {
 )}
       <div className="bg-gray-900 rounded-2xl shadow-xl p-6 w-full max-w-4xl space-y-6">
           <h2 className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-white">
-    <span className="bg-blue-600 text-white text-sm px-2 py-1 rounded-md">Fitox AI</span>
+    <span className="bg-blue-600 text-white text-sm px-2 py-1 rounded-md">TennisX AI</span>
     Real-Time Form Tracker (Left/Right)
   </h2>
 <div className="flex justify-center mt-4">

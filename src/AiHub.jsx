@@ -98,13 +98,7 @@ const refs = {
   lateralSide:lateralSideRef
 };
 const workouts = [
-  {
-    key: "squat",
-    name: "Squat Form Corrector AI",
-    emoji: "🏋️",
-    description:
-      "Precision squat coaching powered by fitox advanced motion tracking and AI biomechanics.",
-  },
+ 
   // {
   //   key: "bicep",
   //   name: "Bicep curl Form AI",
@@ -403,7 +397,7 @@ return (
              bg-gradient-to-r from-blue-500 via-teal-400 to-cyan-400
              text-transparent bg-clip-text"
 >
-  Fitox AI Hub
+  TennisX AI Hub
 </h1>
 
 
@@ -521,88 +515,7 @@ return (
 
 
       {/* ---------------- EXTRAS SECTION (LIGHT THEME) ---------------- */}
-      <div className="bg-white/40  rounded-2xl p-6 shadow-md">
-
-        <h2 className="text-lg font-bold text-white mb-5 tracking-wide">
-          🧰 Premium Extras
-        </h2>
-
-      <div className="space-y-7">
-  {aiTools.map((tool) => (
-    <div key={tool.key}>
-
-      {/* Main Tab */}
-      <button
-        onClick={() => {
-          const newActive = active === tool.key ? null : tool.key;
-          setActive(newActive);
-
-          if (newActive !== null) {
-            setTimeout(() => {
-              panelRefs.current[newActive]?.scrollIntoView({
-                behavior: "smooth",
-                block: "center",
-              });
-            }, 150);
-          }
-        }}
-        className={`group w-full text-left rounded-xl p-4 transition-all duration-300 border 
-          ${
-            active === tool.key
-              ? "text-white border-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 shadow-[0_4px_14px_rgba(99,102,241,0.35)]"
-              : "bg-gray-200/80 border-gray-300 hover:from-indigo-100 hover:via-purple-100 hover:to-white"
-          }
-        `}
-      >
-        <div className="flex items-center gap-3">
-          <div
-            className={`p-2 rounded-xl transition
-              ${
-                active === tool.key
-                  ? "bg-white/20"
-                  : "bg-white group-hover:bg-indigo-200"
-              }
-            `}
-          >
-            {tool.icon}
-          </div>
-
-          <span
-            className={`font-semibold text-lg ${
-              active === tool.key ? "text-white" : "text-gray-700"
-            }`}
-          >
-            {tool.title}
-          </span>
-        </div>
-      </button>
-
-      {/* Expanded Panel */}
-      {active === tool.key && (
-        <div
-          ref={(el) => (panelRefs.current[tool.key] = el)}
-          className="mt-3 ml-3 p-4 bg-white rounded-xl border border-gray-200 shadow-sm"
-        >
-          <p className="text-sm text-gray-700 mb-3 leading-relaxed">
-            {tool.description}
-          </p>
-
-          <button
-            onClick={() => handleGenerate(tool.key)}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 shadow-md w-full font-semibold"
-          >
-            Generate Now
-          </button>
-        </div>
-      )}
-
-    </div>
-  ))}
-</div>
-
-
-      </div>
-
+      
     </nav>
 
 
