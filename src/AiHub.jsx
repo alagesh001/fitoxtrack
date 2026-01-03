@@ -424,13 +424,14 @@ return (
   </div>
 )}
 
-   <div className="md:flex">
+<div className="md:flex justify-center">
+  <div className="w-full max-w-md h-[300px]">
 
 
     <nav className="flex flex-col gap-14">
 
       {/* ---------------- PREMIUM SECTION (DARK THEME) ---------------- */}
-      <div className="bg-[#0b0c12]/60 border border-[#191c29] rounded-2xl p-6 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+      {/* <div className="bg-[#0b0c12]/60 border border-[#191c29] rounded-2xl p-6 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
 
         <h2
           className="text-lg font-bold mb-5 tracking-wide
@@ -517,14 +518,14 @@ return (
           ))}
 
         </div>
-      </div>
+      </div> */}
 
 
       {/* ---------------- EXTRAS SECTION (LIGHT THEME) ---------------- */}
-      <div className="bg-white/40  rounded-2xl p-6 shadow-md">
+      <div className="bg-white/40 mb-5 rounded-2xl p-6 shadow-md">
 
         <h2 className="text-lg font-bold text-white mb-5 tracking-wide">
-          🧰 Premium Extras
+          🏋️ GYM AI Generator
         </h2>
 
       <div className="space-y-7">
@@ -605,7 +606,7 @@ return (
 
     </nav>
 
-
+</div>
 </div>
 
  
