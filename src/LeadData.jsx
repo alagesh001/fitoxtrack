@@ -25,7 +25,7 @@ function LeadData ()  {
   const [disabled, setDisabled] = useState(false);
 
 const [selectedGym, setSelectedGym] = useState(() => {
-  return JSON.parse(localStorage.getItem("selectedGym"));
+  return JSON.parse(localStorage.getItem("selectedGymai"));
 });    const apiBase = "https://oxadmedia.online";
   const [expandedIndex, setExpandedIndex] = useState(null);
   const toggleExpand = (index) => {
@@ -320,7 +320,7 @@ accessToken = res.data.access_token;
   // Logout
   const handleLogout = () => {
     localStorage.removeItem("gyms");
-    localStorage.removeItem("selectedGym");
+    localStorage.removeItem("selectedGymai");
     localStorage.setItem("isLoggedInWeb", "false");
     navigate("/login", { replace: true });
   };

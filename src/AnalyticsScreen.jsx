@@ -67,7 +67,7 @@ function AnalyticsScreen() {
   const [sortOrder, setSortOrder] = useState("desc"); // for attendance sorting
   const [activeGender, setActiveGender] = useState(null); // 👈 for gender filter
   const [activeGoal, setActiveGoal] = useState(null);     // 👈 for goal filter
-  const storedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
+  const storedGym = JSON.parse(localStorage.getItem("selectedGymai") || "{}");
   const gymid = storedGym?.GymId;
 useEffect(() => {
 

@@ -25,7 +25,7 @@ const [facingMode, setFacingMode] = useState(facing);
   const [formWrong, setformWrong] = useState(false); // 'left' or 'right' - autopreview
 const [showTick, setShowTick] = useState(false);
 
-const storedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
+const storedGym = JSON.parse(localStorage.getItem("selectedGymai") || "{}");
   const gymid = storedGym?.GymId;
   const [showAuthBlock, setShowAuthBlock] = useState(false);
 

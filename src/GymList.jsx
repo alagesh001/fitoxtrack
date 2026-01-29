@@ -15,7 +15,7 @@ function GymList() {
     }, []);
 
     const handleSelectGym = (gym) => {
-        localStorage.setItem("selectedGym", JSON.stringify(gym));
+        localStorage.setItem("selectedGymai", JSON.stringify(gym));
        
 
         navigate("/home");

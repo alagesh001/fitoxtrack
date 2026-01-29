@@ -39,7 +39,7 @@ useEffect(() => {
   };
 }, []);
 useEffect(() => {
-    const storedGym = localStorage.getItem("selectedGym");
+    const storedGym = localStorage.getItem("selectedGymai");
 
     if (storedGym) {
         const parsedGym = JSON.parse(storedGym);
@@ -224,7 +224,7 @@ navigate("/inactive-screen");
 
         
         }else if (tabName === "Add Lead"){
-   const storedGym = localStorage.getItem("selectedGym");
+   const storedGym = localStorage.getItem("selectedGymai");
  if (storedGym) {
         const parsedGym = JSON.parse(storedGym);
         navigate(`/add_lead?gymid=${parsedGym.GymId}`);

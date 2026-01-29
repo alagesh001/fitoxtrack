@@ -10,7 +10,7 @@ export default function Fitoxhub() {
 const [isEditing, setIsEditing] = useState(false);
   const apiBase = "https://oxadmedia.online";
     const lastClickTimeRef = useRef(0);
-        const selectedGym = JSON.parse(localStorage.getItem("selectedGym"));
+        const selectedGym = JSON.parse(localStorage.getItem("selectedGymai"));
 
   const gymIdIs = selectedGym?.GymId || null; // ✅ safe fallback              
   const [loading, setLoading] = useState(false);
@@ -79,7 +79,7 @@ const handleRefreshPackage = async () => {
 
 }
    useEffect(() => {
-    const storedGym = localStorage.getItem("selectedGym");
+    const storedGym = localStorage.getItem("selectedGymai");
 
     if (gymIdIs != null) {
       const parsedGym = JSON.parse(storedGym);
@@ -134,7 +134,7 @@ const handleAddPackage = async () => {
 
     setLoading(true);
 
-    const storedGym = localStorage.getItem("selectedGym");
+    const storedGym = localStorage.getItem("selectedGymai");
 
     if (storedGym) {
       const parsedGym = JSON.parse(storedGym);
@@ -222,7 +222,7 @@ Swal.fire({
 
     setLoading(true);
 
-    const storedGym = localStorage.getItem("selectedGym");
+    const storedGym = localStorage.getItem("selectedGymai");
 
     if (storedGym) {
       const parsedGym = JSON.parse(storedGym);
@@ -309,7 +309,7 @@ Swal.fire({
 
     setLoading(true);
 
-    const storedGym = localStorage.getItem("selectedGym");
+    const storedGym = localStorage.getItem("selectedGymai");
 
     if (storedGym) {
       const parsedGym = JSON.parse(storedGym);
@@ -392,7 +392,7 @@ const handleAddTrainer = async () => {
 
     setLoading(true);
 
-    const storedGym = localStorage.getItem("selectedGym");
+    const storedGym = localStorage.getItem("selectedGymai");
 
     if (storedGym) {
       const parsedGym = JSON.parse(storedGym);
@@ -480,7 +480,7 @@ Swal.fire({
 
     if (!selectedTrainer.name || !selectedTrainer.mob) return alert("Please fill all fields.");
     setLoading(true);
-      const storedGym = localStorage.getItem("selectedGym");
+      const storedGym = localStorage.getItem("selectedGymai");
 
     if (storedGym) {
       const parsedGym = JSON.parse(storedGym);
@@ -572,7 +572,7 @@ Swal.fire({
     }
     lastClickTimeRef.current = now;
     setLoading(true);
-    const storedGym = localStorage.getItem("selectedGym");
+    const storedGym = localStorage.getItem("selectedGymai");
 
     if (storedGym) {
       const parsedGym = JSON.parse(storedGym);
@@ -768,7 +768,7 @@ const fetchPackages = async (gymId) => {
   }
 };
 const refreshAccessToken =  async (e) =>  {
-  const selectedGymRaw = localStorage.getItem("selectedGym");
+  const selectedGymRaw = localStorage.getItem("selectedGymai");
                 const selectedGymA = JSON.parse(selectedGymRaw);
         
     try {
@@ -798,7 +798,7 @@ const refreshAccessToken =  async (e) =>  {
       const handleLogout = () => {
      Swal.close();
           localStorage.removeItem("gyms");
-          localStorage.removeItem("selectedGym");
+          localStorage.removeItem("selectedGymai");
       localStorage.setItem("isLoggedInWeb", "false");
   
           // ✅ Navigate back to login screen
@@ -1542,7 +1542,7 @@ function deletePack(gymId, pid) {
 
     setLoading(true);
 
-    const storedGym = localStorage.getItem("selectedGym");
+    const storedGym = localStorage.getItem("selectedGymai");
 
     if (storedGym) {
       const parsedGym = JSON.parse(storedGym);

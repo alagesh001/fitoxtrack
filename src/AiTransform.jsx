@@ -37,7 +37,7 @@ export default function TransformationImageGenerator() {
   const [bScale, setBScale] = useState(1);
   const [aRotate, setARotate] = useState(0);
   const [bRotate, setBRotate] = useState(0);
-const storedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
+const storedGym = JSON.parse(localStorage.getItem("selectedGymai") || "{}");
   const gymid = storedGym?.GymId;
   const [showAuthBlock, setShowAuthBlock] = useState(false);
   const location = useLocation();

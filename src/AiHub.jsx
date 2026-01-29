@@ -14,7 +14,7 @@ const [progress, setProgress] = useState(0);
 const [accessToken, setAccessToken] = useState(null);
 const [authErrorMsg, setAuthErrorMsg] = useState("");
   const token = localStorage.getItem("accessToken");
-  const storedGym = localStorage.getItem("selectedGym");
+  const storedGym = localStorage.getItem("selectedGymai");
 
 useEffect(() => {
 
@@ -24,7 +24,7 @@ useEffect(() => {
       setSelectedGym(parsedGym);
     } catch (err) {
       console.error("❌ Invalid gym data in localStorage");
-      localStorage.removeItem("selectedGym");
+      localStorage.removeItem("selectedGymai");
     }
   }
 
@@ -355,7 +355,7 @@ const fetchCheck = async (gymId,token,retryCount = 0) => {
   };
    const handleLogout = () => {
         localStorage.removeItem("gyms");
-        localStorage.removeItem("selectedGym");
+        localStorage.removeItem("selectedGymai");
     localStorage.setItem("isLoggedInWeb", "false");
 
         // ✅ Navigate back to login screen

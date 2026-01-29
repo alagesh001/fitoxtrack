@@ -11,7 +11,7 @@ function DashboardAdmin() {
   const [error, setError] = useState("");
 
   const apiBase = "https://oxadmedia.online";
-  const storedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
+  const storedGym = JSON.parse(localStorage.getItem("selectedGymai") || "{}");
   const gymid = storedGym?.GymId;
   const navigate = useNavigate();
 const [disabled, setDisabled] = useState(false);
@@ -19,7 +19,7 @@ const [disabled, setDisabled] = useState(false);
   // ✅ Logout Function
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("selectedGym");
+    localStorage.removeItem("selectedGymai");
     localStorage.setItem("isLoggedInWeb", "false");
     navigate("/login", { replace: true });
   };

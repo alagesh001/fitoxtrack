@@ -18,7 +18,7 @@ function SettingsScreen() {
 const [authErrorMsg, setAuthErrorMsg] = useState("");
 
     // 🏋️ Fetch selected gym details from localStorage
-    const selectedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
+    const selectedGym = JSON.parse(localStorage.getItem("selectedGymai") || "{}");
 
 const handleLogout = async () => {
   try {

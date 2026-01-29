@@ -23,7 +23,7 @@ function InactiveClients() {
 const [disabled, setDisabled] = useState(false);
 
     const apiBase = "https://oxadmedia.online";
-    const selectedGym = JSON.parse(localStorage.getItem("selectedGym"));
+    const selectedGym = JSON.parse(localStorage.getItem("selectedGymai"));
     let accessToken = localStorage.getItem("accessToken");
  const handleRefresh = async () => {
     if (disabled) {
@@ -202,7 +202,7 @@ await saveInactiveClientsForGymPage(
 
     const handleLogout = () => {
         localStorage.removeItem("gyms");
-        localStorage.removeItem("selectedGym");
+        localStorage.removeItem("selectedGymai");
         localStorage.setItem("isLoggedInWeb", "false");
         navigate("/login", { replace: true });
     };

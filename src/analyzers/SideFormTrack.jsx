@@ -18,11 +18,11 @@ const trainerIndexRef = useRef(0);
 const clientIndexRef = useRef(0);
   const poseRef = useRef(null);
   const [accuracyLevel, setAccuracyLevel] = useState("medium");
-  const storedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
+  const storedGym = JSON.parse(localStorage.getItem("selectedGymai") || "{}");
   const gymid = storedGym?.GymId;
   const [showAuthBlock, setShowAuthBlock] = useState(false);
 useEffect(() => {
-  const storedGymRaw = localStorage.getItem("selectedGym");
+  const storedGymRaw = localStorage.getItem("selectedGymai");
   const storedGym = storedGymRaw ? JSON.parse(storedGymRaw) : null;
 
   const storedRenew = localStorage.getItem(`renew_data_${gymid}`);

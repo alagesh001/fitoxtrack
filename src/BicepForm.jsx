@@ -47,12 +47,12 @@ const [showTick, setShowTick] = useState(false);
   const pauseDuration = 1500;
   const upThreshold = 58;
   const downThreshold = 160;
-const storedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
+const storedGym = JSON.parse(localStorage.getItem("selectedGymai") || "{}");
   const gymid = storedGym?.GymId;
   const [showAuthBlock, setShowAuthBlock] = useState(false);
 
 useEffect(() => {
-  const storedGymRaw = localStorage.getItem("selectedGym");
+  const storedGymRaw = localStorage.getItem("selectedGymai");
   const storedGym = storedGymRaw ? JSON.parse(storedGymRaw) : null;
 
   const storedRenew = localStorage.getItem(`renew_data_${gymid}`);

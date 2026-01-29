@@ -19,7 +19,7 @@ const [mode, setMode] = useState("separate");
 const [fromText, setFromText] = useState("");
 const [name, setName] = useState("");
 const [loading, setLoading] = useState(true);
-const storedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
+const storedGym = JSON.parse(localStorage.getItem("selectedGymai") || "{}");
   const gymid = storedGym?.GymId;
   const [showAuthBlock, setShowAuthBlock] = useState(false);
   const location = useLocation();
@@ -63,7 +63,7 @@ const storedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
 //   console.log("Access Allowed");
 // }, []);
 useEffect(() => {
-  const storedGym = localStorage.getItem("selectedGym");
+  const storedGym = localStorage.getItem("selectedGymai");
 
   if (storedGym) {
     const parsedGym = JSON.parse(storedGym);

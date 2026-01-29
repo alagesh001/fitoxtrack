@@ -15,7 +15,7 @@ export function showUpgradePopup({
   ],
   whatsappNumber = "918148602102"
 }) {
-       const storedGym = localStorage.getItem("selectedGym");
+       const storedGym = localStorage.getItem("selectedGymai");
         const gym = JSON.parse(storedGym);
   Swal.fire({
     title: titleIs,
