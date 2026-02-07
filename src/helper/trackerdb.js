@@ -22,10 +22,10 @@ export async function saveTrainerSession(trainerFrames, fps = 30, name) {
 
   const session = {
     id: crypto.randomUUID(),
-    name: name || `Session ${new Date().toLocaleString()}`,                 // 👈 added
+    name,
     createdAt: Date.now(),
     fps,
-    frames: trainerFrames, // ONLY trainer
+    frames: trainerFrames,
   };
 
   return new Promise((resolve, reject) => {
@@ -34,7 +34,7 @@ export async function saveTrainerSession(trainerFrames, fps = 30, name) {
 
     store.put(session);
 
-    tx.oncomplete = () => resolve(session.id);
+    tx.oncomplete = () => resolve(session);
     tx.onerror = () => reject(tx.error);
   });
 }

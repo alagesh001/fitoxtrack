@@ -2,13 +2,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { Pose } from "@mediapipe/pose";
 import { Camera } from "@mediapipe/camera_utils";
 import { useLocation,useNavigate } from "react-router-dom";
-import { openPoseDB,saveTrainerSession,getAllTrainerSessions,getPoseSessionById,clearTrainerSessions } from "../helper/trackerdb";
+import { openPoseDB,saveTrainerSession,getAllTrainerSessions,deleteTrainerSessionById,getPoseSessionById,clearTrainerSessions } from "../helper/trackerdb";
 
 const LiveSkeletonTracker = () => {
     const location = useLocation();
 const { facing = "user" } = location.state || {}; // ✅ DIRECT READ
 const [facingMode, setFacingMode] = useState(facing);
 const [trainerReady, setTrainerReady] = useState(false);
+const clientFpsRef = useRef(30); // default
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -22,6 +23,10 @@ const playbackIndexRef = useRef(0);
     const recordedFramesClientRef = useRef([]);
 const isRecordingRef = useRef(false);
 const trainerIndexRef = useRef(0);
+
+const playbackSpeedRef = useRef(1);
+const playbackSpeedRefClient = useRef(1);
+
 const clientIndexRef = useRef(0);
   const poseRef = useRef(null);
     const [lastSessionId, setLastSessionId] = useState("");
@@ -358,27 +363,62 @@ const stopRecording = async () => {
     setIsRecording(false);
      if (userRole === "trainer")
      {
-  const name = prompt("Enter trainer session name:");
-  if (!name) return; // user cancelled or empty
+ const name = prompt("Enter trainer session name:");
+if (!name) return;
 
-  const sessionId = await saveTrainerSession(
-    recordedFramesRef.current,
-    30,
-    name
-  );
-    const sessions = await getAllTrainerSessions();
-    sessions.sort((a, b) => b.createdAt - a.createdAt);
-    setTrainerSessions(sessions);
- 
+const session = await saveTrainerSession(
+  recordedFramesRef.current,
+  30,
+  name
+);
 
-  loadSessions();
-  console.log("Saved trainer session:", sessionId);
-  setLastSessionId(sessionId);
-  //console.log("Saved trainer session:", sessionId);
+// ✅ instant UI update
+setTrainerSessions((prev) =>
+  [session, ...prev].sort((a, b) => b.createdAt - a.createdAt)
+);
+
+setLastSessionId(session.id);
+setSelectedSessionId(session.id);
+setTrainerReady(true);
+
+console.log("Saved trainer session:", session.id);
      }
    
   };
+const removeTrainer = async () => {
+  if (!selectedSessionId) return;
 
+  // 1️⃣ stop playback
+  stopTrainer();
+
+  // 2️⃣ delete from DB
+  await deleteTrainerSessionById(selectedSessionId);
+
+  // 3️⃣ clear refs
+  trainerFramesRef.current = [];
+  trainerFpsRef.current = 0;
+  trainerIndexRef.current = 0;
+
+  // 4️⃣ reset UI state
+  setSelectedSessionId("");
+  setTrainerReady(false);
+  setTrainerPlaying(false);
+  setTrainerPaused(false);
+
+  // 5️⃣ clear canvas
+  const canvas = playbackCanvasRef.current;
+  if (canvas) {
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // 6️⃣ reload dropdown sessions
+setTrainerSessions((prev) =>
+  prev.filter((s) => s.id !== selectedSessionId)
+);;
+
+  console.log("Trainer session deleted");
+};
 const trainerFramesRef = useRef([]);
 const trainerFpsRef = useRef(30);
 // useEffect(() => {
@@ -489,8 +529,10 @@ const playTrainer = () => {
 
   setTrainerPlaying(true);
   setTrainerPaused(false);
+  const speed = playbackSpeedRef.current; // 0.25, 0.5, 1, 2
+  console.log("playTrainer speed ",speed);
 
-  const intervalMs = 1000 / trainerFpsRef.current;
+  const intervalMs = (1000 / trainerFpsRef.current) /speed;
 
   trainerIntervalRef.current = setInterval(() => {
     const i = trainerIndexRef.current;
@@ -555,6 +597,9 @@ const playClient = () => {
 
   setClientPlaying(true);
   setClientPaused(false);
+    const speed = playbackSpeedRefClient.current; // 0.25, 0.5, 1, 2
+  const intervalMs = (1000 / 60) /speed;
+
 
   clientIntervalRef.current = setInterval(() => {
     const i = clientIndexRef.current;
@@ -565,7 +610,7 @@ const playClient = () => {
     }
 
     if (clientIndexRef.current >= frames.length) stopClient();
-  }, 60);
+  }, intervalMs);
 };
 
 const pauseClient = () => {
@@ -739,7 +784,23 @@ const stopClient = () => {
     </option>
   ))}
 </select>
-
+<select
+defaultValue ="1"
+  onChange={(e) => {
+    playbackSpeedRef.current = Number(e.target.value);
+    if (trainerPlaying) {
+      stopTrainer();
+      playTrainer(); // restart with new speed
+    }
+  }}
+    className="mt-3 p-2 rounded-xl border bg-white text-black shadow-sm"
+>
+  <option value="0.1">0.1× (Ultra Slow)</option>
+  <option value="0.2">0.2× Slow</option>
+  <option value="0.3">0.3× Slow</option>
+  <option value="0.5">0.5× Slow</option>
+  <option value="1">1× Normal</option>
+</select>
     <div className="flex gap-3 mt-3">
        <button
       onClick={() => {
@@ -758,6 +819,13 @@ const stopClient = () => {
     >
       {trainerPlaying ? "⏸ Pause" : trainerPaused ? "▶ Resume" : "▶ Play"}
     </button>
+      <button
+    onClick={removeTrainer}
+    disabled={!trainerReady}
+    className="px-6 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700 transition"
+  >
+    🗑 Remove
+  </button>
     </div>
   </div>
 
@@ -774,8 +842,24 @@ const stopClient = () => {
     <h3 className="font-semibold mb-2 text-white text-center">Learner Skeleton</h3>
 <div className="p-4 border border-green-200 rounded-xl">
     <h3 className="font-semibold text-white mb-3">Learner</h3>
-
-    <div className="flex gap-3">
+<select
+defaultValue ="1"
+  onChange={(e) => {
+    playbackSpeedRefClient.current = Number(e.target.value);
+    if (clientPlaying) {
+      stopClient();
+      playClient(); // restart with new speed
+    }
+  }}
+    className=" p-2 rounded-xl border bg-white text-black shadow-sm"
+>
+  <option value="0.1">0.1× (Ultra Slow)</option>
+  <option value="0.2">0.2× Slow</option>
+  <option value="0.3">0.3× Slow</option>
+  <option value="0.5">0.5× Slow</option>
+  <option value="1">1× Normal</option>
+</select>
+    <div className="mt-3 flex gap-3">
      <button
     onClick={() => {
       if (!clientPlaying && !clientPaused) {
