@@ -2,11 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { Pose } from "@mediapipe/pose";
 import { Camera } from "@mediapipe/camera_utils";
 import { useLocation,useNavigate } from "react-router-dom";
+import { openPoseDB,saveTrainerSession,getAllTrainerSessions,getPoseSessionById,clearTrainerSessions } from "../helper/trackerdb";
 
 const LiveSkeletonTracker = () => {
     const location = useLocation();
 const { facing = "user" } = location.state || {}; // ✅ DIRECT READ
 const [facingMode, setFacingMode] = useState(facing);
+const [trainerReady, setTrainerReady] = useState(false);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -22,6 +24,7 @@ const isRecordingRef = useRef(false);
 const trainerIndexRef = useRef(0);
 const clientIndexRef = useRef(0);
   const poseRef = useRef(null);
+    const [lastSessionId, setLastSessionId] = useState("");
   const [accuracyLevel, setAccuracyLevel] = useState("medium");
   const storedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
   const gymid = storedGym?.GymId;
@@ -84,7 +87,18 @@ const poseAccuracyPresets = {
 
 const trainerIntervalRef = useRef(null);
 const clientIntervalRef = useRef(null);
+const [trainerSessions, setTrainerSessions] = useState([]);
+const [selectedSessionId, setSelectedSessionId] = useState("");
 
+useEffect(() => {
+  const loadSessions = async () => {
+    const sessions = await getAllTrainerSessions();
+    sessions.sort((a, b) => b.createdAt - a.createdAt);
+    setTrainerSessions(sessions);
+  };
+
+  loadSessions();
+}, []);
 const [trainerPlaying, setTrainerPlaying] = useState(false);
 const [trainerPaused, setTrainerPaused] = useState(false);
   const [running, setRunning] = useState(false);
@@ -164,19 +178,35 @@ useEffect(() => {
       minDetectionConfidence: 0.6,
       minTrackingConfidence: 0.6,
     });
+ 
+  poseRef.current.onResults((results) => {
+    if (!results.poseLandmarks) return;
+ const role = userRoleRef.current;
 
-    poseRef.current.onResults((results) => {
-      if (!results.poseLandmarks) return;
-      const ctx = canvasRef.current?.getContext("2d");
-      if (ctx) drawLandmarks(ctx, results);
+    const ctx = canvasRef.current?.getContext("2d");
+    if (ctx) drawLandmarks(ctx, results);
 
-      if (isRecordingRef.current) {
-        const clonedLandmarks = results.poseLandmarks.map((lm) => ({ ...lm }));
-        const role = userRoleRef.current;
-        if (role === "trainer") recordedFramesRef.current.push(clonedLandmarks);
-        if (role === "client") recordedFramesClientRef.current.push(clonedLandmarks);
-      }
-    });
+    if (isRecordingRef.current) {
+if (role === "trainer") {
+      const compressed = results.poseLandmarks.map(lm => ([
+        +lm.x.toFixed(4),
+        +lm.y.toFixed(4),
+        +lm.z.toFixed(4),
+        lm.visibility ?? 1,
+      ]));
+ //const clonedLandmarks = results.poseLandmarks.map((lm) => ({ ...lm }));
+      recordedFramesRef.current.push(compressed);
+    }
+    if (role === "client") {
+      const clonedLandmarks = results.poseLandmarks.map((lm) => ({ ...lm }));
+recordedFramesClientRef.current.push(clonedLandmarks);    }
+    }
+    
+  });
+        
+ 
+
+ 
   }
 
   // Stop previous camera stream
@@ -313,6 +343,7 @@ function drawLandmarks(ctx, results) {
 
 
   const startRecording = () => {
+    
        if (userRole === "trainer")
        recordedFramesRef.current = [];
      if (userRole === "client")
@@ -322,45 +353,201 @@ function drawLandmarks(ctx, results) {
     setIsRecording(true);
   };
 
-  const stopRecording = () => {
+const stopRecording = async () => {
+ // await clearTrainerSessions();
     setIsRecording(false);
+     if (userRole === "trainer")
+     {
+  const name = prompt("Enter trainer session name:");
+  if (!name) return; // user cancelled or empty
+
+  const sessionId = await saveTrainerSession(
+    recordedFramesRef.current,
+    30,
+    name
+  );
+    const sessions = await getAllTrainerSessions();
+    sessions.sort((a, b) => b.createdAt - a.createdAt);
+    setTrainerSessions(sessions);
+ 
+
+  loadSessions();
+  console.log("Saved trainer session:", sessionId);
+  setLastSessionId(sessionId);
+  //console.log("Saved trainer session:", sessionId);
+     }
+   
   };
 
+const trainerFramesRef = useRef([]);
+const trainerFpsRef = useRef(30);
+// useEffect(() => {
+//   const loadSession = async () => {
+//     const sid = "ce173038-1073-4ad3-8044-bab69cd162b2";
+
+//     const session = await getPoseSessionById(sid);
+//     if (!session) return;
+
+//     trainerFramesRef.current = session.frames;
+//     trainerFpsRef.current = session.fps;
+//     trainerIndexRef.current = 0;
+
+//     console.log("Trainer session loaded:", session.frames.length);
+//   };
+
+//   loadSession();
+// }, []);
+useEffect(() => {
+  if (!selectedSessionId) return;
+
+  const loadSession = async () => {
+    // 🛑 HARD reset playback state
+    clearInterval(trainerIntervalRef.current);
+    trainerIntervalRef.current = null;
+
+    setTrainerPlaying(false);
+    setTrainerPaused(false);
+
+    const session = await getPoseSessionById(selectedSessionId);
+    if (!session) return;
+
+    trainerFramesRef.current = session.frames;
+    trainerFpsRef.current = session.fps;
+    trainerIndexRef.current = 0;
+setTrainerReady(session.frames.length > 0);
+
+    console.log(
+      "Trainer session loaded:",
+      session.name,
+      session.frames.length
+    );
+
+    // optional preview
+    if (session.frames.length) {
+      drawPlayback(
+        session.frames[0],
+        playbackCanvasRef.current
+      );
+    }
+  };
+
+  loadSession();
+}, [selectedSessionId]);
+const drawPlayback = (frame, canvas) => {
+
+  if (!frame || !canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  const width = canvas.width;
+  const height = canvas.height;
+
+  ctx.clearRect(0, 0, width, height);
+
+  const connections = [
+    [11, 13], [13, 15], [12, 14], [14, 16],
+    [11, 12], [23, 24], [11, 23], [12, 24],
+    [23, 25], [25, 27], [24, 26], [26, 28],
+  ];
+
+  ctx.strokeStyle = "#00ff00";
+  ctx.lineWidth = 2;
+
+  // skeleton
+  connections.forEach(([s, e]) => {
+    const start = frame[s];
+    const end = frame[e];
+    if (!start || !end) return;
+
+    ctx.beginPath();
+    ctx.moveTo(start[0] * width, start[1] * height);
+    ctx.lineTo(end[0] * width, end[1] * height);
+    ctx.stroke();
+  });
+
+  // joints
+  frame.forEach((lm) => {
+    ctx.beginPath();
+    ctx.arc(lm[0] * width, lm[1] * height, 4, 0, Math.PI * 2);
+    ctx.fillStyle = "red";
+    ctx.fill();
+  });
+};
 
 const playTrainer = () => {
-  const frames = recordedFramesRef.current;
+//loadSelectedTrainerSession();
+  // 🛑 Guard: prevent multiple intervals
+  console.log("playTrainer");
+
+  if (trainerIntervalRef.current) return;
+
+  const frames = trainerFramesRef.current;
   if (!frames.length) return;
 
-  if (!trainerPaused) trainerIndexRef.current = 0;
+  if (!trainerPaused) {
+    trainerIndexRef.current = 0;
+  }
 
   setTrainerPlaying(true);
   setTrainerPaused(false);
 
+  const intervalMs = 1000 / trainerFpsRef.current;
+
   trainerIntervalRef.current = setInterval(() => {
     const i = trainerIndexRef.current;
 
-    if (frames[i]) {
-      drawPlayback(frames[i], playbackCanvasRef.current);
-      trainerIndexRef.current++;
+    if (!frames[i]) {
+      stopTrainer();
+      return;
     }
 
-    if (trainerIndexRef.current >= frames.length) stopTrainer();
-  }, 60);
+    drawPlayback(frames[i], playbackCanvasRef.current);
+    trainerIndexRef.current++;
+  }, intervalMs);
 };
 
+
+
 const pauseTrainer = () => {
-  clearInterval(trainerIntervalRef.current);
+  if (trainerIntervalRef.current) {
+    clearInterval(trainerIntervalRef.current);
+    trainerIntervalRef.current = null;
+  }
+
   setTrainerPlaying(false);
   setTrainerPaused(true);
 };
 
 const stopTrainer = () => {
-  clearInterval(trainerIntervalRef.current);
+  if (trainerIntervalRef.current) {
+    clearInterval(trainerIntervalRef.current);
+    trainerIntervalRef.current = null;
+  }
+
   setTrainerPlaying(false);
   setTrainerPaused(false);
   trainerIndexRef.current = 0;
 };
+const drawPlaybackC = (landmarks, canvas) => { 
+  if (!landmarks || !canvas) return;
+   const ctx = canvas.getContext("2d"); 
+   const width = canvas.width; 
+   const height = canvas.height; 
+   ctx.clearRect(0, 0, width, height); 
+   const connections = [ [11, 13], [13, 15], [12, 14], [14, 16], [11, 12], [23, 24], [11, 23], [12, 24], [23, 25], [25, 27], [24, 26], [26, 28] ];
+    ctx.strokeStyle = "#00ff00"; ctx.lineWidth = 2; 
+    connections.forEach(([s, e]) => { 
+      const start = landmarks[s];
+       const end = landmarks[e]; 
+       if (start && end) 
+        { ctx.beginPath(); ctx.moveTo(start.x * width, start.y * height);
+           ctx.lineTo(end.x * width, end.y * height); ctx.stroke();
+           } }); 
+           landmarks.forEach(lm => { ctx.beginPath(); 
+            ctx.arc(lm.x * width, lm.y * height, 4, 0, Math.PI * 2);
+             ctx.fillStyle = "red"; ctx.fill(); }); };
+
 const playClient = () => {
+   console.log("playClient" );
   const frames = recordedFramesClientRef.current;
   if (!frames.length) return;
 
@@ -373,7 +560,7 @@ const playClient = () => {
     const i = clientIndexRef.current;
 
     if (frames[i]) {
-      drawPlayback(frames[i], playbackCanvasClientRef.current);
+      drawPlaybackC(frames[i], playbackCanvasClientRef.current);
       clientIndexRef.current++;
     }
 
@@ -395,42 +582,7 @@ const stopClient = () => {
 };
 
 
- const drawPlayback = (landmarks, canvas) => {
-  if (!landmarks || !canvas) return;
 
-  const ctx = canvas.getContext("2d");
-  const width = canvas.width;
-  const height = canvas.height;
-
-  ctx.clearRect(0, 0, width, height);
-
-  const connections = [
-    [11, 13], [13, 15], [12, 14], [14, 16],
-    [11, 12], [23, 24], [11, 23], [12, 24],
-    [23, 25], [25, 27], [24, 26], [26, 28]
-  ];
-
-  ctx.strokeStyle = "#00ff00";
-  ctx.lineWidth = 2;
-
-  connections.forEach(([s, e]) => {
-    const start = landmarks[s];
-    const end = landmarks[e];
-    if (start && end) {
-      ctx.beginPath();
-      ctx.moveTo(start.x * width, start.y * height);
-      ctx.lineTo(end.x * width, end.y * height);
-      ctx.stroke();
-    }
-  });
-
-  landmarks.forEach(lm => {
-    ctx.beginPath();
-    ctx.arc(lm.x * width, lm.y * height, 4, 0, Math.PI * 2);
-    ctx.fillStyle = "red";
-    ctx.fill();
-  });
-};
 
 
   return (
@@ -474,7 +626,7 @@ const stopClient = () => {
           : "bg-gray-100 text-gray-600"
         }`}
     >
-      Client
+      Learner
     </button>
 
   </div>
@@ -567,8 +719,28 @@ const stopClient = () => {
     <h3 className="font-semibold mb-2 text-white text-center">Trainer Skeleton</h3>
 <div className="p-4 border border-blue-200 rounded-xl">
     <h3 className="font-semibold text-white mb-3">Trainer</h3>
+<select
+  value={selectedSessionId}
+  onChange={(e) => 
+    
+    {
+      setSelectedSessionId(e.target.value)
+          console.log("Loaded session:",e.target.value);
 
-    <div className="flex gap-3">
+    }
+    }
+    className="p-2 rounded-xl border bg-white text-black shadow-sm"
+>
+  <option value="">Select trainer session</option>
+
+  {trainerSessions.map((s) => (
+    <option key={s.id} value={s.id}>
+      {s.name} ({new Date(s.createdAt).toLocaleDateString()})
+    </option>
+  ))}
+</select>
+
+    <div className="flex gap-3 mt-3">
        <button
       onClick={() => {
         if (!trainerPlaying && !trainerPaused) {
@@ -579,7 +751,7 @@ const stopClient = () => {
           playTrainer();      // resume
         }
       }}
-      disabled={recordedFramesRef.current.length === 0}
+  disabled={!trainerReady}
       className={`px-6 py-2 rounded-xl text-white transition ${
         trainerPlaying ? "bg-yellow-500" : "bg-blue-600"
       }`}
@@ -599,9 +771,9 @@ const stopClient = () => {
 
   {/* Client */}
   <div className="bg-black rounded-xl p-3 shadow">
-    <h3 className="font-semibold mb-2 text-white text-center">Client Skeleton</h3>
+    <h3 className="font-semibold mb-2 text-white text-center">Learner Skeleton</h3>
 <div className="p-4 border border-green-200 rounded-xl">
-    <h3 className="font-semibold text-white mb-3">Client</h3>
+    <h3 className="font-semibold text-white mb-3">Learner</h3>
 
     <div className="flex gap-3">
      <button

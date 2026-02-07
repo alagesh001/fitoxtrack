@@ -120,6 +120,13 @@ const workouts = [
     description:
       "Lateral View Real-time skeletal overlay powered by tennisX advanced motion tracking for perfect technique refinement.",
   },
+   {
+    key: "speeddet",
+    name: "Speed Detection",
+    emoji: "🎾",
+    description:
+      "Detect the speed of the ball",
+  },
   // Add more workouts here
 ];
 useEffect(() => {
@@ -237,6 +244,7 @@ if (type === "bicep") navigate("/bicep-ai", { state: { fromButton: true } });
  if (type === "squat") navigate("/squat-ai", { state: { fromButton: true, facing:facingMode } });
    if (type === "lateral") navigate("/lateral-ai", { state: { fromButton: true, facing:facingMode } });
    if (type === "lateralSide") navigate("/lateralside-ai", { state: { fromButton: true,facing:facingMode } });
+   if (type === "speeddet") navigate("/speed-ai", { state: { fromButton: true,facing:facingMode } });
 
 
 }, 1000);
@@ -474,6 +482,7 @@ return (
                     {w.description}
                   </p>
 
+{active !== "speeddet" && (
 <div className="flex gap-3 justify-center mb-4">
   <button
     onClick={() => setFacingMode("user")} // front camera
@@ -497,7 +506,7 @@ return (
     Back Cam
   </button>
 </div>
-
+)}
 <button
   onClick={() => handleGenerate(w.key)}
   className="w-full py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold shadow-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105"

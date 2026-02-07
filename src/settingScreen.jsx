@@ -22,6 +22,7 @@ const [authErrorMsg, setAuthErrorMsg] = useState("");
 
 const handleLogout = async () => {
   try {
+    
     // 🧹 Clear all localStorage data
      const deviceId = localStorage.getItem("device_idfitox"); // ✅ get from storage
 
