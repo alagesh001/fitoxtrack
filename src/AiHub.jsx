@@ -108,25 +108,25 @@ const workouts = [
   // },
   {
     key: "lateral",
-    name: "Form Compare AI (Front/Back)",
-    emoji: "🧍‍♂️",
+    name: "Strokes Compare Tracker",
+    emoji: "🎾",
     description:
       "Anterior and Posterior View Real-time skeletal overlay powered by tennisX advanced motion tracking for perfect technique refinement.",
   },
-  {
-    key: "lateralSide",
-    name: "Form Compare AI (Left/Right)",
-    emoji: "🏃‍♂️",
-    description:
-      "Lateral View Real-time skeletal overlay powered by tennisX advanced motion tracking for perfect technique refinement.",
-  },
-   {
-    key: "speeddet",
-    name: "Speed Detection",
-    emoji: "🎾",
-    description:
-      "Detect the speed of the ball",
-  },
+  // {
+  //   key: "lateralSide",
+  //   name: "Form Compare AI (Left/Right)",
+  //   emoji: "🏃‍♂️",
+  //   description:
+  //     "Lateral View Real-time skeletal overlay powered by tennisX advanced motion tracking for perfect technique refinement.",
+  // },
+  //  {
+  //   key: "speeddet",
+  //   name: "Speed Detection",
+  //   emoji: "🎾",
+  //   description:
+  //     "Detect the speed of the ball",
+  // },
   // Add more workouts here
 ];
 useEffect(() => {

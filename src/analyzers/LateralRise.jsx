@@ -365,7 +365,12 @@ const stopRecording = async () => {
      {
  const name = prompt("Enter trainer session name:");
 if (!name) return;
+  const currentCount = trainerSessions.length; // use the state directly
 
+  if (currentCount >= 10) {
+    alert("Cannot save: limit of 10 sessions reached. Delete an old session first.");
+    return;
+  }
 const session = await saveTrainerSession(
   recordedFramesRef.current,
   30,
@@ -647,7 +652,7 @@ const stopClient = () => {
       <div className="bg-gray-900 rounded-2xl shadow-xl p-6 w-full max-w-4xl space-y-6">
           <h2 className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-white">
     <span className="bg-blue-600 text-white text-sm px-2 py-1 rounded-md">TennisX AI</span>
-    Real-Time Form Tracker (Front/Back)
+    Real-Time Stroke Tracker
   </h2>
 <div className="flex justify-center mt-4">
   <div className="flex rounded-xl overflow-hidden border shadow-sm">
