@@ -2,7 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { Pose } from "@mediapipe/pose";
 import { Camera } from "@mediapipe/camera_utils";
 import { useLocation,useNavigate } from "react-router-dom";
-import { openPoseDB,saveTrainerSession,getAllTrainerSessions,deleteTrainerSessionById,getPoseSessionById,clearTrainerSessions } from "../helper/trackerdb";
+import { openPoseDB,saveTrainerSession,downloadTrainerSessionsJSON,getAllTrainerSessions,deleteTrainerSessionById,getPoseSessionById,clearTrainerSessions } from "../helper/trackerdb";
+import jsonSessions  from "../helper/trainer-sessions.json";
 
 const LiveSkeletonTracker = () => {
     const location = useLocation();
@@ -97,9 +98,27 @@ const [selectedSessionId, setSelectedSessionId] = useState("");
 
 useEffect(() => {
   const loadSessions = async () => {
-    const sessions = await getAllTrainerSessions();
-    sessions.sort((a, b) => b.createdAt - a.createdAt);
-    setTrainerSessions(sessions);
+    const dbSessions = await getAllTrainerSessions();
+
+    const sessionMap = new Map();
+
+    // 1️⃣ add JSON sessions
+    jsonSessions.forEach(session => {
+      sessionMap.set(session.id, session);
+    });
+
+    // 2️⃣ add IndexedDB sessions (overwrite if same id)
+    dbSessions.forEach(session => {
+      sessionMap.set(session.id, session);
+    });
+
+    // 3️⃣ convert back to array
+    const mergedSessions = Array.from(sessionMap.values());
+
+    // 4️⃣ sort by createdAt desc
+    mergedSessions.sort((a, b) => b.createdAt - a.createdAt);
+
+    setTrainerSessions(mergedSessions);
   };
 
   loadSessions();
@@ -348,7 +367,7 @@ function drawLandmarks(ctx, results) {
 
 
   const startRecording = () => {
-    
+    //downloadTrainerSessionsJSON();
        if (userRole === "trainer")
        recordedFramesRef.current = [];
      if (userRole === "client")
@@ -397,8 +416,12 @@ const removeTrainer = async () => {
   stopTrainer();
 
   // 2️⃣ delete from DB
-  await deleteTrainerSessionById(selectedSessionId);
+const deleted = await deleteTrainerSessionById(selectedSessionId);
 
+if (!deleted) {
+  alert("Built-in sessions cannot be deleted.");
+  return;
+}
   // 3️⃣ clear refs
   trainerFramesRef.current = [];
   trainerFpsRef.current = 0;
@@ -442,6 +465,14 @@ const trainerFpsRef = useRef(30);
 
 //   loadSession();
 // }, []);
+async function getSessionById(id) {
+  // 1️⃣ try IndexedDB first
+  const dbSession = await getPoseSessionById(id);
+  if (dbSession) return dbSession;
+
+  // 2️⃣ fallback to JSON
+  return jsonSessions.find(s => s.id === id) || null;
+}
 useEffect(() => {
   if (!selectedSessionId) return;
 
@@ -453,7 +484,7 @@ useEffect(() => {
     setTrainerPlaying(false);
     setTrainerPaused(false);
 
-    const session = await getPoseSessionById(selectedSessionId);
+    const session = await getSessionById(selectedSessionId);
     if (!session) return;
 
     trainerFramesRef.current = session.frames;
@@ -806,6 +837,15 @@ defaultValue ="1"
   <option value="0.5">0.5× Slow</option>
   <option value="1">1× Normal</option>
 </select>
+{/* <button
+      onClick={downloadTrainerSessionsJSON}
+     
+      className={`mt-3 px-4 py-2 rounded-xl text-white ${
+        isRecording ? "bg-gray-400 cursor-not-allowed" : "bg-green-600"
+      }`}
+    >
+      Download
+    </button> */}
     <div className="flex gap-3 mt-3">
        <button
       onClick={() => {

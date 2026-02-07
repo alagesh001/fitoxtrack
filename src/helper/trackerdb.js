@@ -90,9 +90,36 @@ export async function deleteTrainerSessionById(sessionId) {
     const tx = db.transaction("trainerSessions", "readwrite");
     const store = tx.objectStore("trainerSessions");
 
-    store.delete(sessionId);
+    // 1️⃣ check if it exists
+    const getReq = store.get(sessionId);
 
-    tx.oncomplete = () => resolve(true);
-    tx.onerror = () => reject(tx.error);
+    getReq.onsuccess = () => {
+      if (!getReq.result) {
+        // ❌ not in IndexedDB → built-in JSON
+        resolve(false);
+        return;
+      }
+
+      // 2️⃣ delete only if it exists
+      store.delete(sessionId);
+      resolve(true);
+    };
+
+    getReq.onerror = () => reject(getReq.error);
   });
+}
+
+export async function downloadTrainerSessionsJSON() {
+  const data = await getAllTrainerSessions();
+
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "trainer-sessions.json";
+  a.click();
+
+  URL.revokeObjectURL(url);
 }
