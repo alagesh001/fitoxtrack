@@ -180,6 +180,7 @@ function applyAccuracyLevel(level) {
     minTrackingConfidence: settings.minTrackingConfidence,
   });
 }
+const VISIBILITY_THRESHOLD = 0.3;
 
 useEffect(() => {
   isRecordingRef.current = isRecording;
@@ -290,7 +291,16 @@ function drawLandmarks(ctx, results) {
     ctx.beginPath();
     const a = P(i);
     const b = P(j);
-    ctx.moveTo(a.x, a.y);
+       const lmchecka = lm[i];
+       const lmcheckb = lm[j];
+  if (!lmchecka || !lmcheckb) return;
+
+    // 🚫 Skip if not visible
+  if (
+    lmchecka.visibility < VISIBILITY_THRESHOLD ||
+    lmcheckb.visibility < VISIBILITY_THRESHOLD
+  ) return;  // 🚫 Skip if either point invisible
+      ctx.moveTo(a.x, a.y);
     ctx.lineTo(b.x, b.y);
     ctx.lineWidth = 4;
     ctx.strokeStyle = color;
@@ -311,6 +321,10 @@ const CENTER_SET = new Set([
   23, 24    // hips
 ]);
 const drawPoint = (i, r = 6) => {
+   const lmcheck = lm[i];
+
+    // 🚫 Skip if not visible
+    if (!lmcheck || lmcheck.visibility < VISIBILITY_THRESHOLD) return;
   const p = P(i);
 
   let color = "white";
@@ -601,8 +615,11 @@ const drawPlayback = (frame, canvas) => {
     connections.forEach(([s, e]) => {
       const start = frame[s];
       const end = frame[e];
-      if (!start || !end) return;
-
+  if (
+      !start || !end ||
+      start[3] < VISIBILITY_THRESHOLD ||
+      end[3] < VISIBILITY_THRESHOLD
+    ) return;
       ctx.beginPath();
       ctx.moveTo(start[0] * width, start[1] * height);
       ctx.lineTo(end[0] * width, end[1] * height);
@@ -617,7 +634,7 @@ const drawPlayback = (frame, canvas) => {
 
   // ---- Draw Joints ----
   frame.forEach((lm, index) => {
-    if (!lm) return;
+  if (!lm || lm[3] < VISIBILITY_THRESHOLD) return; // 🚫 Skip invisible
 
     let jointColor = "white";
 
@@ -723,7 +740,11 @@ const drawPlaybackC = (landmarks, canvas) => {
     connections.forEach(([s, e]) => {
       const start = landmarks[s];
       const end = landmarks[e];
-      if (!start || !end) return;
+  if (
+      !start || !end ||
+      start[3] < VISIBILITY_THRESHOLD ||
+      end[3] < VISIBILITY_THRESHOLD
+    ) return;
 
       ctx.beginPath();
       ctx.moveTo(start.x * width, start.y * height);
@@ -739,7 +760,7 @@ const drawPlaybackC = (landmarks, canvas) => {
 
   // ---- Draw Joints (Colored by Side) ----
   landmarks.forEach((lm, index) => {
-    if (!lm) return;
+  if (!lm || lm[3] < VISIBILITY_THRESHOLD) return; // 🚫 Skip invisible
 
     let jointColor = "white";
 
