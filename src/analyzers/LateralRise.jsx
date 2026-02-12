@@ -296,66 +296,124 @@ function drawLandmarks(ctx, results) {
     ctx.strokeStyle = color;
     ctx.stroke();
   };
+// Use Set for fast lookup
+const LEFT_SET = new Set([
+  13,      // left elbow
+  25, 27   // left knee, ankle
+]);
 
-  const drawPoint = (i, color = "rgba(255,0,0,0.9)", r = 6) => {
-    const p = P(i);
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, r, 0, 2 * Math.PI);
-    ctx.fillStyle = color;
-    ctx.fill();
-  };
+const RIGHT_SET = new Set([
+  14,      // right elbow
+  26, 28   // right knee, ankle
+]);
+const CENTER_SET = new Set([
+  11, 12,   // shoulders
+  23, 24    // hips
+]);
+const drawPoint = (i, r = 6) => {
+  const p = P(i);
+
+  let color = "white";
+
+  if (LEFT_SET.has(i)) {
+    color = "rgba(255, 0, 242, 0.9)";
+  } 
+  else if (RIGHT_SET.has(i)) {
+    color = "rgba(255, 238, 0, 0.9)";
+  } 
+  else if (CENTER_SET.has(i)) {
+    color = "rgba(0, 225, 255, 0.9)";
+  }
+
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, r, 0, 2 * Math.PI);
+  ctx.fillStyle = color;
+  ctx.fill();
+};
 
   // -----------------------------
   // FULL BODY CONNECTIONS
   // -----------------------------
+  const COLORS = {
+  LEFT: "rgba(255, 0, 242, 0.9)",      // Red
+  RIGHT: "rgba(255, 238, 0, 0.9)",     // Blue
+  CENTER: "rgba(0, 225, 255, 0.9)"     // Green
+};
+const LEFT_CONNECTIONS = [
+  [11, 13], [13, 15],       // left arm
+  [23, 25], [25, 27],       // left leg
+  [11, 23]                  // left torso
+];
 
-  const LEFT = {
-    SHOULDER: 11,
-    ELBOW: 13,
-    WRIST: 15,
-    HIP: 23,
-    KNEE: 25,
-    ANKLE: 27,
-    HEEL: 29,
-    FOOT: 31
-  };
+const RIGHT_CONNECTIONS = [
+  [12, 14], [14, 16],       // right arm
+  [24, 26], [26, 28],       // right leg
+  [12, 24]                  // right torso
+];
 
-  const RIGHT = {
-    SHOULDER: 12,
-    ELBOW: 14,
-    WRIST: 16,
-    HIP: 24,
-    KNEE: 26,
-    ANKLE: 28,
-    HEEL: 30,
-    FOOT: 32
-  };
+const CENTER_CONNECTIONS = [
+  [11, 12],                 // shoulders
+  [23, 24],                 // hips
+  [0, 1], [1, 2], [2, 3], [3, 7]  // face / nose bridge
+];
+LEFT_CONNECTIONS.forEach(([i, j]) =>
+  drawLine(i, j, COLORS.LEFT)
+);
 
-  // Torso
-  drawLine(LEFT.SHOULDER, RIGHT.SHOULDER);
-  drawLine(LEFT.HIP, RIGHT.HIP);
-  drawLine(LEFT.SHOULDER, LEFT.HIP);
-  drawLine(RIGHT.SHOULDER, RIGHT.HIP);
+RIGHT_CONNECTIONS.forEach(([i, j]) =>
+  drawLine(i, j, COLORS.RIGHT)
+);
 
-  // Left Arm
-  drawLine(LEFT.SHOULDER, LEFT.ELBOW);
-  drawLine(LEFT.ELBOW, LEFT.WRIST);
+CENTER_CONNECTIONS.forEach(([i, j]) =>
+  drawLine(i, j, COLORS.CENTER)
+);
+  // const LEFT = {
+  //   SHOULDER: 11,
+  //   ELBOW: 13,
+  //   WRIST: 15,
+  //   HIP: 23,
+  //   KNEE: 25,
+  //   ANKLE: 27,
+  //   HEEL: 29,
+  //   FOOT: 31
+  // };
 
-  // Right Arm
-  drawLine(RIGHT.SHOULDER, RIGHT.ELBOW);
-  drawLine(RIGHT.ELBOW, RIGHT.WRIST);
+  // const RIGHT = {
+  //   SHOULDER: 12,
+  //   ELBOW: 14,
+  //   WRIST: 16,
+  //   HIP: 24,
+  //   KNEE: 26,
+  //   ANKLE: 28,
+  //   HEEL: 30,
+  //   FOOT: 32
+  // };
 
-  // Left Leg
-  drawLine(LEFT.HIP, LEFT.KNEE);
-  drawLine(LEFT.KNEE, LEFT.ANKLE);
-  drawLine(LEFT.ANKLE, LEFT.HEEL);
-  drawLine(LEFT.HEEL, LEFT.FOOT);
+  // // Torso
+  // drawLine(LEFT.SHOULDER, RIGHT.SHOULDER);
+  // drawLine(LEFT.HIP, RIGHT.HIP);
+  // drawLine(LEFT.SHOULDER, LEFT.HIP);
+  // drawLine(RIGHT.SHOULDER, RIGHT.HIP);
 
-  // Right Leg
-  drawLine(RIGHT.HIP, RIGHT.KNEE);
-  drawLine(RIGHT.KNEE, RIGHT.ANKLE);
-  drawLine(RIGHT.ANKLE, RIGHT.HEEL);
-  drawLine(RIGHT.HEEL, RIGHT.FOOT);
+  // // Left Arm
+  // drawLine(LEFT.SHOULDER, LEFT.ELBOW);
+  // drawLine(LEFT.ELBOW, LEFT.WRIST);
+
+  // // Right Arm
+  // drawLine(RIGHT.SHOULDER, RIGHT.ELBOW);
+  // drawLine(RIGHT.ELBOW, RIGHT.WRIST);
+
+  // // Left Leg
+  // drawLine(LEFT.HIP, LEFT.KNEE);
+  // drawLine(LEFT.KNEE, LEFT.ANKLE);
+  // drawLine(LEFT.ANKLE, LEFT.HEEL);
+  // drawLine(LEFT.HEEL, LEFT.FOOT);
+
+  // // Right Leg
+  // drawLine(RIGHT.HIP, RIGHT.KNEE);
+  // drawLine(RIGHT.KNEE, RIGHT.ANKLE);
+  // drawLine(RIGHT.ANKLE, RIGHT.HEEL);
+  // drawLine(RIGHT.HEEL, RIGHT.FOOT);
 
   // Draw Points (all 33)
   for (let i = 0; i < lm.length; i++) {
@@ -510,7 +568,6 @@ setTrainerReady(session.frames.length > 0);
   loadSession();
 }, [selectedSessionId]);
 const drawPlayback = (frame, canvas) => {
-
   if (!frame || !canvas) return;
 
   const ctx = canvas.getContext("2d");
@@ -519,35 +576,62 @@ const drawPlayback = (frame, canvas) => {
 
   ctx.clearRect(0, 0, width, height);
 
-  const connections = [
-    [11, 13], [13, 15], [12, 14], [14, 16],
-    [11, 12], [23, 24], [11, 23], [12, 24],
-    [23, 25], [25, 27], [24, 26], [26, 28],
+  // ---- Connection Groups ----
+  const LEFT_CONNECTIONS = [
+    [11, 13], [13, 15],       // left arm
+    [23, 25], [25, 27],       // left leg
+    [11, 23]                  // left torso
   ];
 
-  ctx.strokeStyle = "#00ff00";
-  ctx.lineWidth = 2;
+  const RIGHT_CONNECTIONS = [
+    [12, 14], [14, 16],       // right arm
+    [24, 26], [26, 28],       // right leg
+    [12, 24]                  // right torso
+  ];
 
-  // skeleton
-  connections.forEach(([s, e]) => {
-    const start = frame[s];
-    const end = frame[e];
-    if (!start || !end) return;
+  const CENTER_CONNECTIONS = [
+    [11, 12],                 // shoulders
+    [23, 24]                  // hips
+  ];
 
-    ctx.beginPath();
-    ctx.moveTo(start[0] * width, start[1] * height);
-    ctx.lineTo(end[0] * width, end[1] * height);
-    ctx.stroke();
-  });
+  const drawConnections = (connections, color) => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
 
-  // joints
-  frame.forEach((lm) => {
+    connections.forEach(([s, e]) => {
+      const start = frame[s];
+      const end = frame[e];
+      if (!start || !end) return;
+
+      ctx.beginPath();
+      ctx.moveTo(start[0] * width, start[1] * height);
+      ctx.lineTo(end[0] * width, end[1] * height);
+      ctx.stroke();
+    });
+  };
+
+  // ---- Draw Skeleton ----
+  drawConnections(LEFT_CONNECTIONS, "rgba(255, 0, 242, 0.9)");   // Left = Red
+  drawConnections(RIGHT_CONNECTIONS, "rgba(255, 238, 0, 0.9)");  // Right = Blue
+  drawConnections(CENTER_CONNECTIONS, "rgba(0, 225, 255, 0.9)"); // Center = Green
+
+  // ---- Draw Joints ----
+  frame.forEach((lm, index) => {
+    if (!lm) return;
+
+    let jointColor = "white";
+
+    if ([11,13,15,23,25,27].includes(index)) jointColor = "rgba(255, 0, 242, 0.9)";
+    else if ([12,14,16,24,26,28].includes(index)) jointColor = "rgba(255, 238, 0, 0.9)";
+    else if ([11,12,23,24].includes(index)) jointColor = "rgba(0, 225, 255, 0.9)";
+
     ctx.beginPath();
     ctx.arc(lm[0] * width, lm[1] * height, 4, 0, Math.PI * 2);
-    ctx.fillStyle = "red";
+    ctx.fillStyle = jointColor;
     ctx.fill();
   });
 };
+
 
 const playTrainer = () => {
 //loadSelectedTrainerSession();
@@ -605,24 +689,74 @@ const stopTrainer = () => {
   setTrainerPaused(false);
   trainerIndexRef.current = 0;
 };
-const drawPlaybackC = (landmarks, canvas) => { 
+const drawPlaybackC = (landmarks, canvas) => {
   if (!landmarks || !canvas) return;
-   const ctx = canvas.getContext("2d"); 
-   const width = canvas.width; 
-   const height = canvas.height; 
-   ctx.clearRect(0, 0, width, height); 
-   const connections = [ [11, 13], [13, 15], [12, 14], [14, 16], [11, 12], [23, 24], [11, 23], [12, 24], [23, 25], [25, 27], [24, 26], [26, 28] ];
-    ctx.strokeStyle = "#00ff00"; ctx.lineWidth = 2; 
-    connections.forEach(([s, e]) => { 
+
+  const ctx = canvas.getContext("2d");
+  const width = canvas.width;
+  const height = canvas.height;
+
+  ctx.clearRect(0, 0, width, height);
+
+  // ---- Connection Groups ----
+  const LEFT_CONNECTIONS = [
+    [11, 13], [13, 15],       // left arm
+    [23, 25], [25, 27],       // left leg
+    [11, 23]                  // left torso
+  ];
+
+  const RIGHT_CONNECTIONS = [
+    [12, 14], [14, 16],       // right arm
+    [24, 26], [26, 28],       // right leg
+    [12, 24]                  // right torso
+  ];
+
+  const CENTER_CONNECTIONS = [
+    [11, 12],                 // shoulders
+    [23, 24]                  // hips
+  ];
+
+  const drawConnections = (connections, color) => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+
+    connections.forEach(([s, e]) => {
       const start = landmarks[s];
-       const end = landmarks[e]; 
-       if (start && end) 
-        { ctx.beginPath(); ctx.moveTo(start.x * width, start.y * height);
-           ctx.lineTo(end.x * width, end.y * height); ctx.stroke();
-           } }); 
-           landmarks.forEach(lm => { ctx.beginPath(); 
-            ctx.arc(lm.x * width, lm.y * height, 4, 0, Math.PI * 2);
-             ctx.fillStyle = "red"; ctx.fill(); }); };
+      const end = landmarks[e];
+      if (!start || !end) return;
+
+      ctx.beginPath();
+      ctx.moveTo(start.x * width, start.y * height);
+      ctx.lineTo(end.x * width, end.y * height);
+      ctx.stroke();
+    });
+  };
+
+  // ---- Draw Skeleton ----
+  drawConnections(LEFT_CONNECTIONS, "rgba(255, 0, 242, 0.9)");   // Left = Red
+  drawConnections(RIGHT_CONNECTIONS, "rgba(255, 238, 0, 0.9)");  // Right = Blue
+  drawConnections(CENTER_CONNECTIONS, "rgba(0, 225, 255, 0.9"); // Center = Green
+
+  // ---- Draw Joints (Colored by Side) ----
+  landmarks.forEach((lm, index) => {
+    if (!lm) return;
+
+    let jointColor = "white";
+
+    if ([11,13,15,23,25,27].includes(index))
+      jointColor = "rgba(255, 0, 242, 0.9)";
+    else if ([12,14,16,24,26,28].includes(index))
+      jointColor = "rgba(255, 238, 0, 0.9)";
+    else if ([11,12,23,24].includes(index))
+      jointColor = "rgba(0, 225, 255, 0.9)";
+
+    ctx.beginPath();
+    ctx.arc(lm.x * width, lm.y * height, 4, 0, Math.PI * 2);
+    ctx.fillStyle = jointColor;
+    ctx.fill();
+  });
+};
+
 
 const playClient = () => {
    console.log("playClient" );
