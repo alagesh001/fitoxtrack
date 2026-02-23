@@ -4,7 +4,7 @@ import axios from "axios";
 import { showUpgradePopup } from './helper/reuse.js';
 import { toast } from "react-toastify";
 import myBackground from "./assets/fitgymbg.png";
-
+import settingIcon from "./assets/settings.png";
 export default function AIhubHere() {
   const [active, setActive] = useState(null);
   const navigate = useNavigate();
@@ -484,7 +484,21 @@ return (
     </button>
   </div>
 )}
-
+{isLoggedIn && (
+ <div className="w-full max-w-xl flex justify-end pr-4 mb-4">
+    <div
+      onClick={() => handleTabClick("Settings")}
+      className="cursor-pointer p-3 rounded-full bg-red-600/60 hover:bg-red-700 transition shadow-lg"
+    >
+      <img
+        src={settingIcon}
+        alt="Settings"
+        className="w-6 h-6 filter brightness-0 invert"
+      />
+    </div>
+  </div>
+)}
+ 
 
     <nav className="flex flex-col gap-14">
 

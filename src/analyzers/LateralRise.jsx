@@ -567,9 +567,9 @@ setLoading(false);
             }
 
             // ✅ Start recording
-            if (typeof startRecording === "function") {
-              startRecording();
-            }
+            // if (typeof startRecording === "function") {
+            //   startRecording();
+            // }
 
             alert("Payment Successful!");
           } else {
