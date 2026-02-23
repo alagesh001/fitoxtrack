@@ -256,14 +256,14 @@ return prev +7;
  try {
   const gymid = selectedGym?.GymId;
 const mob = selectedGym?.mob;
-const uniqueId = localStorage.getItem("device_idfitox");
+//const uniqueId = localStorage.getItem("device_idfitox");
                       //  console.log("✅uid",uniqueId);
 
     // ✅ AUTH CHECK API
     const response = await axios.get(`${apiBase}/api/check_tok_ai`, {
   params: {
     gymid: gymid,
-    device_id: uniqueId,
+   // device_id: uniqueId,
   },
   headers: {
     Authorization: `Bearer ${tokenIs}`,
@@ -399,6 +399,11 @@ const fetchCheck = async (gymId,token,retryCount = 0) => {
       return null;
     }
   };
+  const handleTabClick = (tabName) => {
+        if (tabName === "Settings") {
+            navigate("/settings");
+        }
+      }
    const handleLogout = () => {
         localStorage.removeItem("gyms");
         localStorage.removeItem("selectedGym");

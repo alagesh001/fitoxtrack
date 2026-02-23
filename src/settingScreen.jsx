@@ -22,7 +22,11 @@ const [authErrorMsg, setAuthErrorMsg] = useState("");
 
 const handleLogout = async () => {
   try {
-    
+      localStorage.clear();
+
+    // 🧹 Clear all IndexedDB databases
+    await clearAllIndexedDB();
+localStorage.setItem("isLoggedInWeb", "false"); // optional flag
     // 🧹 Clear all localStorage data
      const deviceId = localStorage.getItem("device_idfitox"); // ✅ get from storage
 
@@ -252,9 +256,9 @@ const refreshAccessToken = async () => {
 <p className="text-gray-700">
   📅 Active Plan:{" "}
   {selectedGym?.is_active === "1" ? (
-    <span className="font-medium text-green-500">Freemium</span>
+    <span className="font-medium text-green-500">Pro</span>
   ) : parseInt(selectedGym?.is_active || "0", 10) > 1 ? (
-    <span className="font-medium text-yellow-600">Premium</span>
+    <span className="font-medium text-yellow-600">Pro</span>
   ) : (
     <span className="font-medium">N/A</span>
   )}

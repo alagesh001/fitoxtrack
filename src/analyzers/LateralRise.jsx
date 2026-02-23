@@ -28,9 +28,11 @@ const isRecordingRef = useRef(false);
 const trainerIndexRef = useRef(0);
 const [showDialog, setShowDialog] = useState(false);
 const [loading, setLoading] = useState(false);
+const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
 const playbackSpeedRef = useRef(1);
 const playbackSpeedRefClient = useRef(1);
+const isLoggedIn = localStorage.getItem("isLoggedInWeb") === "true";
 
 const clientIndexRef = useRef(0);
   const poseRef = useRef(null);
@@ -43,6 +45,7 @@ const clientIndexRef = useRef(0);
 
     useEffect(() => {
     // Check if navigation came from button click
+
     if (!location.state?.fromButton) {
       // Redirect or hide
     //  navigate("/", { replace: true }); // or just return null
@@ -570,8 +573,9 @@ setLoading(false);
             // if (typeof startRecording === "function") {
             //   startRecording();
             // }
+setShowSuccessDialog(true);
 
-            alert("Payment Successful!");
+           // alert("Payment Successful!");
           } else {
             alert("Payment verification failed.");
           }
@@ -1010,6 +1014,66 @@ const stopClient = () => {
     </div>
   </div>
 )}
+{showSuccessDialog && (
+  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm 
+                  flex items-center justify-center z-50 px-4">
+
+    <div className="bg-white rounded-3xl shadow-2xl 
+                    max-w-md w-full p-8 text-center animate-fadeIn">
+
+      {/* Animated Tick */}
+      <div className="w-20 h-20 mx-auto mb-6 
+                      rounded-full bg-green-100 
+                      flex items-center justify-center">
+
+        <svg
+          className="w-10 h-10 text-green-600 animate-scaleIn"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="3"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M5 13l4 4L19 7"
+          />
+        </svg>
+      </div>
+
+      {/* Title */}
+      <h2 className="text-2xl font-bold text-gray-800 mb-3">
+        Payment Successful 🎾
+      </h2>
+
+      {/* Message */}
+      
+   <p className="text-gray-600 text-sm leading-relaxed mb-6">
+  Your payment has been received. Login credentials will be shared 
+  <span className="text-red-500 font-semibold"> within 24 hours </span> 
+  following account verification to ensure secure account setup.
+  <br /><br />
+  Our team will also contact you to assist with onboarding, if required.
+   <br /><br />
+  For any queries or feedback, please contact us at 
+  <span className="font-semibold text-gray-800"> oxadmedia@gmail.com</span>.
+</p>
+
+      {/* Button */}
+      <button
+        onClick={() => setShowSuccessDialog(false)}
+        className="w-full bg-gradient-to-r 
+                   from-green-500 to-emerald-600 
+                   text-white py-3 rounded-xl font-semibold
+                   hover:scale-105 transition duration-300"
+      >
+        Continue
+      </button>
+
+    </div>
+  </div>
+)}
+
 {loading && (
   <div className="fixed inset-0 bg-black flex flex-col 
                   items-center justify-center z-[9999] text-center">
@@ -1130,6 +1194,45 @@ const stopClient = () => {
 )}
 
       <div className="bg-gray-900 rounded-2xl shadow-xl p-6 w-full max-w-4xl space-y-6">
+         <div className="flex justify-between items-center flex-wrap gap-3">
+
+  {/* Back Button */}
+  <button
+    onClick={() => navigate("/ai-hub")}  // goes back
+    className="p-3 rounded-full 
+               bg-gray-800 hover:bg-gray-700
+               text-white shadow-md hover:shadow-lg
+               transition duration-300 hover:scale-105"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-5 h-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+    </svg>
+  </button>
+
+  {/* Upgrade Button */}
+ {!isLoggedIn && (
+  <button
+    onClick={() => setShowDialog(true)}
+    className="px-6 py-2.5 rounded-full font-semibold text-black
+               bg-gradient-to-r from-yellow-400 to-green-500
+               hover:from-yellow-500 hover:to-green-600
+               transition-all duration-300
+               shadow-md hover:shadow-xl
+               hover:scale-105 active:scale-95"
+  >
+    🚀 Upgrade to Pro
+  </button>
+)}
+
+</div>
+
           <h2 className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-white">
     <span className="bg-blue-600 text-white text-sm px-2 py-1 rounded-md">TennisX AI</span>
     Real-Time Stroke Tracker
