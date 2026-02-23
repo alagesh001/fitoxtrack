@@ -42,4 +42,28 @@
     z-index: 30;
     pointer-events: none;
   }
+  @keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out;
+}
+@keyframes tennisBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-40px);
+  }
+}
+
+.animate-tennis {
+  animation: tennisBounce 0.8s ease-in-out infinite;
+}
 }

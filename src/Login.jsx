@@ -214,7 +214,19 @@ const [uniqueId, setDeviceId] = useState(null);
 
                 <h2 className="text-2xl font-bold text-gray-800">TennisX Login</h2>
                 <p className="text-gray-600 mt-2">Tennis Stroke Motion Tracker</p>
-
+<div className="flex justify-center mt-6">
+  <button
+    onClick={() => navigate("/ai-hub")}
+    className="px-8 py-3 rounded-xl font-bold text-white text-lg
+               bg-gradient-to-r from-purple-600 via-pink-500 to-red-500
+               hover:scale-105
+               transition duration-300
+               shadow-lg hover:shadow-2xl
+               animate-pulse"
+  >
+    🎾 Use for Free
+  </button>
+</div>
                 <div className="mt-6">
                     <input
                         type="text"
@@ -239,7 +251,7 @@ const [uniqueId, setDeviceId] = useState(null);
                     >
                         {loading ? "Logging in..." : "Login"}
                     </button>
-
+{/* 
                     <div className="mt-6">
                         <p className="text-sm text-gray-600">New Here?</p>
                         <button
@@ -248,7 +260,7 @@ const [uniqueId, setDeviceId] = useState(null);
                         >
                             Register Now
                         </button>
-                    </div>
+                    </div> */}
                 </div>
 
                 <p className="text-gray-500 text-sm mt-6">Version {version_n}</p>

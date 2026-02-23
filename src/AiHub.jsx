@@ -15,6 +15,7 @@ const [accessToken, setAccessToken] = useState(null);
 const [authErrorMsg, setAuthErrorMsg] = useState("");
   const token = localStorage.getItem("accessToken");
   const storedGym = localStorage.getItem("selectedGym");
+const isLoggedIn = localStorage.getItem("isLoggedInWeb") === "true";
 
 useEffect(() => {
 
@@ -192,7 +193,50 @@ useEffect(() => {
 
 //   console.log("Access Allowed");
 // }, []);
+const handleLogin = (type) => {
+  const isLoggedIn =
+    localStorage.getItem("isLoggedInWeb") === "true";
 
+  if (isLoggedIn) {
+   
+    return;
+  }
+
+ 
+};
+const handleClick = (type) => {
+  const isLoggedIn =
+    localStorage.getItem("isLoggedInWeb") === "true";
+
+  if (isLoggedIn) {
+    handleGenerate(type);
+    return;
+  }
+setLoading(true);
+setProgress(0);
+
+let progressInterval = setInterval(() => {
+setProgress((prev) => {
+if (prev >= 100) {
+clearInterval(progressInterval);
+return 100;
+}
+return prev +7;
+});
+}, 100);
+  setTimeout(() => {
+    setLoading(false);
+
+    if (type === "lateral") {
+      navigate("/lateral-ai", {
+        state: {
+          fromButton: true,
+          facing: facingMode,
+        },
+      });
+    }
+  }, 1000);
+};
 const handleGenerate = async (type,tokenIs=token,retryCount = 0) => {
       const MAX_RETRIES = 1; // or 2
 
@@ -234,17 +278,17 @@ setLoading(false);
   const params = { facing: facingMode }; // pass current facingMode
       console.log("facemode",facingMode);
 
-if (type === "workout") navigate("/workout-ai", { state: { fromButton: true } });
-if (type === "diet") navigate("/diet-ai", { state: { fromButton: true } });
+// if (type === "workout") navigate("/workout-ai", { state: { fromButton: true } });
+// if (type === "diet") navigate("/diet-ai", { state: { fromButton: true } });
 
-if (type === "birthday") navigate("/birthday-ai", { state: { fromButton: true } });
-if (type === "poster") navigate("/offer-ai", { state: { fromButton: true } });
-if (type === "transform") navigate("/transform-ai", { state: { fromButton: true } });
-if (type === "bicep") navigate("/bicep-ai", { state: { fromButton: true } });
- if (type === "squat") navigate("/squat-ai", { state: { fromButton: true, facing:facingMode } });
+// if (type === "birthday") navigate("/birthday-ai", { state: { fromButton: true } });
+// if (type === "poster") navigate("/offer-ai", { state: { fromButton: true } });
+// if (type === "transform") navigate("/transform-ai", { state: { fromButton: true } });
+// if (type === "bicep") navigate("/bicep-ai", { state: { fromButton: true } });
+//  if (type === "squat") navigate("/squat-ai", { state: { fromButton: true, facing:facingMode } });
    if (type === "lateral") navigate("/lateral-ai", { state: { fromButton: true, facing:facingMode } });
-   if (type === "lateralSide") navigate("/lateralside-ai", { state: { fromButton: true,facing:facingMode } });
-   if (type === "speeddet") navigate("/speed-ai", { state: { fromButton: true,facing:facingMode } });
+  //  if (type === "lateralSide") navigate("/lateralside-ai", { state: { fromButton: true,facing:facingMode } });
+  //  if (type === "speeddet") navigate("/speed-ai", { state: { fromButton: true,facing:facingMode } });
 
 
 }, 1000);
@@ -427,6 +471,19 @@ return (
 )}
 
    <div className="md:flex">
+{!isLoggedIn && (
+  <div className="flex justify-end py-5">
+    <button
+      onClick={() => navigate("/login")}
+      className="px-6 py-2 rounded-lg font-semibold text-white 
+                 bg-gradient-to-r from-blue-500 to-indigo-600 
+                 hover:from-blue-600 hover:to-indigo-700 
+                 transition duration-300 shadow-lg hover:shadow-xl"
+    >
+      Login
+    </button>
+  </div>
+)}
 
 
     <nav className="flex flex-col gap-14">
@@ -508,7 +565,7 @@ return (
 </div>
 )}
 <button
-  onClick={() => handleGenerate(w.key)}
+  onClick={() => handleClick(w.key)}
   className="w-full py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold shadow-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105"
 >
   Start

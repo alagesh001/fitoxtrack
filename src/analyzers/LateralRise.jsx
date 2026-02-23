@@ -11,7 +11,9 @@ const { facing = "user" } = location.state || {}; // ✅ DIRECT READ
 const [facingMode, setFacingMode] = useState(facing);
 const [trainerReady, setTrainerReady] = useState(false);
 const clientFpsRef = useRef(30); // default
-
+const [name, setName] = useState("");
+const [email, setEmail] = useState("");
+const [mobile, setMobile] = useState("");
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const playbackCanvasRef = useRef(null);
@@ -24,6 +26,8 @@ const playbackIndexRef = useRef(0);
     const recordedFramesClientRef = useRef([]);
 const isRecordingRef = useRef(false);
 const trainerIndexRef = useRef(0);
+const [showDialog, setShowDialog] = useState(false);
+const [loading, setLoading] = useState(false);
 
 const playbackSpeedRef = useRef(1);
 const playbackSpeedRefClient = useRef(1);
@@ -436,8 +440,179 @@ CENTER_CONNECTIONS.forEach(([i, j]) =>
 
   ctx.restore();
 }
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (document.getElementById("razorpay-script")) {
+      resolve(true);
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = "razorpay-script";
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
+const handlePayment = async (name, email, mobile) => {
+  if (!name || !email || !mobile) {
+    alert("Please enter name, email and mobile number");
+    return;
+  }
+ setLoading(true);
+  // Ensure mobile is 10 digits only
+  mobile = mobile.replace(/\D/g, "").slice(-10);
+
+  const sdkLoaded = await loadRazorpayScript();
+
+  if (!sdkLoaded) {
+    setLoading(false);
+    alert("Razorpay SDK failed to load.");
+    return;
+  }
+
+  try {
+    // 🔹 Create order from backend
+    const orderRes = await fetch(
+      "https://oxadmedia.online/api/razorpay/create-order",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, mobile }),
+      }
+    );
+
+    if (!orderRes.ok) {
+      setLoading(false);
+      throw new Error("Order creation request failed");
+    }
+
+    const order = await orderRes.json();
+
+    if (!order || !order.id) {
+      setLoading(false);
+      alert("Order creation failed");
+      return;
+    }
+setLoading(false);
+    const options = {
+      key: "rzp_live_SIk4XqCcjDia3U",
+      amount: order.amount,
+      currency: order.currency,
+      order_id: order.id,
+
+      name: "Oxad Media",
+      description: "Free Trial Payment",
+
+      prefill: {
+        name,
+        email,
+        contact: mobile,
+      },
+
+      notes: {
+        name,
+        email,
+        mobile,
+      },
+  modal: {
+    ondismiss: function () {
+      console.log("Payment popup closed");
+      setLoading(false); // ✅ Stop loading if user cancels
+    }
+  },
+      theme: {
+        color: "#2ef02e",
+      },
+
+      handler: async function (response) {
+        try {
+          setLoading(false);
+          const verifyRes = await fetch(
+            "https://oxadmedia.online/api/razorpay/verify-payment",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                name,
+                email,
+                mobile,
+              }),
+            }
+          );
+
+          if (!verifyRes.ok) {
+            
+            throw new Error("Verification request failed");
+          }
+
+          const data = await verifyRes.json();
+
+          if (data.success) {
+            // ✅ Mark login
+            //localStorage.setItem("isLoggedInWeb", "true");
+
+            // ✅ Close dialog
+            if (typeof setShowDialog === "function") {
+              setShowDialog(false);
+            }
+
+            // ✅ Start recording
+            if (typeof startRecording === "function") {
+              startRecording();
+            }
+
+            alert("Payment Successful!");
+          } else {
+            alert("Payment verification failed.");
+          }
+            setLoading(false);
+        } catch (err) {
+          setLoading(false);
+          console.error("Verification error:", err);
+          alert("Verification error.");
+        }
+      },
+    };
+
+    const paymentObject = new window.Razorpay(options);
+
+    paymentObject.on("payment.failed", function (response) {
+      console.error("Payment Failed:", response.error);
+      alert("Payment Failed. Please try again.");
+    });
+
+    paymentObject.open();
+
+  } catch (error) {
+    console.error("Payment error:", error);
+    alert("Something went wrong. Please try again.");
+  }
+};
 
 
+const checkLogin = () => {
+  const isLoggedIn =
+    localStorage.getItem("isLoggedInWeb") === "true";
+
+  if (isLoggedIn) {
+   startRecording();
+    return;
+  }
+    setShowDialog(true); // 👈 open bottom dialog
+
+//handlePayment();
+ 
+};
   const startRecording = () => {
     //downloadTrainerSessionsJSON();
        if (userRole === "trainer")
@@ -835,6 +1010,125 @@ const stopClient = () => {
     </div>
   </div>
 )}
+{loading && (
+  <div className="fixed inset-0 bg-black flex flex-col 
+                  items-center justify-center z-[9999] text-center">
+
+    {/* Tennis Ball */}
+   <div className="relative mb-10">
+  <div className="relative w-20 h-20 bg-yellow-400 rounded-full 
+                  shadow-2xl animate-tennis overflow-hidden">
+
+    {/* Left curve */}
+    <div className="absolute w-24 h-24 border-[6px] border-white 
+                    rounded-full -left-10 top-0"></div>
+
+    {/* Right curve */}
+    <div className="absolute w-24 h-24 border-[6px] border-white 
+                    rounded-full -right-10 top-0"></div>
+  </div>
+
+  {/* Shadow */}
+  <div className="w-16 h-4 bg-black/40 rounded-full 
+                  absolute left-1/2 -translate-x-1/2 top-20 
+                  blur-sm animate-pulse"></div>
+</div>
+
+    <h2 className="text-white text-2xl font-semibold mb-2">
+      Connecting to your bank...
+    </h2>
+
+    <p className="text-gray-400">
+      Securing your payment 🎾
+    </p>
+  </div>
+)}
+
+
+{showDialog && (
+  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm 
+                  flex items-end justify-center z-50">
+
+    <div className="w-full max-w-md bg-white 
+                    rounded-t-3xl p-6 animate-slideUp shadow-2xl">
+
+      {/* Header */}
+      <div className="text-center mb-6">
+        <div className="w-14 h-14 mx-auto mb-3 
+                        bg-yellow-400 rounded-full 
+                        flex items-center justify-center 
+                        shadow-md">
+          🎾
+        </div>
+
+        <h2 className="text-2xl font-bold text-gray-800">
+          Go Pro
+        </h2>
+
+        <p className="text-gray-500 text-sm mt-1">
+          Unlock premium TennisX features
+        </p>
+      </div>
+
+      {/* Inputs */}
+      <input
+        type="text"
+        placeholder="Full Name*"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        className="w-full border border-gray-200 
+                   focus:border-yellow-400 focus:ring-2 
+                   focus:ring-yellow-200
+                   p-3 rounded-xl mb-3 outline-none transition"
+      />
+
+      <input
+        type="email"
+        placeholder="Email Address*"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="w-full border border-gray-200 
+                   focus:border-yellow-400 focus:ring-2 
+                   focus:ring-yellow-200
+                   p-3 rounded-xl mb-3 outline-none transition"
+      />
+
+      <input
+        type="tel"
+        placeholder="Mobile Number*"
+        value={mobile}
+        onChange={(e) => setMobile(e.target.value)}
+        className="w-full border border-gray-200 
+                   focus:border-yellow-400 focus:ring-2 
+                   focus:ring-yellow-200
+                   p-3 rounded-xl mb-5 outline-none transition"
+      />
+
+      {/* Upgrade Button */}
+      <button
+        onClick={() => handlePayment(name, email, mobile)}
+        disabled={loading}
+        className="w-full bg-gradient-to-r 
+                   from-yellow-400 to-green-500
+                   text-black py-3 rounded-xl font-semibold
+                   hover:scale-105 transition duration-300
+                   disabled:opacity-70 disabled:cursor-not-allowed"
+      >
+        {loading ? "Processing..." : "🎾 Upgrade to Pro"}
+      </button>
+
+      {/* Cancel */}
+      <button
+        onClick={() => setShowDialog(false)}
+        className="w-full mt-4 text-gray-400 text-sm hover:text-gray-600 transition"
+      >
+        Cancel
+      </button>
+
+    </div>
+  </div>
+)}
+
       <div className="bg-gray-900 rounded-2xl shadow-xl p-6 w-full max-w-4xl space-y-6">
           <h2 className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-white">
     <span className="bg-blue-600 text-white text-sm px-2 py-1 rounded-md">TennisX AI</span>
@@ -905,7 +1199,7 @@ const stopClient = () => {
   {/* ROW 1 — RECORD CONTROLS */}
   <div className="flex gap-4 justify-start">
     <button
-      onClick={startRecording}
+      onClick={checkLogin}
       disabled={isRecording}
       className={`px-4 py-2 rounded-xl text-white ${
         isRecording ? "bg-gray-400 cursor-not-allowed" : "bg-green-600"
