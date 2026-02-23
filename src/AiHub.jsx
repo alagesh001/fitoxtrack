@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { showUpgradePopup } from './helper/reuse.js';
 import { toast } from "react-toastify";
-import myBackground from "./assets/fitgymbg.png";
+import myBackground from "./assets/fitgymbg.jpg";
 import settingIcon from "./assets/settings.png";
 export default function AIhubHere() {
   const [active, setActive] = useState(null);

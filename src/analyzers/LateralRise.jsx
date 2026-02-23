@@ -1053,8 +1053,10 @@ const stopClient = () => {
   <span className="text-red-500 font-semibold"> within 24 hours </span> 
   following account verification to ensure secure account setup.
   <br /><br />
+  Please check your email for the payment receipt.
+  <br /><br />
   Our team will also contact you to assist with onboarding, if required.
-   <br /><br />
+  <br /><br />
   For any queries or feedback, please contact us at 
   <span className="font-semibold text-gray-800"> oxadmedia@gmail.com</span>.
 </p>
@@ -1198,7 +1200,13 @@ const stopClient = () => {
 
   {/* Back Button */}
   <button
-    onClick={() => navigate("/ai-hub")}  // goes back
+     onClick={() => {
+    if (window.history.length > 1) {
+      navigate(-1);   // Go back
+    } else {
+      navigate("/ai-hub");  // Fallback
+    }
+  }}
     className="p-3 rounded-full 
                bg-gray-800 hover:bg-gray-700
                text-white shadow-md hover:shadow-lg
