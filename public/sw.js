@@ -1,10 +1,10 @@
 const CACHE_NAME = 'tennisx-cache-v4.5';
 const urlsToCache = [
-  '/tennisx/',
-  '/tennisx/index.html',
-  '/tennisx/manifest.webmanifest',
-  '/tennisx/fc-icon-192x192.png',
-  '/tennisx/fc-icon-512x512.png'
+  '/',
+  '/index.html',
+  '/manifest.webmanifest',
+  '/fc-icon-192x192.png',
+  '/fc-icon-512x512.png'
 ];
 
 // Install service worker and cache required files

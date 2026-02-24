@@ -56,7 +56,7 @@ function App() {
   }, []);
 
   return (
-    <Router basename="/tennisx">
+    <Router basename="/">
         <ToastContainer
         position="top-center"
         autoClose={1500} // close after 3 seconds
