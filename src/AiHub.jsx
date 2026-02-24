@@ -493,7 +493,7 @@ return (
 
 
     {/* Upgrade Button */}
-    <button
+    {/* <button
     onClick={() => {
         setShowExpireBlock(false);
 
@@ -503,20 +503,26 @@ return (
     >
       🚀 Upgrade Now 
       
-    </button>
+    </button> */}
 
     {/* Close Button */}
-  <button
-  onClick={() => {setShowExpireBlock(false)
-  const params = { facing: facingMode }; // pass current facingMode
-
- navigate("/lateral-ai", { state: { fromButton: true, facing:facingMode } });
-
+<button
+  onClick={() => {
+    setShowExpireBlock(false);
+    navigate("/lateral-ai", { 
+      state: { fromButton: true, facing: facingMode } 
+    });
   }}
-  className="mt-4 text-sm text-gray-400 hover:text-gray-600 transition"
+  className="mt-4 w-full 
+             border border-black 
+             text-black 
+             py-2 rounded-lg text-sm font-medium
+             hover:bg-black hover:text-white
+             transition duration-200"
 >
-  Continue to use free
+  Continue with Free Version
 </button>
+
 
   </div>
 </div>

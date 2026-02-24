@@ -41,10 +41,10 @@ const isLoggedIn = localStorage.getItem("isLoggedInWeb") === "true";
 const today = new Date();
 today.setHours(0, 0, 0, 0);
 
-const expiry = new Date(storedGym?.exp);
+const expiry = new Date(storedGym?.renewaldate);
 expiry.setHours(0, 0, 0, 0);
 
-const isExpired = isLoggedIn && storedGym?.exp && expiry < today;
+const isExpired = isLoggedIn && storedGym?.renewaldate && expiry < today;
 const clientIndexRef = useRef(0);
   const poseRef = useRef(null);
     const [lastSessionId, setLastSessionId] = useState("");
@@ -1301,7 +1301,7 @@ const stopClient = () => {
   </button>
 
   {/* Upgrade Button */}
- {!isLoggedIn && (
+ {(isExpired || !isLoggedIn) && (
   <button
     onClick={() => setShowDialog(true)}
     className="px-6 py-2.5 rounded-full font-semibold text-black
