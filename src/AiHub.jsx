@@ -5,6 +5,8 @@ import { showUpgradePopup } from './helper/reuse.js';
 import { toast } from "react-toastify";
 import myBackground from "./assets/fitgymbg.jpg";
 import settingIcon from "./assets/settings.png";
+import { XCircle, ArrowUpRight,X } from "lucide-react";
+
 export default function AIhubHere() {
   const [active, setActive] = useState(null);
   const navigate = useNavigate();
@@ -16,6 +18,8 @@ const [authErrorMsg, setAuthErrorMsg] = useState("");
   const token = localStorage.getItem("accessToken");
   const storedGym = localStorage.getItem("selectedGym");
 const isLoggedIn = localStorage.getItem("isLoggedInWeb") === "true";
+    const [showExpireBlock, setShowExpireBlock] = useState(false);
+  const storedparseGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
 
 useEffect(() => {
 
@@ -302,6 +306,22 @@ setLoading(false);
         return await handleGenerate(type,newToken,retryCount + 1);
       }
     }else{
+      if(response.data.error == 99){
+         const storedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
+
+  const updatedGym = {
+    ...storedGym,
+    renewaldate: response.data.exp, // replace with exp date
+  };
+
+  localStorage.setItem("selectedGym", JSON.stringify(updatedGym));
+  setLoading(false);
+      clearInterval(progressInterval);
+      setAuthErrorMsg(response.data.message || "You are not authorized to continue.");
+
+      setShowExpireBlock(true);
+       return;
+      }
  setLoading(false);
       clearInterval(progressInterval);
       setAuthErrorMsg(response.data.message || "You are not authorized to continue.");
@@ -354,7 +374,9 @@ const fetchCheck = async (gymId,token,retryCount = 0) => {
         return await fetchCheck(gymId, newToken,retryCount + 1);
       }
     } else if(response.data.error == 99){
-            handleLogout();
+            setAuthErrorMsg("Your session expired. Kindly relogin.");
+
+            //handleLogout();
                             }   
     
     
@@ -383,17 +405,25 @@ const fetchCheck = async (gymId,token,retryCount = 0) => {
         return res.data.access_token;
       } else {
         if (res.data.error !== 111) {
+          setLoading(false);
+
         console.log("❌ Refresh token invalid or expired. Logging out...");
-        handleLogout();
+                    setAuthErrorMsg("Your session expired. Kindly relogin.");
+
+        //handleLogout();
         return null;
       } else {
+        setLoading(false);
+
         console.log("⚠️ Server returned error 111. Not logging out.");
       }
       }
     } catch (err) {
+      setLoading(false);
+
       console.error("🔥 Failed to refresh token:", err);
       //handleLogout();
-      setAuthErrorMsg("Check your internet.");
+      setAuthErrorMsg("Check your internet. Kindly logout and relogin.");
 
     setShowAuthBlock(true);
       return null;
@@ -425,7 +455,73 @@ return (
 >
   <div className="absolute inset-0 bg-black/50"></div>
 </div>
+{showExpireBlock && (
+ <div className="px-6 fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999]">
+  <div className="bg-white p-7 rounded-2xl shadow-2xl max-w-sm w-full text-center border border-red-200 relative">
 
+    {/* Top Close (X icon) */}
+    <button
+      onClick={() => setShowExpireBlock(false)}
+      className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
+    >
+      <X size={18} />
+    </button>
+
+    {/* Red Icon */}
+    <div className="flex justify-center mb-4">
+      <XCircle size={55} className="text-red-500" />
+    </div>
+
+    {/* Title */}
+    <h2 className="text-2xl font-extrabold text-red-600 mb-3">
+      Subscription Expired
+    </h2>
+
+    {/* Actual Backend Message */}
+      <p>
+    on {" "}
+    <span className="font- regular ">
+      {storedparseGym?.renewaldate
+        ? new Date(storedparseGym.renewaldate).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })
+        : "N/A"}
+    </span>
+  </p>
+
+
+    {/* Upgrade Button */}
+    <button
+    onClick={() => {
+        setShowExpireBlock(false);
+
+  setShowDialog(true);
+}}
+      className="mt-6 w-full flex text-white items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-lg font-semibold hover:scale-105 transition"
+    >
+      🚀 Upgrade Now 
+      
+    </button>
+
+    {/* Close Button */}
+  <button
+  onClick={() => {setShowExpireBlock(false)
+  const params = { facing: facingMode }; // pass current facingMode
+
+ navigate("/lateral-ai", { state: { fromButton: true, facing:facingMode } });
+
+  }}
+  className="mt-4 text-sm text-gray-400 hover:text-gray-600 transition"
+>
+  Continue to use free
+</button>
+
+  </div>
+</div>
+
+)}
 {showAuthBlock && (
   <div className="px-10 fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999]">
     <div className="bg-white p-7 rounded-2xl shadow-2xl max-w-sm w-full text-center border border-red-200">

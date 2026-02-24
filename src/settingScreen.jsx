@@ -265,12 +265,17 @@ const refreshAccessToken = async () => {
 </p>
 
 {/* Show expiry only if Premium */}
-{parseInt(selectedGym?.is_active || "0", 10) > 1 && (
+{parseInt(selectedGym?.is_active || "0", 10) > 0 && (
   <p className="text-gray-700">
     📅 Expiry:{" "}
     <span className="font-medium">
-      {selectedGym?.renewaldate || "N/A"}
-    </span>
+{selectedGym?.renewaldate
+  ? new Date(selectedGym.renewaldate).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    })
+  : "N/A"}    </span>
   </p>
 )}
             </div>

@@ -6,6 +6,8 @@ import { openPoseDB,saveTrainerSession,downloadTrainerSessionsJSON,getAllTrainer
 import jsonSessions  from "../helper/trainer-sessions.json";
 import { Play, Pause, RotateCcw } from "lucide-react";
 import { Circle, Trash2 ,Square } from "lucide-react";
+import { Navigate } from "react-router-dom";
+import { XCircle, ArrowUpRight,X } from "lucide-react";
 
 const LiveSkeletonTracker = () => {
     const location = useLocation();
@@ -35,25 +37,27 @@ const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 const playbackSpeedRef = useRef(1);
 const playbackSpeedRefClient = useRef(1);
 const isLoggedIn = localStorage.getItem("isLoggedInWeb") === "true";
+  const storedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
+const today = new Date();
+today.setHours(0, 0, 0, 0);
 
+const expiry = new Date(storedGym?.exp);
+expiry.setHours(0, 0, 0, 0);
+
+const isExpired = isLoggedIn && storedGym?.exp && expiry < today;
 const clientIndexRef = useRef(0);
   const poseRef = useRef(null);
     const [lastSessionId, setLastSessionId] = useState("");
   const [accuracyLevel, setAccuracyLevel] = useState("medium");
-  const storedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
   const gymid = storedGym?.GymId;
   const [showAuthBlock, setShowAuthBlock] = useState(false);
+    const [showExpireBlock, setShowExpireBlock] = useState(false);
+
     const navigate = useNavigate();
 
-    useEffect(() => {
-    // Check if navigation came from button click
-
-    if (!location.state?.fromButton) {
-      // Redirect or hide
-    //  navigate("/", { replace: true }); // or just return null
-       return null;
-    }
-  }, [location.state, navigate]);
+   if (!location.state?.fromButton) {
+  return <Navigate to="/ai-hub/" replace />;
+}
 // useEffect(() => {
 //   const storedGymRaw = localStorage.getItem("selectedGym");
 //   const storedGym = storedGymRaw ? JSON.parse(storedGymRaw) : null;
@@ -611,6 +615,10 @@ const checkLogin = () => {
     localStorage.getItem("isLoggedInWeb") === "true";
 
   if (isLoggedIn) {
+    if(isExpired){
+      setShowExpireBlock(true);
+      return;
+    }
    startRecording();
     return;
   }
@@ -1016,6 +1024,69 @@ const stopClient = () => {
     </div>
   </div>
 )}
+{showExpireBlock && (
+ <div className="px-6 fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999]">
+  <div className="bg-white p-7 rounded-2xl shadow-2xl max-w-sm w-full text-center border border-red-200 relative">
+
+    {/* Top Close (X icon) */}
+    <button
+      onClick={() => setShowExpireBlock(false)}
+      className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
+    >
+      <X size={18} />
+    </button>
+
+    {/* Red Icon */}
+    <div className="flex justify-center mb-4">
+      <XCircle size={55} className="text-red-500" />
+    </div>
+
+    {/* Title */}
+    <h2 className="text-2xl font-extrabold text-red-600 mb-3">
+      Subscription Expired
+    </h2>
+
+    {/* Actual Backend Message */}
+      <p>
+    on {" "}
+    <span className="font- regular ">
+      {storedGym?.renewaldate
+        ? new Date(storedGym.renewaldate).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })
+        : "N/A"}
+    </span>
+  </p>
+
+
+    {/* Upgrade Button */}
+    <button
+    onClick={() => {
+        setShowExpireBlock(false);
+
+  setShowDialog(true);
+}}
+      className="mt-6 w-full flex text-white items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-lg font-semibold hover:scale-105 transition"
+    >
+      🚀 Upgrade Now 
+      
+    </button>
+
+    {/* Close Button */}
+  <button
+  onClick={() => setShowExpireBlock(false)}
+  className="mt-4 text-sm text-gray-400 hover:text-gray-600 transition"
+>
+  Close
+</button>
+
+  </div>
+</div>
+
+)}
+
 {showSuccessDialog && (
   <div className="fixed inset-0 bg-black/60 backdrop-blur-sm 
                   flex items-center justify-center z-50 px-4">
