@@ -4,6 +4,8 @@ import { Camera } from "@mediapipe/camera_utils";
 import { useLocation,useNavigate } from "react-router-dom";
 import { openPoseDB,saveTrainerSession,downloadTrainerSessionsJSON,getAllTrainerSessions,deleteTrainerSessionById,getPoseSessionById,clearTrainerSessions } from "../helper/trackerdb";
 import jsonSessions  from "../helper/trainer-sessions.json";
+import { Play, Pause, RotateCcw } from "lucide-react";
+import { Circle, Trash2 ,Square } from "lucide-react";
 
 const LiveSkeletonTracker = () => {
     const location = useLocation();
@@ -1001,7 +1003,7 @@ const stopClient = () => {
 
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-700 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-700 p-1">
          {showAuthBlock && (
   <div className="px-10 fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[9999]">
     <div className="bg-white p-6 rounded-xl shadow-xl max-w-sm w-full text-center">
@@ -1112,28 +1114,43 @@ const stopClient = () => {
 
 
 {showDialog && (
-  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm 
-                  flex items-end justify-center z-50">
+  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end justify-center z-50">
 
-    <div className="w-full max-w-md bg-white 
-                    rounded-t-3xl p-6 animate-slideUp shadow-2xl">
+    <div className="w-full max-w-md bg-white rounded-t-3xl p-6 animate-slideUp shadow-2xl">
 
       {/* Header */}
       <div className="text-center mb-6">
-        <div className="w-14 h-14 mx-auto mb-3 
-                        bg-yellow-400 rounded-full 
-                        flex items-center justify-center 
-                        shadow-md">
-          🎾
+
+        <div className="inline-block px-4 py-1 bg-yellow-100 text-yellow-700 text-xs font-semibold rounded-full mb-3">
+          1-Month Pro Plan
         </div>
 
         <h2 className="text-2xl font-bold text-gray-800">
-          Go Pro
+          Upgrade to Pro
         </h2>
 
         <p className="text-gray-500 text-sm mt-1">
-          Unlock premium TennisX features
+          Complete access for 30 days
         </p>
+
+        {/* Price */}
+        <div className="mt-4">
+          <span className="text-3xl font-bold text-gray-900">
+            ₹2999
+          </span>
+          <span className="text-sm text-gray-500 ml-1">
+            / month
+          </span>
+        </div>
+
+      </div>
+
+      {/* Features */}
+      <div className="bg-gray-50 rounded-xl p-4 mb-5 text-sm text-gray-600 space-y-2">
+        <p>✔ Unlimited motion recordings</p>
+        <p>✔ Skeleton comparison analysis</p>
+        <p>✔ Playback speed control</p>
+        <p>✔ Session storage</p>
       </div>
 
       {/* Inputs */}
@@ -1142,10 +1159,7 @@ const stopClient = () => {
         placeholder="Full Name*"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        className="w-full border border-gray-200 
-                   focus:border-yellow-400 focus:ring-2 
-                   focus:ring-yellow-200
-                   p-3 rounded-xl mb-3 outline-none transition"
+        className="w-full border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 p-3 rounded-xl mb-3 outline-none transition"
       />
 
       <input
@@ -1153,10 +1167,7 @@ const stopClient = () => {
         placeholder="Email Address*"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        className="w-full border border-gray-200 
-                   focus:border-yellow-400 focus:ring-2 
-                   focus:ring-yellow-200
-                   p-3 rounded-xl mb-3 outline-none transition"
+        className="w-full border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 p-3 rounded-xl mb-3 outline-none transition"
       />
 
       <input
@@ -1164,23 +1175,16 @@ const stopClient = () => {
         placeholder="Mobile Number*"
         value={mobile}
         onChange={(e) => setMobile(e.target.value)}
-        className="w-full border border-gray-200 
-                   focus:border-yellow-400 focus:ring-2 
-                   focus:ring-yellow-200
-                   p-3 rounded-xl mb-5 outline-none transition"
+        className="w-full border border-gray-200 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 p-3 rounded-xl mb-5 outline-none transition"
       />
 
       {/* Upgrade Button */}
       <button
         onClick={() => handlePayment(name, email, mobile)}
         disabled={loading}
-        className="w-full bg-gradient-to-r 
-                   from-yellow-400 to-green-500
-                   text-black py-3 rounded-xl font-semibold
-                   hover:scale-105 transition duration-300
-                   disabled:opacity-70 disabled:cursor-not-allowed"
+        className="w-full bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-xl font-semibold hover:scale-105 transition duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
       >
-        {loading ? "Processing..." : "🎾 Upgrade to Pro"}
+        {loading ? "Processing..." : "Upgrade Now"}
       </button>
 
       {/* Cancel */}
@@ -1195,7 +1199,8 @@ const stopClient = () => {
   </div>
 )}
 
-      <div className="bg-gray-900 rounded-2xl shadow-xl p-6 w-full max-w-4xl space-y-6">
+
+      <div className="bg-gray-900 rounded-2xl shadow-xl px-5 py-6 w-full max-w-4xl space-y-6">
          <div className="flex justify-between items-center flex-wrap gap-3">
 
   {/* Back Button */}
@@ -1309,25 +1314,27 @@ const stopClient = () => {
 
   {/* ROW 1 — RECORD CONTROLS */}
   <div className="flex gap-4 justify-start">
-    <button
-      onClick={checkLogin}
-      disabled={isRecording}
-      className={`px-4 py-2 rounded-xl text-white ${
-        isRecording ? "bg-gray-400 cursor-not-allowed" : "bg-green-600"
-      }`}
-    >
-      Record
-    </button>
+   <button
+  onClick={isRecording ? stopRecording : checkLogin}
+  className={`flex items-center justify-center gap-3 px-8 py-4 rounded-full font-semibold text-white transition-all duration-200 ${
+    isRecording
+      ? "bg-red-600 hover:bg-red-700"
+      : "bg-green-600 hover:bg-green-700"
+  }`}
+>
+  {isRecording ? (
+    <>
+      <Square size={20} />
+      Stop Recording
+    </>
+  ) : (
+    <>
+      <Circle size={20} className="animate-pulse" />
+      Start Recording
+    </>
+  )}
+</button>
 
-    <button
-      onClick={stopRecording}
-      disabled={!isRecording}
-      className={`px-4 py-2 rounded-xl text-white ${
-        !isRecording ? "bg-gray-400 cursor-not-allowed" : "bg-red-600"
-      }`}
-    >
-      Stop
-    </button>
    {/* <button
   onClick={() => {
     const newMode = facingMode === "user" ? "environment" : "user";
@@ -1353,88 +1360,101 @@ const stopClient = () => {
 </div>
 
 
-     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-1 bg-gradient-to-br from-gray-900 via-black to-gray-900 min-h-screen">
 
-  {/* Trainer */}
-  <div className="bg-black rounded-xl p-3 shadow">
-    <h3 className="font-semibold mb-2 text-white text-center">Trainer Skeleton</h3>
-<div className="p-4 border border-blue-200 rounded-xl">
-    <h3 className="font-semibold text-white mb-3">Trainer</h3>
-<select
-  value={selectedSessionId}
-  onChange={(e) => 
-    
-    {
-      setSelectedSessionId(e.target.value)
-          console.log("Loaded session:",e.target.value);
+  {/* ================= TRAINER ================= */}
+  <div className="backdrop-blur-lg bg-white/5 border border-blue-500/30 rounded-2xl p-6 shadow-2xl">
 
-    }
-    }
-    className="p-2 rounded-xl border bg-white text-black shadow-sm"
->
-  <option value="">Select trainer session</option>
+    <h2 className="text-2xl font-bold text-center mb-6 bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+      Trainer Skeleton
+    </h2>
 
-  {trainerSessions.map((s) => (
-    <option key={s.id} value={s.id}>
-      {s.name} ({new Date(s.createdAt).toLocaleDateString()})
-    </option>
-  ))}
-</select>
-<select
-defaultValue ="1"
-  onChange={(e) => {
-    playbackSpeedRef.current = Number(e.target.value);
-    if (trainerPlaying) {
-      stopTrainer();
-      playTrainer(); // restart with new speed
-    }
+    {/* Controls */}
+    <div className="space-y-4">
+
+      {/* Session Select */}
+      <select
+        value={selectedSessionId}
+        onChange={(e) => {
+          setSelectedSessionId(e.target.value)
+          console.log("Loaded session:", e.target.value);
+        }}
+        className="w-full p-3 rounded-xl bg-black/40 border border-blue-400/40 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        <option value="">Select trainer session</option>
+        {trainerSessions.map((s) => (
+          <option key={s.id} value={s.id}>
+            {s.name} ({new Date(s.createdAt).toLocaleDateString()})
+          </option>
+        ))}
+      </select>
+
+      {/* Speed Select */}
+      <select
+        defaultValue="1"
+        onChange={(e) => {
+          playbackSpeedRef.current = Number(e.target.value);
+          if (trainerPlaying) {
+            stopTrainer();
+            playTrainer();
+          }
+        }}
+        className="w-full p-3 rounded-xl bg-black/40 border border-blue-400/40 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+      >
+        <option value="0.1">0.1× Ultra Slow</option>
+        <option value="0.2">0.2× Slow</option>
+        <option value="0.3">0.3× Slow</option>
+        <option value="0.5">0.5× Slow</option>
+        <option value="1">1× Normal</option>
+      </select>
+
+      {/* Buttons */}
+      <div className="flex gap-4">
+        <button
+  onClick={() => {
+    if (!trainerPlaying && !trainerPaused) playTrainer();
+    else if (trainerPlaying) pauseTrainer();
+    else playTrainer();
   }}
-    className="mt-3 p-2 rounded-xl border bg-white text-black shadow-sm"
->
-  <option value="0.1">0.1× (Ultra Slow)</option>
-  <option value="0.2">0.2× Slow</option>
-  <option value="0.3">0.3× Slow</option>
-  <option value="0.5">0.5× Slow</option>
-  <option value="1">1× Normal</option>
-</select>
-{/* <button
-      onClick={downloadTrainerSessionsJSON}
-     
-      className={`mt-3 px-4 py-2 rounded-xl text-white ${
-        isRecording ? "bg-gray-400 cursor-not-allowed" : "bg-green-600"
-      }`}
-    >
-      Download
-    </button> */}
-    <div className="flex gap-3 mt-3">
-       <button
-      onClick={() => {
-        if (!trainerPlaying && !trainerPaused) {
-          playTrainer();      // first play
-        } else if (trainerPlaying) {
-          pauseTrainer();     // pause
-        } else {
-          playTrainer();      // resume
-        }
-      }}
   disabled={!trainerReady}
-      className={`px-6 py-2 rounded-xl text-white transition ${
-        trainerPlaying ? "bg-yellow-500" : "bg-blue-600"
-      }`}
-    >
-      {trainerPlaying ? "⏸ Pause" : trainerPaused ? "▶ Resume" : "▶ Play"}
-    </button>
-      <button
-    onClick={removeTrainer}
-    disabled={!trainerReady}
-    className="px-6 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700 transition"
-  >
-    🗑 Remove
-  </button>
-    </div>
-  </div>
+  className={`flex items-center text-white justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all ${
+    trainerPlaying
+      ? "bg-yellow-500 hover:bg-yellow-600"
+      : "bg-blue-600 hover:bg-blue-700"
+  } disabled:opacity-40`}
+>
+  {trainerPlaying ? (
+    <>
+      <Pause size={18} />
+      Pause
+    </>
+  ) : trainerPaused ? (
+    <>
+      <Play size={18} />
+      Resume
+    </>
+  ) : (
+    <>
+      <Play size={18} />
+      Play
+    </>
+  )}
+</button>
 
-    <div className="mt-5 w-full aspect-[9/16] relative overflow-hidden border border-blue-200 rounded-lg">
+
+<button
+  onClick={removeTrainer}
+  disabled={!trainerReady}
+  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl font-semibold border border-red-500 text-red-400 hover:bg-red-600 hover:text-white transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed"
+>
+  <Trash2 size={18} />
+  Remove
+</button>
+      </div>
+    </div>
+
+    {/* Canvas */}
+    <div className="mt-8 relative aspect-[9/16] rounded-2xl overflow-hidden border border-blue-500/40 shadow-inner bg-black">
       <canvas
         ref={playbackCanvasRef}
         className="w-full h-full"
@@ -1442,49 +1462,70 @@ defaultValue ="1"
     </div>
   </div>
 
-  {/* Client */}
-  <div className="bg-black rounded-xl p-3 shadow">
-    <h3 className="font-semibold mb-2 text-white text-center">Learner Skeleton</h3>
-<div className="p-4 border border-green-200 rounded-xl">
-    <h3 className="font-semibold text-white mb-3">Learner</h3>
-<select
-defaultValue ="1"
-  onChange={(e) => {
-    playbackSpeedRefClient.current = Number(e.target.value);
-    if (clientPlaying) {
-      stopClient();
-      playClient(); // restart with new speed
-    }
+  {/* ================= LEARNER ================= */}
+  <div className="backdrop-blur-lg bg-white/5 border border-green-500/30 rounded-2xl p-6 shadow-2xl">
+
+    <h2 className="text-2xl font-bold text-center mb-6 bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+      Learner Skeleton
+    </h2>
+
+    <div className="space-y-4">
+
+      {/* Speed Select */}
+      <select
+        defaultValue="1"
+        onChange={(e) => {
+          playbackSpeedRefClient.current = Number(e.target.value);
+          if (clientPlaying) {
+            stopClient();
+            playClient();
+          }
+        }}
+        className="w-full p-3 rounded-xl bg-black/40 border border-green-400/40 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+      >
+        <option value="0.1">0.1× Ultra Slow</option>
+        <option value="0.2">0.2× Slow</option>
+        <option value="0.3">0.3× Slow</option>
+        <option value="0.5">0.5× Slow</option>
+        <option value="1">1× Normal</option>
+      </select>
+
+      {/* Play Button */}
+    <button
+  onClick={() => {
+    if (!clientPlaying && !clientPaused) playClient();
+    else if (clientPlaying) pauseClient();
+    else playClient();
   }}
-    className=" p-2 rounded-xl border bg-white text-black shadow-sm"
+  disabled={recordedFramesClientRef.current.length === 0}
+  className={`w-full flex items-center text-white justify-center gap-2 py-3 rounded-xl font-semibold transition-all duration-200 ${
+    clientPlaying
+      ? "bg-yellow-500 hover:bg-yellow-600"
+      : "bg-green-600 hover:bg-green-700"
+  } disabled:opacity-40 disabled:cursor-not-allowed`}
 >
-  <option value="0.1">0.1× (Ultra Slow)</option>
-  <option value="0.2">0.2× Slow</option>
-  <option value="0.3">0.3× Slow</option>
-  <option value="0.5">0.5× Slow</option>
-  <option value="1">1× Normal</option>
-</select>
-    <div className="mt-3 flex gap-3">
-     <button
-    onClick={() => {
-      if (!clientPlaying && !clientPaused) {
-        playClient();     // first play
-      } else if (clientPlaying) {
-        pauseClient();    // pause
-      } else {
-        playClient();     // resume
-      }
-    }}
-    disabled={recordedFramesClientRef.current.length === 0}
-    className={`px-6 py-2 rounded-xl text-white transition ${
-      clientPlaying ? "bg-yellow-500" : "bg-green-600"
-    }`}
-  >
-    {clientPlaying ? "⏸ Pause" : clientPaused ? "▶ Resume" : "▶ Play"}
-  </button>
+  {clientPlaying ? (
+    <>
+      <Pause size={18} />
+      Pause
+    </>
+  ) : clientPaused ? (
+    <>
+      <Play size={18} />
+      Resume
+    </>
+  ) : (
+    <>
+      <Play size={18} />
+      Play
+    </>
+  )}
+</button>
+
     </div>
-  </div>
-    <div className="mt-5 w-full aspect-[9/16] border-green-200 relative overflow-hidden border rounded-lg">
+
+    {/* Canvas */}
+    <div className="mt-8 relative aspect-[9/16] rounded-2xl overflow-hidden border border-green-500/40 shadow-inner bg-black">
       <canvas
         ref={playbackCanvasClientRef}
         className="w-full h-full"
@@ -1493,6 +1534,7 @@ defaultValue ="1"
   </div>
 
 </div>
+
 
         
       </div>
