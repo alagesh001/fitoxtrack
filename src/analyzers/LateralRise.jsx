@@ -470,6 +470,7 @@ const handlePayment = async (name, email, mobile) => {
     alert("Please enter name, email and mobile number");
     return;
   }
+   
  setLoading(true);
   // Ensure mobile is 10 digits only
   mobile = mobile.replace(/\D/g, "").slice(-10);
@@ -571,6 +572,14 @@ setLoading(false);
             //localStorage.setItem("isLoggedInWeb", "true");
 
             // ✅ Close dialog
+             const expiryTime = Date.now() + (2 * 24 * 60 * 60 * 1000); // 2 days in ms
+
+  const paymentData = {
+    verified: true,
+    expiresAt: expiryTime
+  };
+
+  localStorage.setItem("paymentStatus", JSON.stringify(paymentData));
             if (typeof setShowDialog === "function") {
               setShowDialog(false);
             }
@@ -621,6 +630,22 @@ const checkLogin = () => {
     }
    startRecording();
     return;
+  }
+
+   const stored = JSON.parse(localStorage.getItem("paymentStatus") || "{}");
+
+  if (stored.verified && stored.expiresAt > Date.now()) {
+    console.log("✅ Payment already verified and valid");
+
+    setShowDialog(false);
+    setShowSuccessDialog(true);
+    return; // ⛔ Stop further execution
+  }
+
+  // ❌ If expired, clean it
+  if (stored.expiresAt && stored.expiresAt <= Date.now()) {
+    localStorage.removeItem("paymentStatus");
+    console.log("⚠️ Stored payment expired, removed.");
   }
     setShowDialog(true); // 👈 open bottom dialog
 
@@ -1065,7 +1090,21 @@ const stopClient = () => {
     <button
     onClick={() => {
         setShowExpireBlock(false);
+ const stored = JSON.parse(localStorage.getItem("paymentStatus") || "{}");
 
+  if (stored.verified && stored.expiresAt > Date.now()) {
+    console.log("✅ Payment already verified and valid");
+
+    setShowDialog(false);
+    setShowSuccessDialog(true);
+    return; // ⛔ Stop further execution
+  }
+
+  // ❌ If expired, clean it
+  if (stored.expiresAt && stored.expiresAt <= Date.now()) {
+    localStorage.removeItem("paymentStatus");
+    console.log("⚠️ Stored payment expired, removed.");
+  }
   setShowDialog(true);
 }}
       className="mt-6 w-full flex text-white items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-lg font-semibold hover:scale-105 transition"
@@ -1303,7 +1342,24 @@ const stopClient = () => {
   {/* Upgrade Button */}
  {(isExpired || !isLoggedIn) && (
   <button
-    onClick={() => setShowDialog(true)}
+    onClick={() =>{
+ const stored = JSON.parse(localStorage.getItem("paymentStatus") || "{}");
+
+  if (stored.verified && stored.expiresAt > Date.now()) {
+    console.log("✅ Payment already verified and valid");
+
+    setShowDialog(false);
+    setShowSuccessDialog(true);
+    return; // ⛔ Stop further execution
+  }
+
+  // ❌ If expired, clean it
+  if (stored.expiresAt && stored.expiresAt <= Date.now()) {
+    localStorage.removeItem("paymentStatus");
+    console.log("⚠️ Stored payment expired, removed.");
+  }
+setShowDialog(true)
+    } }
     className="px-6 py-2.5 rounded-full font-semibold text-black
                bg-gradient-to-r from-yellow-400 to-green-500
                hover:from-yellow-500 hover:to-green-600

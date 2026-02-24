@@ -22,10 +22,7 @@ const [authErrorMsg, setAuthErrorMsg] = useState("");
 
 const handleLogout = async () => {
   try {
-      localStorage.clear();
-
-    // 🧹 Clear all IndexedDB databases
-    await clearAllIndexedDB();
+    
 localStorage.setItem("isLoggedInWeb", "false"); // optional flag
     // 🧹 Clear all localStorage data
      const deviceId = localStorage.getItem("device_idfitox"); // ✅ get from storage
