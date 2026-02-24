@@ -279,6 +279,14 @@ const mob = selectedGym?.mob;
     if(response.data.success){
 setTimeout(() => {
 setLoading(false);
+ const storedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
+
+  const updatedGym = {
+    ...storedGym,
+    renewaldate: response.data.exp, // replace with exp date
+  };
+
+  localStorage.setItem("selectedGym", JSON.stringify(updatedGym));
   const params = { facing: facingMode }; // pass current facingMode
       console.log("facemode",facingMode);
 

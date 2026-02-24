@@ -215,6 +215,30 @@ const refreshAccessToken = async () => {
 
     return (
         <div className="p-10">
+            <button
+     onClick={() => {
+    if (window.history.length > 1) {
+      navigate(-1);   // Go back
+    } else {
+      navigate("/ai-hub");  // Fallback
+    }
+  }}
+    className="p-3 rounded-full 
+               bg-gray-800 hover:bg-gray-700
+               text-white shadow-md hover:shadow-lg
+               transition duration-300 hover:scale-105"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-5 h-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+    </svg>
+  </button>
         {showAuthBlock && (
   <div className="px-10 fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999]">
     <div className="bg-white p-7 rounded-2xl shadow-2xl max-w-sm w-full text-center border border-red-200">
@@ -237,7 +261,7 @@ const refreshAccessToken = async () => {
     </div>
   </div>
 )}
-            <h1 className="text-2xl font-bold mb-6">⚙️ Settings</h1>
+            <h1 className="text-2xl font-bold mb-6 mt-3">⚙️ Settings</h1>
 
             {/* 📝 Gym Info */}
             <div className="p-4 rounded-lg shadow bg-gradient-to-r from-blue-50 to-green-50 mb-6">
