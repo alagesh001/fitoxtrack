@@ -13,7 +13,7 @@ function SettingsScreen() {
     const [confirmPassword, setConfirmPassword] = useState(""); // ✅ For confirm field
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState("");
-    const apiBase = "https://oxadmedia.online";
+    const apiBase = "https://tennisx.in";
   const [showAuthBlock, setShowAuthBlock] = useState(false);
 const [authErrorMsg, setAuthErrorMsg] = useState("");
 

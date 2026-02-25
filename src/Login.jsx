@@ -12,7 +12,7 @@ function Login() {
     const [showInstallButton, setShowInstallButton] = useState(false);
     const navigate = useNavigate();
     const version_n = "4.6";
-    const apiBase = "https://oxadmedia.online";
+    const apiBase = "https://tennisx.in";
 
     let accessToken = null;
     let mobileSaved = null;

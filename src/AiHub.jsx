@@ -47,7 +47,7 @@ const panelRefs = useRef({});
  const [backgroundImage, setBackgroundImage] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
     const [facingMode, setFacingMode] = useState("user"); // 'user' or 'environment'
-      const apiBase = "https://oxadmedia.online";
+      const apiBase = "https://tennisx.in";
 
   useEffect(() => {
     const img = new Image();

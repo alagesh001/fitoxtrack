@@ -486,7 +486,7 @@ const handlePayment = async (name, email, mobile) => {
   try {
     // 🔹 Create order from backend
     const orderRes = await fetch(
-      "https://oxadmedia.online/api/razorpay/create-order",
+      "https://tennisx.in/api/razorpay/create-order",
       {
         method: "POST",
         headers: {
@@ -543,7 +543,7 @@ setLoading(false);
         try {
           setLoading(false);
           const verifyRes = await fetch(
-            "https://oxadmedia.online/api/razorpay/verify-payment",
+            "https://tennisx.in/api/razorpay/verify-payment",
             {
               method: "POST",
               headers: {

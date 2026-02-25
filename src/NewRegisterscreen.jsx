@@ -25,7 +25,7 @@ function GymRegistration() {
     try {
       setLoading(true);
       const response = await axios.post(
-        "https://oxadmedia.online/api/add-newgym",
+        "https://tennisx.in/api/add-newgym",
         {
           owner: formData.ownerName,
           gymname: formData.gymName,
