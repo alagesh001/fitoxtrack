@@ -135,6 +135,11 @@ const workouts = [
   // Add more workouts here
 ];
 useEffect(() => {
+  if (workouts.length && active === null) {
+    setActive(workouts[0].key);
+  }
+}, [workouts]);
+useEffect(() => {
   if (active === "squat") {
     setTimeout(() => {
       squatRef.current?.scrollIntoView({

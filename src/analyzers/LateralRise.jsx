@@ -136,6 +136,18 @@ useEffect(() => {
 
   loadSessions();
 }, []);
+useEffect(() => {
+  if (!trainerSessions.length) return;
+
+  const defaultSession = trainerSessions.find(
+    (s) =>
+      s.name === "Service" 
+  );
+
+  if (defaultSession) {
+    setSelectedSessionId(defaultSession.id);
+  }
+}, [trainerSessions]);
 const [trainerPlaying, setTrainerPlaying] = useState(false);
 const [trainerPaused, setTrainerPaused] = useState(false);
   const [running, setRunning] = useState(false);
@@ -647,6 +659,7 @@ const checkLogin = () => {
     localStorage.removeItem("paymentStatus");
     console.log("⚠️ Stored payment expired, removed.");
   }
+  //handlePayment(name, email, mobile);
     setShowDialog(true); // 👈 open bottom dialog
 
 //handlePayment();
@@ -1104,7 +1117,8 @@ const stopClient = () => {
   if (stored.expiresAt && stored.expiresAt <= Date.now()) {
     localStorage.removeItem("paymentStatus");
     console.log("⚠️ Stored payment expired, removed.");
-  }
+  } 
+  //handlePayment(name, email, mobile);
   setShowDialog(true);
 }}
       className="mt-6 w-full flex text-white items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-lg font-semibold hover:scale-105 transition"
@@ -1232,7 +1246,7 @@ const stopClient = () => {
       <div className="text-center mb-6">
 
         <div className="inline-block px-4 py-1 bg-yellow-100 text-yellow-700 text-xs font-semibold rounded-full mb-3">
-          1-Month Pro Plan
+          1-Year Pro Plan
         </div>
 
         <h2 className="text-2xl font-bold text-gray-800">
@@ -1240,7 +1254,7 @@ const stopClient = () => {
         </h2>
 
         <p className="text-gray-500 text-sm mt-1">
-          Complete access for 30 days
+          Complete access for 1 Year
         </p>
 
         {/* Price */}
@@ -1249,7 +1263,7 @@ const stopClient = () => {
             ₹2999
           </span>
           <span className="text-sm text-gray-500 ml-1">
-            / month
+            / year
           </span>
         </div>
 
@@ -1358,6 +1372,7 @@ const stopClient = () => {
     localStorage.removeItem("paymentStatus");
     console.log("⚠️ Stored payment expired, removed.");
   }
+  //handlePayment(name, email, mobile);
 setShowDialog(true)
     } }
     className="px-6 py-2.5 rounded-full font-semibold text-black
