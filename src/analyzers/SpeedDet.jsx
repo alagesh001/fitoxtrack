@@ -148,7 +148,7 @@ const calculateDistance = () => {
   if (manualDistance) return Number(manualDistance);
 
   const from = positionMap["center"];
-  const to = positionMap[landAt];
+  const to = positionMap["middle"];
 
   const fullLateral = Math.abs(from - to);
 
@@ -272,7 +272,7 @@ const calculateDistance = () => {
   {/* Rewind Button */}
   <button
     onClick={() => seekBy(-0.02)}
-    className="flex items-center justify-center p-3 bg-purple-500 rounded-xl text-white hover:bg-purple-600 active:bg-purple-700 transition-colors"
+    className="flex items-center justify-center p-3  rounded-xl text-white hover:bg-gray-600 active:bg-gray-700 transition-colors"
     aria-label="Rewind 5 seconds"
   >
     <svg
@@ -290,7 +290,7 @@ const calculateDistance = () => {
   {/* Play / Pause Button */}
   <button
     onClick={togglePlay}
-    className="flex-1 p-3 bg-green-400 rounded-xl text-black font-bold hover:bg-green-500 active:bg-green-600 transition-colors text-2xl"
+    className="flex-1 p-3 bg-green-400 rounded-xl text-white font-bold hover:bg-green-500 active:bg-green-600 transition-colors text-2xl"
     aria-label={isPlaying ? "Pause" : "Play"}
   >
     {isPlaying ? "| |" : "▶"}
@@ -299,7 +299,7 @@ const calculateDistance = () => {
   {/* Forward Button */}
   <button
     onClick={() => seekBy(0.02)}
-    className="flex items-center justify-center p-3 bg-purple-500 rounded-xl text-white hover:bg-purple-600 active:bg-purple-700 transition-colors"
+    className="flex items-center justify-center p-3  rounded-xl text-white hover:bg-gray-600 active:bg-gray-700 transition-colors"
     aria-label="Forward 5 seconds"
   >
     <svg
@@ -319,7 +319,7 @@ const calculateDistance = () => {
   <div className="flex gap-3">
     <button
       onClick={toggleMute}
-      className="flex-1 py-3 bg-blue-500 rounded-xl text-white"
+      className="flex-1 py-3 bg-gray-500 rounded-xl text-white"
     >
       {isMuted ? "🔇" : "🔊"}
     </button>
@@ -372,10 +372,10 @@ const calculateDistance = () => {
  <button
   onClick={resetZoom}
   className="flex-1 py-3 rounded-xl font-semibold
-  bg-orange-500 text-black
+  bg-gray-500 text-white
   transition-all duration-200
-  hover:bg-orange-400 hover:shadow-lg hover:shadow-orange-500/40
-  active:scale-95 active:bg-orange-600"
+  
+  active:scale-95 active:bg-black"
 >
   Reset
 </button>
@@ -391,11 +391,11 @@ const calculateDistance = () => {
         videoRef.current.playbackRate = rate;
         setSelectedRate(rate);
       }}
-      className={`flex-1 py-2 rounded-lg
+      className={`flex-1 py-2 rounded-lg border transition-all duration-200
         ${
           selectedRate === rate
-            ? "bg-blue-600 text-white"
-            : "bg-gray-700 text-gray-300"
+            ? "border-white text-white"
+            : "border-gray-600 text-gray-400"
         }`}
     >
       {rate}x
@@ -411,11 +411,11 @@ const calculateDistance = () => {
     transition-all duration-200 active:scale-95
     ${
       impactFrame !== null
-        ? "bg-blue-600 text-white ring-2 ring-blue-400 animate-pulse-once"
-        : "border-2 border-white-600 text-white-600 bg-transparent hover:bg-blue-50 active:bg-blue-100"
+        ? "bg-green-600 text-white ring-2 font-bold ring-green-400 animate-pulse-once"
+        : "border-2 border-green-600 font-bold  text-white-600 bg-transparent hover:bg-green-50 active:bg-green-100"
     }`}
   >
-    🎯 Mark Racquet Touch
+    Mark Racquet Touch
     {impactFrame !== null && <span className="text-white font-bold">✓</span>}
   </button>
 
@@ -425,11 +425,11 @@ const calculateDistance = () => {
     transition-all duration-200 active:scale-95
     ${
       crossFrame !== null
-        ? "bg-purple-600 text-white ring-2 ring-purple-400 animate-pulse-once"
-        : "border-2 border-white-600 text-white-600 bg-transparent hover:bg-purple-50 active:bg-purple-100"
+        ? "bg-green-600 font-bold text-white ring-2 ring-green-400 animate-pulse-once"
+        : "border-2 border-green-600 font-bold  text-white-600 bg-transparent hover:bg-green-50 active:bg-green-100"
     }`}
   >
-    📍 Mark Net Cross
+    Mark Net Cross
     {crossFrame !== null && <span className="text-white font-bold">✓</span>}
   </button>
 </div>
@@ -440,7 +440,7 @@ const calculateDistance = () => {
         </div>
 
         {/* FPS */}
-        <div style={styles.sectionTitle}>FPS</div>
+        <div style={styles.sectionTitle}>FPS (Find in Video Properties)</div>
         <div style={styles.grid4}>
           {[30, 60, 120, 240].map((value) => (
             <button
@@ -456,7 +456,7 @@ const calculateDistance = () => {
           ))}
         </div>
 
-        <div style={styles.row}>
+        {/* <div style={styles.row}>
           <input
             type="number"
             placeholder="Custom FPS"
@@ -470,7 +470,7 @@ const calculateDistance = () => {
           >
             Set
           </button>
-        </div>
+        </div> */}
 
         {/* Serve Position */}
         {/* <div style={styles.sectionTitle}>Serve From</div>
@@ -489,7 +489,7 @@ const calculateDistance = () => {
           ))}
         </div> */}
 
-        <div style={styles.sectionTitle}>Ball Lands At</div>
+        {/* <div style={styles.sectionTitle}>Ball Lands At</div>
         <div style={styles.grid3}>
           {["center", "middle", "corner"].map((pos) => (
             <button
@@ -503,7 +503,7 @@ const calculateDistance = () => {
               {pos}
             </button>
           ))}
-        </div>
+        </div> */}
 
         {/* Manual Distance Override */}
         {/* <div style={styles.row}>
@@ -516,9 +516,16 @@ const calculateDistance = () => {
           />
         </div> */}
 
-        <button onClick={calculateSpeed} style={styles.calculateBtn}>
-          🚀 Calculate Speed
-        </button>
+       <button
+  onClick={calculateSpeed}
+  className="w-full py-3 mt-6 rounded-xl font-semibold
+  text-white shadow-md
+  transition-all duration-200
+  hover:shadow-lg active:scale-95"
+  style={{ backgroundColor: "#f59e0b" }}
+>
+  Calculate Speed
+</button>
 
         {speed && (
           <div style={styles.result}>
