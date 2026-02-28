@@ -86,6 +86,12 @@ const clientIndexRef = useRef(0);
 
 //   console.log("Access Allowed");
 // }, []);
+useEffect(() => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth", // remove this if you want instant scroll
+  });
+}, []);
 const poseAccuracyPresets = {
   low: {
     modelComplexity: 0,

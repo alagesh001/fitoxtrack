@@ -1,14 +1,17 @@
 import React, { useRef, useState,useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { Navigate } from "react-router-dom";
 
 export default function ServeSpeedTool() {
+  const fileInputRef = useRef(null);
   const videoRef = useRef(null);
-
   const [fps, setFps] = useState(30);
   const [customFps, setCustomFps] = useState("");
 
   const [serveFrom, setServeFrom] = useState("center");
   const [landAt, setLandAt] = useState("center");
-
+const [selectedRate, setSelectedRate] = useState(1);
   const [manualDistance, setManualDistance] = useState("");
   const [impactFrame, setImpactFrame] = useState(null);
   const [crossFrame, setCrossFrame] = useState(null);
@@ -17,7 +20,27 @@ const [isPlaying, setIsPlaying] = useState(false);
 const [isMuted, setIsMuted] = useState(true);
 const [zoom, setZoom] = useState(1);
 const [position, setPosition] = useState({ x: 0, y: 0 });
+    const navigate = useNavigate();
+useEffect(() => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth", // remove this if you want instant scroll
+  });
+}, []);
+useEffect(() => {
+  const video = videoRef.current;
+  if (!video) return;
 
+  const handleEnded = () => {
+    setIsPlaying(false);
+  };
+
+  video.addEventListener("ended", handleEnded);
+
+  return () => {
+    video.removeEventListener("ended", handleEnded);
+  };
+}, []);
 const lastTouchDistance = useRef(null);
 const lastTouchPosition = useRef(null);
 useEffect(() => {
@@ -167,10 +190,62 @@ const calculateDistance = () => {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h2 style={styles.title}>🎾 Serve Speed</h2>
+  {/* Back Button */}
+  <button
+     onClick={() => {
+    if (window.history.length > 1) {
+      navigate(-1);   // Go back
+    } else {
+      navigate("/ai-hub");  // Fallback
+    }
+  }}
+    className="p-3 rounded-full 
+               bg-gray-800 hover:bg-gray-700
+               text-white shadow-md hover:shadow-lg
+               transition duration-300 hover:scale-105"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-5 h-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+    </svg>
+  </button>
+  <h2 className="flex items-center mb-5 mt-2 gap-2 text-xl sm:text-2xl font-bold text-white">
+    <span className="bg-blue-600 text-white text-sm px-2 py-1 rounded-md">TennisX </span>
+    Serve Speed Calculator
+  </h2>
+  <div className="bg-white/10 border border-blue-500/30 rounded-xl p-4 text-sm text-gray-200 mb-6">
+  <p className="font-semibold text-blue-400 mb-2">Recording Tips:</p>
+  <ul className="space-y-1 list-disc list-inside">
+    <li>🎥 Record from the side to clearly detect when the ball crosses the net.</li>
+    <li>⚡ Use higher FPS (60fps or more) for better speed accuracy.</li>
+    <li>💡 Record in a bright place so the ball is clearly visible.</li>
+  </ul>
+</div>
+ <div>
+      {/* Hidden file input */}
+      <input
+        type="file"
+        accept="video/*"
+        ref={fileInputRef}
+        onChange={handleUpload}
+        className="hidden"
+      />
 
-        <input type="file" accept="video/*" onChange={handleUpload} />
+      {/* Upload Button */}
+      <button
+        onClick={() => fileInputRef.current.click()}
+        className="px-6 py-3 bg-blue-600 text-white rounded-xl"
+      >
+        Upload Video
+      </button>
 
+    </div>
 <div className="relative overflow-hidden rounded-xl mt-4 bg-black">
   <div
     className="transition-transform duration-150"
@@ -218,7 +293,7 @@ const calculateDistance = () => {
     className="flex-1 p-3 bg-green-400 rounded-xl text-black font-bold hover:bg-green-500 active:bg-green-600 transition-colors text-2xl"
     aria-label={isPlaying ? "Pause" : "Play"}
   >
-    {isPlaying ? "⏸" : "▶"}
+    {isPlaying ? "| |" : "▶"}
   </button>
 
   {/* Forward Button */}
@@ -249,50 +324,115 @@ const calculateDistance = () => {
       {isMuted ? "🔇" : "🔊"}
     </button>
 
-    <button
-      onClick={zoomIn}
-      className="flex-1 py-3 bg-slate-600 rounded-xl text-white font-bold"
-    >
-      +
-    </button>
+    {/* Zoom In */}
+<button
+  onClick={zoomIn}
+  className="flex items-center justify-center gap-2 flex-1 py-3 bg-slate-600 rounded-xl text-white font-semibold hover:bg-slate-700 active:bg-slate-800 transition-colors"
+  aria-label="Zoom In"
+>
+  {/* Magnifier + */}
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-5 w-5"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <circle cx="11" cy="11" r="7" strokeLinecap="round" strokeLinejoin="round" />
+    <line x1="11" y1="8" x2="11" y2="14" strokeLinecap="round" />
+    <line x1="8" y1="11" x2="14" y2="11" strokeLinecap="round" />
+    <line x1="16.65" y1="16.65" x2="21" y2="21" strokeLinecap="round" />
+  </svg>
+  
+</button>
 
-    <button
-      onClick={zoomOut}
-      className="flex-1 py-3 bg-slate-600 rounded-xl text-white font-bold"
-    >
-      −
-    </button>
+{/* Zoom Out */}
+<button
+  onClick={zoomOut}
+  className="flex items-center justify-center gap-2 flex-1 py-3 bg-slate-600 rounded-xl text-white font-semibold hover:bg-slate-700 active:bg-slate-800 transition-colors"
+  aria-label="Zoom Out"
+>
+  {/* Magnifier - */}
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="h-5 w-5"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <circle cx="11" cy="11" r="7" strokeLinecap="round" strokeLinejoin="round" />
+    <line x1="8" y1="11" x2="14" y2="11" strokeLinecap="round" />
+    <line x1="16.65" y1="16.65" x2="21" y2="21" strokeLinecap="round" />
+  </svg>
 
-    <button
-      onClick={resetZoom}
-      className="flex-1 py-3 bg-orange-500 rounded-xl text-black font-semibold"
-    >
-      Reset
-    </button>
+</button>
+
+ <button
+  onClick={resetZoom}
+  className="flex-1 py-3 rounded-xl font-semibold
+  bg-orange-500 text-black
+  transition-all duration-200
+  hover:bg-orange-400 hover:shadow-lg hover:shadow-orange-500/40
+  active:scale-95 active:bg-orange-600"
+>
+  Reset
+</button>
   </div>
 
 </div>
         {/* Slow Motion */}
-        <div style={styles.grid4}>
-          {[1, 0.5, 0.25, 0.1].map((rate) => (
-            <button
-              key={rate}
-              onClick={() => (videoRef.current.playbackRate = rate)}
-              style={styles.smallBtn}
-            >
-              {rate}x
-            </button>
-          ))}
-        </div>
+     <div className="flex gap-3 mt-3">
+  {[1, 0.5, 0.25, 0.1].map((rate) => (
+    <button
+      key={rate}
+      onClick={() => {
+        videoRef.current.playbackRate = rate;
+        setSelectedRate(rate);
+      }}
+      className={`flex-1 py-2 rounded-lg
+        ${
+          selectedRate === rate
+            ? "bg-blue-600 text-white"
+            : "bg-gray-700 text-gray-300"
+        }`}
+    >
+      {rate}x
+    </button>
+  ))}
+</div>
 
         {/* Mark Buttons */}
-        <button onClick={markImpact} style={styles.primaryBtn}>
-          🎯 Mark Impact
-        </button>
+<div className="flex gap-4 mt-4">
+  <button
+    onClick={markImpact}
+    className={`flex items-center justify-center gap-2 p-3 rounded-xl 
+    transition-all duration-200 active:scale-95
+    ${
+      impactFrame !== null
+        ? "bg-blue-600 text-white ring-2 ring-blue-400 animate-pulse-once"
+        : "border-2 border-white-600 text-white-600 bg-transparent hover:bg-blue-50 active:bg-blue-100"
+    }`}
+  >
+    🎯 Mark Racquet Touch
+    {impactFrame !== null && <span className="text-white font-bold">✓</span>}
+  </button>
 
-        <button onClick={markNetCross} style={styles.secondaryBtn}>
-          📍 Mark Net Cross
-        </button>
+  <button
+    onClick={markNetCross}
+    className={`flex items-center justify-center gap-2 p-3 rounded-xl 
+    transition-all duration-200 active:scale-95
+    ${
+      crossFrame !== null
+        ? "bg-purple-600 text-white ring-2 ring-purple-400 animate-pulse-once"
+        : "border-2 border-white-600 text-white-600 bg-transparent hover:bg-purple-50 active:bg-purple-100"
+    }`}
+  >
+    📍 Mark Net Cross
+    {crossFrame !== null && <span className="text-white font-bold">✓</span>}
+  </button>
+</div>
 
         <div style={styles.infoBox}>
           <p>Impact Frame: {impactFrame ?? "-"}</p>
