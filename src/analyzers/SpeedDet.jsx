@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState,useEffect } from "react";
 
 export default function ServeSpeedTool() {
   const videoRef = useRef(null);
@@ -14,12 +14,23 @@ export default function ServeSpeedTool() {
   const [crossFrame, setCrossFrame] = useState(null);
   const [speed, setSpeed] = useState(null);
 const [isPlaying, setIsPlaying] = useState(false);
-const [isMuted, setIsMuted] = useState(false);
+const [isMuted, setIsMuted] = useState(true);
 const [zoom, setZoom] = useState(1);
 const [position, setPosition] = useState({ x: 0, y: 0 });
 
 const lastTouchDistance = useRef(null);
 const lastTouchPosition = useRef(null);
+useEffect(() => {
+  if (fps) {
+    setImpactFrame(null);
+    setCrossFrame(null);
+    setSpeed(null);
+    return;
+  }
+
+  
+
+}, [fps]);
 const togglePlay = () => {
   const video = videoRef.current;
   if (!video) return;
@@ -175,34 +186,59 @@ const calculateDistance = () => {
       className="w-full"
       controls={false}
       playsInline
+       muted={isMuted}
     />
   </div>
 </div>
 <div className="mt-4 space-y-3">
 
   {/* Row 1 : Playback Controls */}
-  <div className="flex gap-3">
-    <button
-      onClick={() => seekBy(-5)}
-      className="flex-1 py-3 bg-purple-600 rounded-xl text-white font-semibold"
+ <div className="flex gap-3">
+  {/* Rewind Button */}
+  <button
+    onClick={() => seekBy(-0.02)}
+    className="flex items-center justify-center p-3 bg-purple-500 rounded-xl text-white hover:bg-purple-600 active:bg-purple-700 transition-colors"
+    aria-label="Rewind 5 seconds"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-6 w-6"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
     >
-      ⏪ 5s
-    </button>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l-7-7 7-7M19 19l-7-7 7-7" />
+    </svg>
+  </button>
 
-    <button
-      onClick={togglePlay}
-      className="flex-1 py-3 bg-green-500 rounded-xl text-black font-bold"
-    >
-      {isPlaying ? "⏸" : "▶"}
-    </button>
+  {/* Play / Pause Button */}
+  <button
+    onClick={togglePlay}
+    className="flex-1 p-3 bg-green-400 rounded-xl text-black font-bold hover:bg-green-500 active:bg-green-600 transition-colors text-2xl"
+    aria-label={isPlaying ? "Pause" : "Play"}
+  >
+    {isPlaying ? "⏸" : "▶"}
+  </button>
 
-    <button
-      onClick={() => seekBy(5)}
-      className="flex-1 py-3 bg-purple-600 rounded-xl text-white font-semibold"
+  {/* Forward Button */}
+  <button
+    onClick={() => seekBy(0.02)}
+    className="flex items-center justify-center p-3 bg-purple-500 rounded-xl text-white hover:bg-purple-600 active:bg-purple-700 transition-colors"
+    aria-label="Forward 5 seconds"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-6 w-6"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
     >
-      5s ⏩
-    </button>
-  </div>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 5l7 7-7 7M5 5l7 7-7 7" />
+    </svg>
+  </button>
+</div>
 
   {/* Row 2 : Audio + Zoom Controls */}
   <div className="flex gap-3">
