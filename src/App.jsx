@@ -38,6 +38,7 @@ import SquatFormCorrector from "./Squatform";
 import LiveSkeletonTracker from "./analyzers/LateralRise";
 import LiveSkeletonTrackerSide from "./analyzers/Formtrackside";
 import SpeedDetect from "./CameraRecorder";
+import ServeSpeedTool from "./analyzers/SpeedDet";
 
 // import SquatFormCorrector from "./analyzers/SquatFormTrack";
 // import LiveSkeletonTracker from "./analyzers/FrontFormTrack";
@@ -96,6 +97,8 @@ function App() {
 
                 <Route path="/ai-hub" element={<AIhubHere />} />
                 <Route path="/transform-ai" element={<TransformationImageGenerator />} />
+
+                <Route path="/speedd-ai" element={<ServeSpeedTool />} />
 
                             <Route path="/bicep-ai" element={<BicepCurlFormCorrector />} />
                 <Route path="/squat-ai" element={<SquatFormCorrector />} />

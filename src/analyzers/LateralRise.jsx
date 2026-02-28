@@ -33,7 +33,7 @@ const trainerIndexRef = useRef(0);
 const [showDialog, setShowDialog] = useState(false);
 const [loading, setLoading] = useState(false);
 const [showSuccessDialog, setShowSuccessDialog] = useState(false);
-
+const [selectedPlan, setSelectedPlan] = useState("strokes");
 const playbackSpeedRef = useRef(1);
 const playbackSpeedRefClient = useRef(1);
 const isLoggedIn = localStorage.getItem("isLoggedInWeb") === "true";
@@ -1240,44 +1240,75 @@ const stopClient = () => {
 {showDialog && (
   <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end justify-center z-50">
 
-    <div className="w-full max-w-md bg-white rounded-t-3xl p-6 animate-slideUp shadow-2xl">
+    <div className="w-full max-w-md bg-white rounded-t-3xl p-6 animate-slideUp shadow-2xl max-h-[95vh] overflow-y-auto">
 
       {/* Header */}
       <div className="text-center mb-6">
-
-        <div className="inline-block px-4 py-1 bg-yellow-100 text-yellow-700 text-xs font-semibold rounded-full mb-3">
-          1-Year Pro Plan
-        </div>
-
         <h2 className="text-2xl font-bold text-gray-800">
-          Upgrade to Pro
+          Upgrade TennisX Pro
         </h2>
-
         <p className="text-gray-500 text-sm mt-1">
-          Complete access for 1 Year
+          Plans
         </p>
+      </div>
 
-        {/* Price */}
-        <div className="mt-4">
-          <span className="text-3xl font-bold text-gray-900">
-            ₹2999
-          </span>
-          <span className="text-sm text-gray-500 ml-1">
-            / year
-          </span>
+      {/* Plan Selection */}
+      <div className="space-y-4 mb-6">
+
+        {/* Strokes Motion Tracker */}
+        <div
+          onClick={() => setSelectedPlan("strokes")}
+          className={`border-2 rounded-2xl p-4 cursor-pointer transition ${
+            selectedPlan === "strokes"
+              ? "border-green-500 bg-green-50"
+              : "border-gray-200 hover:border-green-400"
+          }`}
+        >
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="font-semibold text-gray-800">
+                Strokes Motion Tracker
+              </h3>
+              <p className="text-xs text-green-600 font-medium">
+                In Stock
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Unlimited motion recordings • Skeleton comparison • Playback control
+              </p>
+            </div>
+
+            <div className="text-right">
+              <p className="text-lg font-bold text-gray-900">₹2999</p>
+              <p className="text-xs text-gray-500">/ year</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Speed & Fault Detector (Locked) */}
+        <div className="border-2 border-gray-200 rounded-2xl p-4 bg-gray-100 opacity-80 cursor-not-allowed">
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="font-semibold text-gray-700">
+                Speed & Fault Detector
+              </h3>
+              <p className="text-xs text-red-500 font-medium">
+                Physical setup assistance required
+              </p>
+              <p className="text-xs text-gray-500">
+                Offline setup only (Not selectable)
+              </p>
+            </div>
+
+            <div className="text-right">
+              <p className="text-lg font-bold text-gray-800">₹44999</p>
+              <p className="text-xs text-gray-500">/ year</p>
+            </div>
+          </div>
         </div>
 
       </div>
 
-      {/* Features */}
-      <div className="bg-gray-50 rounded-xl p-4 mb-5 text-sm text-gray-600 space-y-2">
-        <p>✔ Unlimited motion recordings</p>
-        <p>✔ Skeleton comparison analysis</p>
-        <p>✔ Playback speed control</p>
-        <p>✔ Session storage</p>
-      </div>
-
-      {/* Inputs */}
+      {/* User Inputs */}
       <input
         type="text"
         placeholder="Full Name*"
@@ -1304,9 +1335,9 @@ const stopClient = () => {
 
       {/* Upgrade Button */}
       <button
-        onClick={() => handlePayment(name, email, mobile)}
-        disabled={loading}
-        className="w-full bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-xl font-semibold hover:scale-105 transition duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
+        onClick={() => handlePayment(name, email, mobile, selectedPlan)}
+        disabled={loading || selectedPlan !== "strokes"}
+        className="w-full bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-xl font-semibold hover:scale-105 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? "Processing..." : "Upgrade Now"}
       </button>

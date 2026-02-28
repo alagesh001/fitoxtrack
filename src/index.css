@@ -3,32 +3,40 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Animations OUTSIDE layer */
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes tennisBounce {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-40px); }
+}
+
 @layer components {
   .video-wrapper {
     @apply relative;
   }
 
-  /* === GREEN TINT (default good form) === */
   .video-good::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: rgba(0, 255, 0, 0.20); /* soft green */
+    background: rgba(0, 255, 0, 0.20);
     z-index: 10;
     pointer-events: none;
   }
 
-  /* === RED TINT === */
   .video-wrong::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: rgba(255, 0, 0, 0.35); /* red overlay */
+    background: rgba(255, 0, 0, 0.35);
     z-index: 20;
     pointer-events: none;
   }
 
-  /* === BIG RED X === */
   .video-wrong::before {
     content: "✖";
     position: absolute;
@@ -42,28 +50,12 @@
     z-index: 30;
     pointer-events: none;
   }
-  @keyframes slideUp {
-  from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
 
-.animate-slideUp {
-  animation: slideUp 0.3s ease-out;
-}
-@keyframes tennisBounce {
-  0%, 100% {
-    transform: translateY(0);
+  .animate-slideUp {
+    animation: slideUp 0.3s ease-out;
   }
-  50% {
-    transform: translateY(-40px);
-  }
-}
 
-.animate-tennis {
-  animation: tennisBounce 0.8s ease-in-out infinite;
-}
+  .animate-tennis {
+    animation: tennisBounce 0.8s ease-in-out infinite;
+  }
 }

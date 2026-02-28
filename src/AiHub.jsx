@@ -42,6 +42,8 @@ useEffect(() => {
   const squatRef = useRef(null);
 const bicepRef = useRef(null);
 const lateralRef = useRef(null);
+const speedetref = useRef(null);
+
 const lateralSideRef = useRef(null);
 const panelRefs = useRef({});
  const [backgroundImage, setBackgroundImage] = useState(null);
@@ -100,6 +102,8 @@ const refs = {
   squat: squatRef,
   bicep: bicepRef,
   lateral: lateralRef,
+    speeddet: speedetref,
+
   lateralSide:lateralSideRef
 };
 const workouts = [
@@ -125,13 +129,13 @@ const workouts = [
   //   description:
   //     "Lateral View Real-time skeletal overlay powered by tennisX advanced motion tracking for perfect technique refinement.",
   // },
-  //  {
-  //   key: "speeddet",
-  //   name: "Speed Detection",
-  //   emoji: "🎾",
-  //   description:
-  //     "Detect the speed of the ball",
-  // },
+   {
+    key: "speeddet",
+    name: "Speed Detection",
+    emoji: "🎾",
+    description:
+      "Detect the speed of the ball",
+  },
   // Add more workouts here
 ];
 useEffect(() => {
@@ -160,6 +164,14 @@ useEffect(() => {
     if (active === "lateral") {
     setTimeout(() => {
       lateralRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }, 120);
+  }
+   if (active === "speeddet") {
+    setTimeout(() => {
+      speedetref.current?.scrollIntoView({
         behavior: "smooth",
         block: "nearest",
       });
@@ -217,7 +229,7 @@ const handleClick = (type) => {
   const isLoggedIn =
     localStorage.getItem("isLoggedInWeb") === "true";
 
-  if (isLoggedIn) {
+  if (isLoggedIn && type === "lateral") {
     handleGenerate(type);
     return;
   }
@@ -235,7 +247,14 @@ return prev +7;
 }, 100);
   setTimeout(() => {
     setLoading(false);
-
+  if (type === "speeddet") {
+      navigate("/speedd-ai", {
+        state: {
+          fromButton: true,
+          facing: facingMode,
+        },
+      });
+    }
     if (type === "lateral") {
       navigate("/lateral-ai", {
         state: {
@@ -625,6 +644,21 @@ return (
       {/* ---------------- PREMIUM SECTION (DARK THEME) ---------------- */}
       <div className="bg-[#0b0c12]/60 border border-[#191c29] rounded-2xl p-6 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
 
+<div className="bg-black/40 backdrop-blur-md rounded-xl p-5 border border-yellow-500/20 shadow-lg">
+  <h3 className="text-md font-semibold mb-3 text-yellow-400">
+    📌 How to Use
+  </h3>
+
+  <ul className="space-y-3 text-sm text-gray-200 leading-relaxed">
+    <li>1️⃣ Position your camera so your full body is clearly visible.</li>
+    <li>2️⃣ Select the stroke or movement you want to practice.</li>
+    <li>3️⃣ Tap <span className="text-yellow-400 font-semibold">Start</span> to begin tracking.</li>
+    <li>4️⃣ Stay within the frame and perform the movement naturally.</li>
+    <li>5️⃣ You can view pre-recorded motions in the <span className="text-yellow-400 font-semibold">Trainer Section</span> for reference.</li>
+    <li>6️⃣ Follow the trainer demo and perform shadow practice to improve your technique.</li>
+    <li>7️⃣ Review feedback and corrections after completion.</li>
+  </ul>
+</div>
         <h2
           className="text-lg font-bold mb-5 tracking-wide
                      bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-300
