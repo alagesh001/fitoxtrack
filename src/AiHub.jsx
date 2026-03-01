@@ -248,7 +248,7 @@ return prev +7;
   setTimeout(() => {
     setLoading(false);
   if (type === "speeddet") {
-      navigate("/speedd-ai", {
+      navigate("/homograph-ai", {
         state: {
           fromButton: true,
           facing: facingMode,

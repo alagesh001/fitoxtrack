@@ -19,6 +19,7 @@
     "framer-motion": "^12.23.24",
     "idb": "^8.0.3",
     "lucide-react": "^0.542.0",
+    "ml-matrix": "^6.12.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.5.0",

@@ -32,6 +32,7 @@ import GymOfferCanvasOne from "./AiOfferGen";
 
 import ImageCropper from "./ImageCropper";
 
+import CourtCalibration from "./analyzers/Homograph";
 
 import BicepCurlFormCorrector from "./BicepForm";
 import SquatFormCorrector from "./Squatform";
@@ -97,6 +98,7 @@ function App() {
 
                 <Route path="/ai-hub" element={<AIhubHere />} />
                 <Route path="/transform-ai" element={<TransformationImageGenerator />} />
+                <Route path="/homograph-ai" element={<CourtCalibration />} />
 
                 <Route path="/speedd-ai" element={<ServeSpeedTool />} />
 
