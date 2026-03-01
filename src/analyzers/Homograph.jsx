@@ -58,7 +58,7 @@ useEffect(() => {
     video.load();
 
     video.onloadedmetadata = () => {
-      video.currentTime = 0;
+      video.currentTime = 2;
     };
 
     video.onseeked = () => {
