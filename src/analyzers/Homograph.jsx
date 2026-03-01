@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState,useEffect } from "react";
 import { Matrix, SingularValueDecomposition } from "ml-matrix";
 
 const REAL_COURT = {
@@ -32,11 +32,20 @@ BR_SERVICE: [9.60, 5.485],
 export default function CourtCalibration() {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+const [isPlaying, setIsPlaying] = useState(false);
+const homographyRef = useRef(null);
+const pointsRef = useRef({});
+
 
   const [selectedPoint, setSelectedPoint] = useState("TL_BASE");
   const [points, setPoints] = useState({});
   const [H, setH] = useState(null);
-
+useEffect(() => {
+  pointsRef.current = points;
+}, [points]);
+useEffect(() => {
+  homographyRef.current = H;
+}, [H]);
   // =============================
   // Upload Video
   // =============================
@@ -54,10 +63,26 @@ export default function CourtCalibration() {
 
     video.onseeked = () => {
       drawFrame({});
-      setPoints({});
-      setH(null);
+     
     };
   };
+  useEffect(() => {
+  const video = videoRef.current;
+  const canvas = canvasRef.current;
+  if (!video || !canvas) return;
+
+  const handleLoaded = () => {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    drawFrame(); // draw first frame after size set
+  };
+
+  video.addEventListener("loadedmetadata", handleLoaded);
+
+  return () => {
+    video.removeEventListener("loadedmetadata", handleLoaded);
+  };
+}, []);
 
   // =============================
   // Draw Frame
@@ -65,6 +90,8 @@ export default function CourtCalibration() {
   const drawFrame = (customPoints = points, customH = H) => {
     const video = videoRef.current;
     const canvas = canvasRef.current;
+      if (!video || !canvas) return;
+
     const ctx = canvas.getContext("2d");
 
     canvas.width = video.videoWidth;
@@ -90,6 +117,79 @@ export default function CourtCalibration() {
   // =============================
   // Click to Mark
   // =============================
+useEffect(() => {
+  const video = videoRef.current;
+  if (!video) return;
+
+  const handlePlay = () => {
+    setIsPlaying(true);
+    requestAnimationFrame(renderFrame);
+  };
+
+  const handlePause = () => {
+    setIsPlaying(false);
+  };
+
+  const handleEnded = () => {
+    setIsPlaying(false);
+  };
+
+  video.addEventListener("play", handlePlay);
+  video.addEventListener("pause", handlePause);
+  video.addEventListener("ended", handleEnded);
+
+  return () => {
+    video.removeEventListener("play", handlePlay);
+    video.removeEventListener("pause", handlePause);
+    video.removeEventListener("ended", handleEnded);
+  };
+}, []);
+const handleToggle = () => {
+  const video = videoRef.current;
+  if (!video) return;
+
+  if (video.ended) {
+    video.currentTime = 0; // important for replay
+  }
+
+  if (video.paused) {
+    video.play(); // play event will start loop
+  } else {
+    video.pause();
+  }
+
+  setIsPlaying(!video.paused);
+};
+const renderFrame = () => {
+  const video = videoRef.current;
+  const canvas = canvasRef.current;
+  if (!video || !canvas) return;
+
+  const ctx = canvas.getContext("2d");
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  // Debug logs
+ 
+  if (pointsRef.current) {
+    Object.entries(pointsRef.current).forEach(([label, p]) => {
+      if (!p) return;
+
+      ctx.fillStyle = "red";
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 6, 0, 2 * Math.PI);
+      ctx.fill();
+    });
+  }
+
+  if (homographyRef.current) {
+    drawCourt(homographyRef.current);
+  }
+
+  if (!video.paused && !video.ended) {
+    requestAnimationFrame(renderFrame);
+  }
+};
   const handleClick = (e) => {
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
@@ -307,14 +407,23 @@ className="w-full sm:w-auto bg-green-600 text-white px-4 py-3 rounded"  >
   </button>
 </div>
 
-      <video ref={videoRef} style={{ display: "none" }} playsInline />
-
+<video
+  ref={videoRef}
+  playsInline
+  className="absolute opacity-0 pointer-events-none"
+/>
       <div className="border overflow-auto max-h-[80vh] mt-4">
       <canvas
   ref={canvasRef}
   onClick={handleClick}
   className="cursor-crosshair w-full touch-none"
 />
+<button
+  onClick={handleToggle}
+  className="mt-4 bg-amber-500 hover:bg-amber-600 text-black font-semibold px-6 py-2 rounded-xl shadow-md transition"
+>
+  {isPlaying ? "⏸ Pause" : "▶ Play"}
+</button>
       </div>
     </div>
   );
