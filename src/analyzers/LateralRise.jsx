@@ -1284,8 +1284,8 @@ const stopClient = () => {
             </div>
 
             <div className="text-right">
-              <p className="text-lg font-bold text-gray-900">₹399</p>
-              <p className="text-xs text-gray-500">/ month</p>
+              <p className="text-lg font-bold text-gray-900">₹2999</p>
+              <p className="text-xs text-gray-500">/ year</p>
             </div>
           </div>
         </div>
@@ -1429,6 +1429,21 @@ setShowDialog(true)
     <span className="bg-blue-600 text-white text-sm px-2 py-1 rounded-md">TennisX AI</span>
     Real-Time Stroke Tracker
   </h2>
+  <div className="bg-black/40 backdrop-blur-md rounded-xl p-5 border border-yellow-500/20 shadow-lg">
+  <h3 className="text-md font-semibold mb-3 text-yellow-400">
+    📌 How to Use
+  </h3>
+
+  <ul className="space-y-3 text-sm text-gray-200 leading-relaxed">
+   <li>1️⃣ Position your camera so your full body and racket path are clearly visible within the frame.</li>
+<li>2️⃣ Select the stroke you want to analyze (Forehand, Backhand, Serve, Volley, etc.).</li>
+<li>3️⃣ Tap <span className="text-yellow-400 font-semibold">Start</span> to initiate biomechanical tracking.</li>
+<li>4️⃣ Perform the stroke slowly as a controlled shadow swing (without the ball) to ensure accurate motion detection.</li>
+<li>5️⃣ Stay centered in the frame and maintain proper balance, sequencing, and technique throughout the movement.</li>
+<li>6️⃣ Your motion will be processed to generate a skeletal model highlighting joint movements and rotation.</li>
+<li>7️⃣ Review the analysis to identify inefficiencies in timing, hip-shoulder separation, contact positioning, and follow-through, then refine accordingly.</li>
+    </ul>
+</div>
 <div className="flex justify-center mt-4">
   <div className="flex rounded-xl overflow-hidden border shadow-sm">
 

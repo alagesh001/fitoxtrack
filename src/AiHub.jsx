@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import myBackground from "./assets/fitgymbg.jpg";
 import settingIcon from "./assets/settings.png";
 import { XCircle, ArrowUpRight,X } from "lucide-react";
-
+import { FaWhatsapp } from "react-icons/fa";
 export default function AIhubHere() {
   const [active, setActive] = useState(null);
   const navigate = useNavigate();
@@ -115,7 +115,15 @@ const workouts = [
   //   description:
   //     "Perfect your bicep curls with real-time AI form correction.",
   // },
+    {
+    key: "speeddet",
+    name: "Speed Detection",
+    emoji: "🚀",
+    description:
+      "Detect the speed of the ball",
+  },
   {
+
     key: "lateral",
     name: "Strokes Compare Tracker",
     emoji: "🎾",
@@ -129,18 +137,12 @@ const workouts = [
   //   description:
   //     "Lateral View Real-time skeletal overlay powered by tennisX advanced motion tracking for perfect technique refinement.",
   // },
-   {
-    key: "speeddet",
-    name: "Speed Detection",
-    emoji: "🎾",
-    description:
-      "Detect the speed of the ball",
-  },
+ 
   // Add more workouts here
 ];
 useEffect(() => {
   if (workouts.length && active === null) {
-    setActive(workouts[0].key);
+   // setActive(workouts[0].key);
   }
 }, [workouts]);
 useEffect(() => {
@@ -644,21 +646,7 @@ return (
       {/* ---------------- PREMIUM SECTION (DARK THEME) ---------------- */}
       <div className="bg-[#0b0c12]/60 border border-[#191c29] rounded-2xl p-6 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
 
-<div className="bg-black/40 backdrop-blur-md rounded-xl p-5 border border-yellow-500/20 shadow-lg">
-  <h3 className="text-md font-semibold mb-3 text-yellow-400">
-    📌 How to Use
-  </h3>
 
-  <ul className="space-y-3 text-sm text-gray-200 leading-relaxed">
-    <li>1️⃣ Position your camera so your full body is clearly visible.</li>
-    <li>2️⃣ Select the stroke or movement you want to practice.</li>
-    <li>3️⃣ Tap <span className="text-yellow-400 font-semibold">Start</span> to begin tracking.</li>
-    <li>4️⃣ Stay within the frame and perform the movement naturally.</li>
-    <li>5️⃣ You can view pre-recorded motions in the <span className="text-yellow-400 font-semibold">Trainer Section</span> for reference.</li>
-    <li>6️⃣ Follow the trainer demo and perform shadow practice to improve your technique.</li>
-    <li>7️⃣ Review feedback and corrections after completion.</li>
-  </ul>
-</div>
         <h2
           className="text-lg font-bold mb-5 tracking-wide
                      bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-300
@@ -752,7 +740,40 @@ return (
       
     </nav>
 
+<div className="mt-10 text-center text-sm text-gray-300 flex flex-col items-center space-y-2">
+  <p className="text-white">For support or feedback:</p>
 
+  <p>
+    📧 Email:{" "}
+    <a
+      href="mailto:oxadmedia@gmail.com"
+      className="text-yellow-400 hover:underline"
+    >
+      oxadmedia@gmail.com
+    </a>
+  </p>
+
+  <p>
+    📞 Contact:{" "}
+    <a
+      href="tel:+918148602102"
+      className="text-yellow-400 hover:underline"
+    >
+      +91 81486 02102
+    </a>
+  </p>
+
+  <a
+    href="https://wa.me/918595509389"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="flex items-center gap-2 text-green-500 hover:text-green-400 transition-colors"
+  >
+    <FaWhatsapp size={28} />
+    <span className="font-medium">Chat on WhatsApp</span>
+  </a>
+</div>
+ 
 </div>
 
  

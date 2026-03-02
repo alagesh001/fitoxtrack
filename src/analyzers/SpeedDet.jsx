@@ -220,11 +220,18 @@ const calculateDistance = () => {
     Serve Speed Calculator
   </h2>
   <div className="bg-white/10 border border-blue-500/30 rounded-xl p-4 text-sm text-gray-200 mb-6">
-  <p className="font-semibold text-blue-400 mb-2">Recording Tips:</p>
-  <ul className="space-y-1 list-disc list-inside">
-    <li>🎥 Record from the side to clearly detect when the ball crosses the net.</li>
-    <li>⚡ Use higher FPS (60fps or more) for better speed accuracy.</li>
-    <li>💡 Record in a bright place so the ball is clearly visible.</li>
+ <h3 className="text-md font-semibold mb-3 text-yellow-400">
+    📌 How to Use
+  </h3>   <ul className="space-y-3 text-sm text-gray-200 leading-relaxed">
+
+    <li>1️⃣ Upload your serve video from your gallery (a side view works best).</li>
+<li>2️⃣ Find the exact moment your racquet hits the ball.</li>
+<li>3️⃣ Use slow motion, rewind, or frame-by-frame controls to confirm the impact frame.</li>
+<li>4️⃣ Mark the ball contact point.</li>
+<li>5️⃣ Now find the frame where the ball crosses the net.</li>
+<li>6️⃣ Use slow motion again if needed and mark the net-crossing frame.</li>
+<li>7️⃣ Check your video’s FPS (frames per second) in the video details inside your gallery.</li>
+<li>8️⃣ Once both points are marked, your serve speed will be calculated automatically.</li>
   </ul>
 </div>
  <div>
