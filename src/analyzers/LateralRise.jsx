@@ -1284,8 +1284,8 @@ const stopClient = () => {
             </div>
 
             <div className="text-right">
-              <p className="text-lg font-bold text-gray-900">₹2999</p>
-              <p className="text-xs text-gray-500">/ year</p>
+              <p className="text-lg font-bold text-gray-900">₹399</p>
+              <p className="text-xs text-gray-500">/ month</p>
             </div>
           </div>
         </div>
@@ -1295,7 +1295,7 @@ const stopClient = () => {
           <div className="flex justify-between items-center">
             <div>
               <h3 className="font-semibold text-gray-700">
-                Speed & Fault Detector
+                Rador Speed & Fault Detector
               </h3>
               <p className="text-xs text-red-500 font-medium">
                 Physical setup assistance required
@@ -1306,8 +1306,8 @@ const stopClient = () => {
             </div>
 
             <div className="text-right">
-              <p className="text-lg font-bold text-gray-800">₹44999</p>
-              <p className="text-xs text-gray-500">/ year</p>
+              <p className="text-lg font-bold text-gray-800">₹22999</p>
+              {/* <p className="text-xs text-gray-500">/ year</p> */}
             </div>
           </div>
         </div>
