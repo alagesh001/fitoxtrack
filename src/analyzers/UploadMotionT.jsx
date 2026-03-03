@@ -14,7 +14,8 @@ const [isRecordingLM, setIsRecordingLM] = useState(false);
 const [recordedLandmarks, setRecordedLandmarks] = useState(null);
 const recordedFramesRef = useRef([]);
 const isRecordingRef = useRef(false);
-
+const startTimeRef = useRef(null);
+const [videoOpacity, setVideoOpacity] = useState(0.5);
 const playbackCanvasRef = useRef(null);
 const playbackRAFRef = useRef(null);
   // ---------- Upload ----------
@@ -25,6 +26,21 @@ const playbackRAFRef = useRef(null);
     const url = URL.createObjectURL(file);
     setVideoURL(url);
   };
+  useEffect(() => {
+  const video = videoRef.current;
+  const canvas = canvasRef.current;
+
+  const syncCanvasSize = () => {
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+  };
+
+  video?.addEventListener("loadedmetadata", syncCanvasSize);
+
+  return () => {
+    video?.removeEventListener("loadedmetadata", syncCanvasSize);
+  };
+}, []);
 useEffect(() => {
   isRecordingRef.current = isRecordingLM;
 }, [isRecordingLM]);
@@ -160,8 +176,12 @@ const stopLandmarkRecording = () => {
 
     if (!results.poseLandmarks) return;
 if (isRecordingRef.current) {
+  if (!startTimeRef.current) {
+    startTimeRef.current = videoRef.current.currentTime;
+  }
+
   const frame = {
-    time: videoRef.current.currentTime,
+    time: videoRef.current.currentTime - startTimeRef.current,
     landmarks: results.poseLandmarks.map(lm => ([
       lm.x,
       lm.y,
@@ -388,19 +408,32 @@ CENTER_CONNECTIONS.forEach(([i, j]) =>
 
           {/* Video + Canvas Overlay */}
         <div className="relative w-full max-w-xl">
-  <video
-    ref={videoRef}
-    src={videoURL}
-    playsInline
-    muted
-    className="w-full rounded-lg bg-black"
-  />
-
+ <video
+  ref={videoRef}
+  src={videoURL}
+  playsInline
+  muted
+  className="w-full rounded-lg bg-black transition-opacity duration-200"
+  style={{ opacity: 0.5 }} // initial default
+/>
   <canvas
     ref={canvasRef}
     className="absolute top-0 left-0 w-full h-full pointer-events-none"
   />
-
+{/* Opacity Slider */}
+<div className="absolute bottom-3 right-3 bg-black/70 backdrop-blur-md px-3 py-2 rounded-xl text-white text-xs flex items-center gap-2 shadow-lg">
+  <span className="opacity-80">Video</span>
+  <input
+    type="range"
+    min="0"
+    max="100"
+    defaultValue="50"
+    onChange={(e) => {
+      videoRef.current.style.opacity = e.target.value / 100;
+    }}
+    className="w-24 accent-green-400 cursor-pointer"
+  />
+</div>
   {/* Play / Pause Overlay Button */}
   <button
     onClick={handlePlayPause}
@@ -409,7 +442,7 @@ CENTER_CONNECTIONS.forEach(([i, j]) =>
     {isPlaying ? "Pause" : "Play"}
   </button>
 </div>
-<div className="flex gap-3 mt-3">
+{/* <div className="flex gap-3 mt-3">
   {!isRecordingLM ? (
     <button
       onClick={startLandmarkRecording}
@@ -437,7 +470,7 @@ CENTER_CONNECTIONS.forEach(([i, j]) =>
       className="w-full bg-black rounded-lg"
     />
   </div>
-)}
+)} */}
         </>
       )}
     </div>
