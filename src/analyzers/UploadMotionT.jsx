@@ -13,6 +13,7 @@ const [isPlaying, setIsPlaying] = useState(false);
 const [isRecordingLM, setIsRecordingLM] = useState(false);
 const [recordedLandmarks, setRecordedLandmarks] = useState(null);
 const recordedFramesRef = useRef([]);
+const isRecordingRef = useRef(false);
 
 const playbackCanvasRef = useRef(null);
 const playbackRAFRef = useRef(null);
@@ -24,7 +25,9 @@ const playbackRAFRef = useRef(null);
     const url = URL.createObjectURL(file);
     setVideoURL(url);
   };
-
+useEffect(() => {
+  isRecordingRef.current = isRecordingLM;
+}, [isRecordingLM]);
   // ---------- Initialize Pose ----------
   useEffect(() => {
     poseRef.current = new Pose({
@@ -74,7 +77,7 @@ useEffect(() => {
   };
 }, [videoURL]);
   // ---------- Process Video Frames ----------
-  useEffect(() => {
+useEffect(() => {
   if (!recordedLandmarks || recordedLandmarks.length === 0) return;
 
   const canvas = playbackCanvasRef.current;
@@ -84,27 +87,33 @@ useEffect(() => {
   canvas.height = canvasRef.current.height;
 
   let frameIndex = 0;
+  let startTime = performance.now();
 
-  const play = () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const play = (now) => {
+    if (frameIndex >= recordedLandmarks.length) return;
 
+    const elapsed = (now - startTime) / 1000; // seconds
     const frame = recordedLandmarks[frameIndex];
-    const lm = frame.map(p => ({
-      x: p[0],
-      y: p[1],
-      z: p[2],
-      visibility: p[3]
-    }));
 
-    drawLandmarks(ctx, { poseLandmarks: lm });
+    if (elapsed >= frame.time) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    frameIndex++;
-    if (frameIndex < recordedLandmarks.length) {
-      playbackRAFRef.current = requestAnimationFrame(play);
+      const lm = frame.landmarks.map(p => ({
+        x: p[0],
+        y: p[1],
+        z: p[2],
+        visibility: p[3]
+      }));
+
+      drawLandmarks(ctx, { poseLandmarks: lm });
+
+      frameIndex++;
     }
+
+    playbackRAFRef.current = requestAnimationFrame(play);
   };
 
-  play();
+  playbackRAFRef.current = requestAnimationFrame(play);
 
   return () => cancelAnimationFrame(playbackRAFRef.current);
 }, [recordedLandmarks]);
@@ -150,15 +159,19 @@ const stopLandmarkRecording = () => {
 
 
     if (!results.poseLandmarks) return;
-  if (isRecordingLM) {
-    const frame = results.poseLandmarks.map(lm => ([
+if (isRecordingRef.current) {
+  const frame = {
+    time: videoRef.current.currentTime,
+    landmarks: results.poseLandmarks.map(lm => ([
       lm.x,
       lm.y,
       lm.z,
       lm.visibility ?? 1
-    ]));
-    recordedFramesRef.current.push(frame);
-  }
+    ]))
+  };
+
+  recordedFramesRef.current.push(frame);
+}
     if (ctx) drawLandmarks(ctx, results);
 
   };

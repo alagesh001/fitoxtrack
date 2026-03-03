@@ -258,7 +258,7 @@ return prev +7;
       });
     }
     if (type === "lateral") {
-      navigate("/lateral-ai", {
+      navigate("/upload-ai", {
         state: {
           fromButton: true,
           facing: facingMode,
