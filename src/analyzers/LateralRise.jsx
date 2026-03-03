@@ -43,8 +43,14 @@ today.setHours(0, 0, 0, 0);
 
 const expiry = new Date(storedGym?.renewaldate);
 expiry.setHours(0, 0, 0, 0);
+let isExpired = true; // default to expired
 
-const isExpired = isLoggedIn && storedGym?.renewaldate && expiry < today;
+if (isLoggedIn && storedGym?.renewaldate) {
+  const expiry = new Date(storedGym.renewaldate);
+  expiry.setHours(0, 0, 0, 0);
+
+  isExpired = expiry < today;
+}
 const clientIndexRef = useRef(0);
   const poseRef = useRef(null);
     const [lastSessionId, setLastSessionId] = useState("");

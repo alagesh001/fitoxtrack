@@ -37,7 +37,7 @@ const showMetricsRef = useRef(true);
 const [metricsUI, setMetricsUI] = useState(true);
  const navigate = useNavigate();
     const location = useLocation();
-
+const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
    if (!location.state?.fromButton) {
   return <Navigate to="/ai-hub/" replace />;
 }
@@ -414,6 +414,7 @@ const stopLandmarkRecording = () => {
   setIsRecordingLM(false);
   setRecordedLandmarks([...recordedFramesRef.current]);
 };
+
   useEffect(() => {
     if (!videoURL || !videoRef.current) return;
 
@@ -1216,6 +1217,32 @@ if (
         
 
           {/* Video + Canvas Overlay */}
+          {isMobile && (
+  <div className="bg-gradient-to-r from-orange-500/10 to-yellow-500/10 
+                border border-orange-400/30 
+                rounded-2xl p-5 mt-6 shadow-lg backdrop-blur-md">
+  
+  <div className="flex gap-4 items-start">
+    <div className="text-2xl">💻</div>
+    
+    <div>
+      <h3 className="text-lg font-semibold text-orange-400">
+        Optimize Your Analytics Experience
+      </h3>
+      
+      <p className="text-sm text-gray-300 mt-2 leading-relaxed">
+        For the most accurate motion tracking and real-time performance analysis,
+        we recommend using a 
+        <span className="font-semibold text-orange-400"> desktop </span>
+        or 
+        <span className="font-semibold text-orange-400"> laptop </span>
+        device. Mobile devices may experience reduced frame processing speed.
+      </p>
+    </div>
+  </div>
+</div>
+          )}
+     
     <div className="w-full max-w-xl space-y-4">
 
   {/* Video + Canvas */}
@@ -1238,6 +1265,7 @@ if (
   />
   
 </div>
+
 <div className="flex items-center justify-between gap-6 
                 bg-gray-800/60 backdrop-blur-md 
                 px-6 py-3 rounded-xl shadow-lg border border-gray-700">
