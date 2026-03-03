@@ -18,6 +18,10 @@ const startTimeRef = useRef(null);
 const [videoOpacity, setVideoOpacity] = useState(0.5);
 const playbackCanvasRef = useRef(null);
 const playbackRAFRef = useRef(null);
+const [brightness, setBrightness] = useState(1);
+const [contrast, setContrast] = useState(1);
+const [currentTime, setCurrentTime] = useState(0);
+const [duration, setDuration] = useState(0);
   // ---------- Upload ----------
   const handleVideoUpload = (e) => {
     const file = e.target.files[0];
@@ -26,6 +30,32 @@ const playbackRAFRef = useRef(null);
     const url = URL.createObjectURL(file);
     setVideoURL(url);
   };
+  useEffect(() => {
+  const video = videoRef.current;
+  if (!video) return;
+
+  let animationFrameId;
+
+  const update = () => {
+    if (!video.paused && !video.ended) {
+      setCurrentTime(video.currentTime);
+    }
+    animationFrameId = requestAnimationFrame(update);
+  };
+
+  animationFrameId = requestAnimationFrame(update);
+
+  const setMeta = () => {
+    setDuration(video.duration || 0);
+  };
+
+  video.addEventListener("loadedmetadata", setMeta);
+
+  return () => {
+    cancelAnimationFrame(animationFrameId);
+    video.removeEventListener("loadedmetadata", setMeta);
+  };
+}, [videoURL]);
   useEffect(() => {
   const video = videoRef.current;
   const canvas = canvasRef.current;
@@ -41,6 +71,12 @@ const playbackRAFRef = useRef(null);
     video?.removeEventListener("loadedmetadata", syncCanvasSize);
   };
 }, []);
+const formatTime = (time) => {
+  if (!time) return "0:00";
+  const mins = Math.floor(time / 60);
+  const secs = Math.floor(time % 60);
+  return `${mins}:${secs.toString().padStart(2, "0")}`;
+};
 useEffect(() => {
   isRecordingRef.current = isRecordingLM;
 }, [isRecordingLM]);
@@ -311,54 +347,7 @@ RIGHT_CONNECTIONS.forEach(([i, j]) =>
 CENTER_CONNECTIONS.forEach(([i, j]) =>
   drawLine(i, j, COLORS.CENTER)
 );
-  // const LEFT = {
-  //   SHOULDER: 11,
-  //   ELBOW: 13,
-  //   WRIST: 15,
-  //   HIP: 23,
-  //   KNEE: 25,
-  //   ANKLE: 27,
-  //   HEEL: 29,
-  //   FOOT: 31
-  // };
-
-  // const RIGHT = {
-  //   SHOULDER: 12,
-  //   ELBOW: 14,
-  //   WRIST: 16,
-  //   HIP: 24,
-  //   KNEE: 26,
-  //   ANKLE: 28,
-  //   HEEL: 30,
-  //   FOOT: 32
-  // };
-
-  // // Torso
-  // drawLine(LEFT.SHOULDER, RIGHT.SHOULDER);
-  // drawLine(LEFT.HIP, RIGHT.HIP);
-  // drawLine(LEFT.SHOULDER, LEFT.HIP);
-  // drawLine(RIGHT.SHOULDER, RIGHT.HIP);
-
-  // // Left Arm
-  // drawLine(LEFT.SHOULDER, LEFT.ELBOW);
-  // drawLine(LEFT.ELBOW, LEFT.WRIST);
-
-  // // Right Arm
-  // drawLine(RIGHT.SHOULDER, RIGHT.ELBOW);
-  // drawLine(RIGHT.ELBOW, RIGHT.WRIST);
-
-  // // Left Leg
-  // drawLine(LEFT.HIP, LEFT.KNEE);
-  // drawLine(LEFT.KNEE, LEFT.ANKLE);
-  // drawLine(LEFT.ANKLE, LEFT.HEEL);
-  // drawLine(LEFT.HEEL, LEFT.FOOT);
-
-  // // Right Leg
-  // drawLine(RIGHT.HIP, RIGHT.KNEE);
-  // drawLine(RIGHT.KNEE, RIGHT.ANKLE);
-  // drawLine(RIGHT.ANKLE, RIGHT.HEEL);
-  // drawLine(RIGHT.HEEL, RIGHT.FOOT);
-
+ 
   // Draw Points (all 33)
   for (let i = 0; i < lm.length; i++) {
     drawPoint(i);
@@ -407,40 +396,111 @@ CENTER_CONNECTIONS.forEach(([i, j]) =>
           </div>
 
           {/* Video + Canvas Overlay */}
-        <div className="relative w-full max-w-xl">
- <video
-  ref={videoRef}
-  src={videoURL}
-  playsInline
-  muted
-  className="w-full rounded-lg bg-black transition-opacity duration-200"
-  style={{ opacity: 0.5 }} // initial default
-/>
+    <div className="w-full max-w-xl space-y-4">
+
+  {/* Video + Canvas */}
+ <div className="relative w-full max-w-xl">
+  <video
+    ref={videoRef}
+    src={videoURL}
+    playsInline
+    muted
+    className="w-full rounded-lg bg-black transition-all duration-200"
+    style={{
+      opacity: 0.5,
+      filter: `brightness(${brightness}) contrast(${contrast})`
+    }}
+  />
+
   <canvas
     ref={canvasRef}
     className="absolute top-0 left-0 w-full h-full pointer-events-none"
   />
-{/* Opacity Slider */}
-<div className="absolute bottom-3 right-3 bg-black/70 backdrop-blur-md px-3 py-2 rounded-xl text-white text-xs flex items-center gap-2 shadow-lg">
-  <span className="opacity-80">Video</span>
-  <input
-    type="range"
-    min="0"
-    max="100"
-    defaultValue="50"
-    onChange={(e) => {
-      videoRef.current.style.opacity = e.target.value / 100;
-    }}
-    className="w-24 accent-green-400 cursor-pointer"
-  />
 </div>
-  {/* Play / Pause Overlay Button */}
+
+  {/* Controls */}
+  <div className="bg-black/60 backdrop-blur-md p-4 rounded-xl text-white space-y-4 shadow-lg">
+
+    {/* Play / Pause */}
+    <div className="flex gap-3">
+      <button
+        onClick={handlePlayPause}
+        className="flex-1 bg-green-600 hover:bg-green-700 py-2 rounded-lg"
+      >
+        {isPlaying ? "Pause" : "Play"}
+      </button>
+
+      <button
+        onClick={() => videoRef.current.currentTime = 0}
+        className="flex-1 bg-gray-700 hover:bg-gray-800 py-2 rounded-lg"
+      >
+        Reset
+      </button>
+    </div>
+
+    {/* Timeline Seek */}
+   <div>
+  <label className="text-xs opacity-70">
+    Timeline ({formatTime(currentTime)} / {formatTime(duration)})
+  </label>
+
+  <input
+  type="range"
+  min="0"
+  max={duration || 0}
+  step="0.05"
+  value={currentTime}
+  onChange={(e) => {
+    const time = Number(e.target.value);
+    videoRef.current.currentTime = time;
+    setCurrentTime(time);
+  }}
+  className="w-full accent-white"
+/>
+</div>
+
+    {/* Opacity */}
+    <div>
+      <label className="text-xs opacity-70">Video Opacity</label>
+      <input
+        type="range"
+        min="0"
+        max="100"
+        defaultValue="50"
+        onChange={(e) => {
+          videoRef.current.style.opacity = e.target.value / 100;
+        }}
+        className="w-full accent-green-400"
+      />
+    </div>
+
+    {/* Brightness Toggle */}
+<div className="flex justify-between items-center">
+  <span className="text-xs opacity-70">High Brightness</span>
   <button
-    onClick={handlePlayPause}
-    className="absolute bottom-3 left-3 bg-black/70 hover:bg-black/90 text-white px-4 py-2 rounded-lg text-sm"
+    onClick={() =>
+      setBrightness((b) => (b === 1 ? 1.4 : 1))
+    }
+    className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-lg text-xs"
   >
-    {isPlaying ? "Pause" : "Play"}
+    {brightness === 1 ? "Enable" : "Disable"}
   </button>
+</div>
+
+    {/* Contrast Toggle */}
+<div className="flex justify-between items-center">
+  <span className="text-xs opacity-70">High Contrast</span>
+  <button
+    onClick={() =>
+      setContrast((c) => (c === 1 ? 1.5 : 1))
+    }
+    className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-lg text-xs"
+  >
+    {contrast === 1 ? "Enable" : "Disable"}
+  </button>
+</div>
+
+  </div>
 </div>
 {/* <div className="flex gap-3 mt-3">
   {!isRecordingLM ? (
