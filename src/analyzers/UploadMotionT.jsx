@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Pose } from "@mediapipe/pose";
 import { useLocation,useNavigate } from "react-router-dom";
+import { XCircle, ArrowUpRight,X } from "lucide-react";
 
 import { Navigate } from "react-router-dom";
 export default function VideoPoseSingleScreen() {
@@ -8,6 +9,13 @@ export default function VideoPoseSingleScreen() {
   const canvasRef = useRef(null);
   const poseRef = useRef(null);
   const rafRef = useRef(null);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [showDialog, setShowDialog] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState("strokes");
 const VISIBILITY_THRESHOLD = 0.3;
 const [isPlaying, setIsPlaying] = useState(false);
   const [videoURL, setVideoURL] = useState(null);
@@ -40,6 +48,8 @@ useEffect(() => {
   });
 }, []);
 const isLoggedIn = localStorage.getItem("isLoggedInWeb") === "true";
+    const [showExpireBlock, setShowExpireBlock] = useState(false);
+
   const storedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
 const today = new Date();
 today.setHours(0, 0, 0, 0);
@@ -127,7 +137,38 @@ useEffect(() => {
       cancelAnimationFrame(rafRef.current);
     };
   }, []);
+
+  
   const handlePlayPause = () => {
+    const isLoggedIn =
+    localStorage.getItem("isLoggedInWeb") === "true";
+console.log("expired ",isExpired);
+  if (isLoggedIn) {
+    if(isExpired){
+      setShowExpireBlock(true);
+      return;
+    }
+  }else{
+const stored = JSON.parse(localStorage.getItem("paymentStatus") || "{}");
+
+  if (stored.verified && stored.expiresAt > Date.now()) {
+    console.log("✅ Payment already verified and valid");
+
+    setShowDialog(false);
+    setShowSuccessDialog(true);
+    return; // ⛔ Stop further execution
+  }
+
+  // ❌ If expired, clean it
+  if (stored.expiresAt && stored.expiresAt <= Date.now()) {
+    localStorage.removeItem("paymentStatus");
+    console.log("⚠️ Stored payment expired, removed.");
+  }
+  //handlePayment(name, email, mobile);
+    setShowDialog(true); // 👈 open bottom dialog
+    return;
+  }
+
   const video = videoRef.current;
   if (!video) return;
 
@@ -137,6 +178,174 @@ useEffect(() => {
   } else {
     video.pause();
     setIsPlaying(false);
+  }
+};
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (document.getElementById("razorpay-script")) {
+      resolve(true);
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = "razorpay-script";
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
+const handlePayment = async (name, email, mobile) => {
+  if (!name || !email || !mobile) {
+    alert("Please enter name, email and mobile number");
+    return;
+  }
+   
+ setLoading(true);
+  // Ensure mobile is 10 digits only
+  mobile = mobile.replace(/\D/g, "").slice(-10);
+
+  const sdkLoaded = await loadRazorpayScript();
+
+  if (!sdkLoaded) {
+    setLoading(false);
+    alert("Razorpay SDK failed to load.");
+    return;
+  }
+
+  try {
+    // 🔹 Create order from backend
+    const orderRes = await fetch(
+      "https://tennisx.in/api/razorpay/create-order",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, mobile }),
+      }
+    );
+
+    if (!orderRes.ok) {
+      setLoading(false);
+      throw new Error("Order creation request failed");
+    }
+
+    const order = await orderRes.json();
+
+    if (!order || !order.id) {
+      setLoading(false);
+      alert("Order creation failed");
+      return;
+    }
+setLoading(false);
+    const options = {
+      key: "rzp_live_SIk4XqCcjDia3U",
+      amount: order.amount,
+      currency: order.currency,
+      order_id: order.id,
+
+      name: "Oxad Media",
+      description: "Free Trial Payment",
+
+      prefill: {
+        name,
+        email,
+        contact: mobile,
+      },
+
+      notes: {
+        name,
+        email,
+        mobile,
+      },
+  modal: {
+    ondismiss: function () {
+      console.log("Payment popup closed");
+      setLoading(false); // ✅ Stop loading if user cancels
+    }
+  },
+      theme: {
+        color: "#2ef02e",
+      },
+
+      handler: async function (response) {
+        try {
+          setLoading(false);
+          const verifyRes = await fetch(
+            "https://tennisx.in/api/razorpay/verify-payment",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                name,
+                email,
+                mobile,
+              }),
+            }
+          );
+
+          if (!verifyRes.ok) {
+            
+            throw new Error("Verification request failed");
+          }
+
+          const data = await verifyRes.json();
+
+          if (data.success) {
+            // ✅ Mark login
+            //localStorage.setItem("isLoggedInWeb", "true");
+
+            // ✅ Close dialog
+             const expiryTime = Date.now() + (2 * 24 * 60 * 60 * 1000); // 2 days in ms
+
+  const paymentData = {
+    verified: true,
+    expiresAt: expiryTime
+  };
+
+  localStorage.setItem("paymentStatus", JSON.stringify(paymentData));
+            if (typeof setShowDialog === "function") {
+              setShowDialog(false);
+            }
+
+            // ✅ Start recording
+            // if (typeof startRecording === "function") {
+            //   startRecording();
+            // }
+setShowSuccessDialog(true);
+
+           // alert("Payment Successful!");
+          } else {
+            alert("Payment verification failed.");
+          }
+            setLoading(false);
+        } catch (err) {
+          setLoading(false);
+          console.error("Verification error:", err);
+          alert("Verification error.");
+        }
+      },
+    };
+
+    const paymentObject = new window.Razorpay(options);
+
+    paymentObject.on("payment.failed", function (response) {
+      console.error("Payment Failed:", response.error);
+      alert("Payment Failed. Please try again.");
+    });
+
+    paymentObject.open();
+
+  } catch (error) {
+    console.error("Payment error:", error);
+    alert("Something went wrong. Please try again.");
   }
 };
 useEffect(() => {
@@ -155,46 +364,46 @@ useEffect(() => {
   };
 }, [videoURL]);
   // ---------- Process Video Frames ----------
-useEffect(() => {
-  if (!recordedLandmarks || recordedLandmarks.length === 0) return;
+// useEffect(() => {
+//   if (!recordedLandmarks || recordedLandmarks.length === 0) return;
 
-  const canvas = playbackCanvasRef.current;
-  const ctx = canvas.getContext("2d");
+//   const canvas = playbackCanvasRef.current;
+//   const ctx = canvas.getContext("2d");
 
-  canvas.width = canvasRef.current.width;
-  canvas.height = canvasRef.current.height;
+//   canvas.width = canvasRef.current.width;
+//   canvas.height = canvasRef.current.height;
 
-  let frameIndex = 0;
-  let startTime = performance.now();
+//   let frameIndex = 0;
+//   let startTime = performance.now();
 
-  const play = (now) => {
-    if (frameIndex >= recordedLandmarks.length) return;
+//   const play = (now) => {
+//     if (frameIndex >= recordedLandmarks.length) return;
 
-    const elapsed = (now - startTime) / 1000; // seconds
-    const frame = recordedLandmarks[frameIndex];
+//     const elapsed = (now - startTime) / 1000; // seconds
+//     const frame = recordedLandmarks[frameIndex];
 
-    if (elapsed >= frame.time) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+//     if (elapsed >= frame.time) {
+//       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      const lm = frame.landmarks.map(p => ({
-        x: p[0],
-        y: p[1],
-        z: p[2],
-        visibility: p[3]
-      }));
+//       const lm = frame.landmarks.map(p => ({
+//         x: p[0],
+//         y: p[1],
+//         z: p[2],
+//         visibility: p[3]
+//       }));
 
-      drawLandmarks(ctx, { poseLandmarks: lm });
+//       drawLandmarks(ctx, { poseLandmarks: lm });
 
-      frameIndex++;
-    }
+//       frameIndex++;
+//     }
 
-    playbackRAFRef.current = requestAnimationFrame(play);
-  };
+//     playbackRAFRef.current = requestAnimationFrame(play);
+//   };
 
-  playbackRAFRef.current = requestAnimationFrame(play);
+//   playbackRAFRef.current = requestAnimationFrame(play);
 
-  return () => cancelAnimationFrame(playbackRAFRef.current);
-}, [recordedLandmarks]);
+//   return () => cancelAnimationFrame(playbackRAFRef.current);
+// }, [recordedLandmarks]);
   const startLandmarkRecording = () => {
   recordedFramesRef.current = [];
   setRecordedLandmarks(null);
@@ -598,6 +807,303 @@ if (
   // ---------- UI ----------
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center gap-4 p-6">
+      {showExpireBlock && (
+ <div className="px-6 fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999]">
+  <div className="bg-white p-7 rounded-2xl shadow-2xl max-w-sm w-full text-center border border-red-200 relative">
+
+    {/* Top Close (X icon) */}
+    <button
+      onClick={() => setShowExpireBlock(false)}
+      className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
+    >
+      <X size={18} />
+    </button>
+
+    {/* Red Icon */}
+    <div className="flex justify-center mb-4">
+      <XCircle size={55} className="text-red-500" />
+    </div>
+
+    {/* Title */}
+    <h2 className="text-2xl font-extrabold text-red-600 mb-3">
+      Subscription Expired
+    </h2>
+
+    {/* Actual Backend Message */}
+      <p>
+    on {" "}
+    <span className="font- regular ">
+      {storedGym?.renewaldate
+        ? new Date(storedGym.renewaldate).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })
+        : "N/A"}
+    </span>
+  </p>
+
+
+    {/* Upgrade Button */}
+    <button
+    onClick={() => {
+        setShowExpireBlock(false);
+ const stored = JSON.parse(localStorage.getItem("paymentStatus") || "{}");
+
+  if (stored.verified && stored.expiresAt > Date.now()) {
+    console.log("✅ Payment already verified and valid");
+
+    setShowDialog(false);
+    setShowSuccessDialog(true);
+    return; // ⛔ Stop further execution
+  }
+
+  // ❌ If expired, clean it
+  if (stored.expiresAt && stored.expiresAt <= Date.now()) {
+    localStorage.removeItem("paymentStatus");
+    console.log("⚠️ Stored payment expired, removed.");
+  } 
+  //handlePayment(name, email, mobile);
+  setShowDialog(true);
+}}
+      className="mt-6 w-full flex text-white items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-lg font-semibold hover:scale-105 transition"
+    >
+      🚀 Upgrade Now 
+      
+    </button>
+
+    {/* Close Button */}
+  <button
+  onClick={() => setShowExpireBlock(false)}
+  className="mt-4 text-sm text-gray-400 hover:text-gray-600 transition"
+>
+  Close
+</button>
+
+  </div>
+</div>
+
+)}
+      {showSuccessDialog && (
+  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm 
+                  flex items-center justify-center z-50 px-4">
+
+    <div className="bg-white rounded-3xl shadow-2xl 
+                    max-w-md w-full p-8 text-center animate-fadeIn">
+
+      {/* Animated Tick */}
+      <div className="w-20 h-20 mx-auto mb-6 
+                      rounded-full bg-green-100 
+                      flex items-center justify-center">
+
+        <svg
+          className="w-10 h-10 text-green-600 animate-scaleIn"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="3"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M5 13l4 4L19 7"
+          />
+        </svg>
+      </div>
+
+      {/* Title */}
+      <h2 className="text-2xl font-bold text-gray-800 mb-3">
+        Payment Successful 🎾
+      </h2>
+
+      {/* Message */}
+      
+   <p className="text-gray-600 text-sm leading-relaxed mb-6">
+  Your payment has been received. Login credentials will be shared 
+  <span className="text-red-500 font-semibold"> within 24 hours </span> 
+  following account verification to ensure secure account setup.
+  <br /><br />
+  Please check your email for the payment receipt.
+  <br /><br />
+  Our team will also contact you to assist with onboarding, if required.
+  <br /><br />
+  For any queries or feedback, please contact us at 
+  <span className="font-semibold text-gray-800"> oxadmedia@gmail.com</span>.
+</p>
+
+      {/* Button */}
+      <button
+        onClick={() => setShowSuccessDialog(false)}
+        className="w-full bg-gradient-to-r 
+                   from-green-500 to-emerald-600 
+                   text-white py-3 rounded-xl font-semibold
+                   hover:scale-105 transition duration-300"
+      >
+        Continue
+      </button>
+
+    </div>
+  </div>
+)}
+
+{loading && (
+  <div className="fixed inset-0 bg-black flex flex-col 
+                  items-center justify-center z-[9999] text-center">
+
+    {/* Tennis Ball */}
+   <div className="relative mb-10">
+  <div className="relative w-20 h-20 bg-yellow-400 rounded-full 
+                  shadow-2xl animate-tennis overflow-hidden">
+
+    {/* Left curve */}
+    <div className="absolute w-24 h-24 border-[6px] border-white 
+                    rounded-full -left-10 top-0"></div>
+
+    {/* Right curve */}
+    <div className="absolute w-24 h-24 border-[6px] border-white 
+                    rounded-full -right-10 top-0"></div>
+  </div>
+
+  {/* Shadow */}
+  <div className="w-16 h-4 bg-black/40 rounded-full 
+                  absolute left-1/2 -translate-x-1/2 top-20 
+                  blur-sm animate-pulse"></div>
+</div>
+
+    <h2 className="text-white text-2xl font-semibold mb-2">
+      Connecting to your bank...
+    </h2>
+
+    <p className="text-gray-400">
+      Securing your payment 🎾
+    </p>
+  </div>
+)}
+      {showDialog && (
+  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end justify-center z-50">
+
+    <div className="w-full max-w-md bg-white rounded-t-3xl p-6 animate-slideUp shadow-2xl max-h-[95vh] overflow-y-auto">
+
+      {/* Header */}
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">
+          Upgrade TennisX Pro
+        </h2>
+        <p className="text-gray-500 text-sm mt-1">
+          Plans
+        </p>
+      </div>
+
+      {/* Plan Selection */}
+      <div className="space-y-4 mb-6">
+
+        {/* Strokes Motion Tracker */}
+        <div
+          onClick={() => setSelectedPlan("strokes")}
+          className={`border-2 rounded-2xl p-4 cursor-pointer transition ${
+            selectedPlan === "strokes"
+              ? "border-green-500 bg-green-50"
+              : "border-gray-200 hover:border-green-400"
+          }`}
+        >
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="font-semibold text-gray-800">
+                Strokes Motion Tracker
+              </h3>
+              <p className="text-xs text-green-600 font-medium">
+                In Stock
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Unlimited motion recordings • Skeleton comparison • Playback control
+              </p>
+            </div>
+
+            <div className="text-right">
+              <p className="text-lg font-bold text-gray-900">₹2999</p>
+              <p className="text-xs text-gray-500">/ year</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Speed & Fault Detector (Locked) */}
+        <div className="border-2 border-gray-200 rounded-2xl p-4 bg-gray-100 opacity-80 cursor-not-allowed">
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="font-semibold text-gray-700">
+                Rador Speed & Fault Detector
+              </h3>
+              <p className="text-xs text-red-500 font-medium">
+                Physical setup assistance required
+              </p>
+              <p className="text-xs text-gray-500">
+                Offline setup only (Not selectable)
+              </p>
+            </div>
+
+            <div className="text-right">
+              <p className="text-lg font-bold text-gray-800">₹22999</p>
+              {/* <p className="text-xs text-gray-500">/ year</p> */}
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      {/* User Inputs */}
+    <input
+  type="text"
+  placeholder="Full Name*"
+  value={name}
+  onChange={(e) => setName(e.target.value)}
+  className="w-full border border-gray-200
+             text-black
+             placeholder-gray-400
+             focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200
+             p-3 rounded-xl mb-3 outline-none transition"
+/>
+
+     <input
+  type="email"
+  placeholder="Email Address*"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  className="w-full bg-white text-gray-900 placeholder-gray-400
+             border border-gray-200
+             focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200
+             p-3 rounded-xl mb-3 outline-none transition"
+/>
+
+<input
+  type="tel"
+  placeholder="Mobile Number*"
+  value={mobile}
+  onChange={(e) => setMobile(e.target.value)}
+  className="w-full bg-white text-gray-900 placeholder-gray-400
+             border border-gray-200
+             focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200
+             p-3 rounded-xl mb-5 outline-none transition"
+/>
+      {/* Upgrade Button */}
+      <button
+        onClick={() => handlePayment(name, email, mobile, selectedPlan)}
+        disabled={loading || selectedPlan !== "strokes"}
+        className="w-full bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-xl font-semibold hover:scale-105 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {loading ? "Processing..." : "Upgrade Now"}
+      </button>
+
+      {/* Cancel */}
+      <button
+        onClick={() => setShowDialog(false)}
+        className="w-full mt-4 text-gray-400 text-sm hover:text-gray-600 transition"
+      >
+        Cancel
+      </button>
+
+    </div>
+  </div>
+)}
         <div className="w-full flex items-center justify-between">
 
   {/* Back Button */}

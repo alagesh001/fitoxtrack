@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Pose } from "@mediapipe/pose";
 import { Camera } from "@mediapipe/camera_utils";
+import { useLocation,useNavigate } from "react-router-dom";
 import { openPoseDB,saveTrainerSession,downloadTrainerSessionsJSON,getAllTrainerSessions,deleteTrainerSessionById,getPoseSessionById,clearTrainerSessions } from "../helper/trackerdb";
 import jsonSessions  from "../helper/trainer-sessions.json";
 import { Play, Pause, RotateCcw } from "lucide-react";
 import { Circle, Trash2 ,Square } from "lucide-react";
-import { useLocation,useNavigate } from "react-router-dom";
-
 import { Navigate } from "react-router-dom";
 import { XCircle, ArrowUpRight,X } from "lucide-react";
 
