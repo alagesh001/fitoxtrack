@@ -117,29 +117,28 @@ const workouts = [
   //   description:
   //     "Perfect your bicep curls with real-time AI form correction.",
   // },
-    {
-    key: "speeddet",
-    name: "Speed Detection",
-    emoji: "🚀",
-    description:
-      "Detect the speed of the ball",
-  },
-  {
-
-    key: "lateral",
-    name: "Strokes Compare Tracker (Real Time)",
-    emoji: "🎾",
-    description:
-      "Anterior and Posterior View Real-time skeletal overlay powered by tennisX advanced motion tracking for perfect technique refinement.",
-  },
    {
+  key: "speeddet",
+  name: "Speed Detection",
+  emoji: "🚀",
+  description:
+    "Accurately measure serve speed using baseline-to-net tracking. Get instant velocity analysis with frame-based motion detection for performance benchmarking.",
+},
+{
+  key: "lateral",
+  name: "Strokes Compare Tracker (Real Time)",
+  emoji: "🎾",
+  description:
+    "Real-time anterior and posterior skeletal overlay powered by TennisX motion tracking. Compare technique live, analyze joint angles, and refine stroke mechanics instantly.",
+},
+{
+  key: "lateralupload",
+  name: "Play Tracker (Uploaded Video)",
+  emoji: "🎾",
+  description:
+    "Upload match or practice footage to generate detailed skeletal overlays. Analyze posture, swing path, and body alignment frame-by-frame for deep technical improvement.",
+},
 
-    key: "lateralupload",
-    name: "Strokes Compare Tracker (Upload Video)",
-    emoji: "🎾",
-    description:
-      "Anterior and Posterior View Real-time skeletal overlay powered by tennisX advanced motion tracking for perfect technique refinement.",
-  },
   // {
   //   key: "lateralSide",
   //   name: "Form Compare AI (Left/Right)",

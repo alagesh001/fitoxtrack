@@ -1,6 +1,8 @@
 import React, { useRef, useState, useEffect } from "react";
 import { Pose } from "@mediapipe/pose";
+import { useLocation,useNavigate } from "react-router-dom";
 
+import { Navigate } from "react-router-dom";
 export default function VideoPoseSingleScreen() {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -23,6 +25,29 @@ const [contrast, setContrast] = useState(1);
 const [currentTime, setCurrentTime] = useState(0);
 const [duration, setDuration] = useState(0);
 const [showMetrics, setShowMetrics] = useState(true);
+const showMetricsRef = useRef(true);
+const [metricsUI, setMetricsUI] = useState(true);
+ const navigate = useNavigate();
+    const location = useLocation();
+
+   if (!location.state?.fromButton) {
+  return <Navigate to="/ai-hub/" replace />;
+}
+useEffect(() => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth", // remove this if you want instant scroll
+  });
+}, []);
+const isLoggedIn = localStorage.getItem("isLoggedInWeb") === "true";
+  const storedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const expiry = new Date(storedGym?.renewaldate);
+expiry.setHours(0, 0, 0, 0);
+
+const isExpired = isLoggedIn && storedGym?.renewaldate && expiry < today;
   // ---------- Upload ----------
   const handleVideoUpload = (e) => {
     const file = e.target.files[0];
@@ -370,8 +395,7 @@ CENTER_CONNECTIONS.forEach(([i, j]) =>
   for (let i = 0; i < lm.length; i++) {
     drawPoint(i);
   }
-  if (showMetrics) {
-
+if (showMetricsRef.current) {
   const P = (i) => ({
     x: lm[i].x * ctx.canvas.width,
     y: lm[i].y * ctx.canvas.height
@@ -574,33 +598,116 @@ if (
   // ---------- UI ----------
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center gap-4 p-6">
-      {/* Upload */}
-      <input
-        type="file"
-        accept="video/*"
-        onChange={handleVideoUpload}
-        className="bg-gray-800 border border-gray-600 p-2 rounded"
-      />
+        <div className="w-full flex items-center justify-between">
 
+  {/* Back Button */}
+  <button
+    onClick={() => {
+      if (window.history.length > 1) {
+        navigate(-1);
+      } else {
+        navigate("/ai-hub");
+      }
+    }}
+    className="p-3 rounded-full 
+               bg-gray-800 hover:bg-gray-700
+               text-white shadow-md hover:shadow-lg
+               transition duration-300 hover:scale-105"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-5 h-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+    </svg>
+  </button>
+
+  {/* Upgrade Button */}
+  {(isExpired || !isLoggedIn) && (
+    <button
+      onClick={() => {
+        const stored = JSON.parse(localStorage.getItem("paymentStatus") || "{}");
+
+        if (stored.verified && stored.expiresAt > Date.now()) {
+          setShowDialog(false);
+          setShowSuccessDialog(true);
+          return;
+        }
+
+        if (stored.expiresAt && stored.expiresAt <= Date.now()) {
+          localStorage.removeItem("paymentStatus");
+        }
+
+        setShowDialog(true);
+      }}
+      className="px-6 py-2.5 rounded-full font-semibold text-black
+                 bg-gradient-to-r from-yellow-400 to-green-500
+                 hover:from-yellow-500 hover:to-green-600
+                 transition-all duration-300
+                 shadow-md hover:shadow-xl
+                 hover:scale-105 active:scale-95"
+    >
+      🚀 Upgrade to Pro
+    </button>
+  )}
+
+</div>
+
+
+          <h2 className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-white">
+    <span className="bg-blue-600 text-white text-sm px-2 py-1 rounded-md">TennisX AI</span>
+    Full Tracker
+  </h2>
+  <div className="bg-black/40 backdrop-blur-md rounded-xl p-5 border border-yellow-500/20 shadow-lg">
+  <h3 className="text-md font-semibold mb-3 text-yellow-400">
+    📌 How to Use
+  </h3>
+
+ <ul className="space-y-3 text-sm text-gray-200 leading-relaxed">
+  <li>1️⃣ Upload your stroke video ensuring your full body is clearly visible within the frame.</li>
+
+  <li>2️⃣ Adjust the <span className="text-yellow-400 font-semibold">brightness</span> if needed for clearer joint detection and visibility.</li>
+
+  <li>3️⃣ The system will generate a skeletal model and automatically calculate key <span className="text-yellow-400 font-semibold">joint angles</span> including arm and knee positions.</li>
+
+  <li>4️⃣ Analyze <span className="text-yellow-400 font-semibold">shoulder-to-wrist</span> and <span className="text-yellow-400 font-semibold">hip-to-wrist</span> alignment to evaluate swing structure and extension.</li>
+
+  <li>5️⃣ Review <span className="text-yellow-400 font-semibold">shoulder and hip alignment axes</span> to understand upper and lower body rotation.</li>
+
+  <li>6️⃣ Observe your <span className="text-yellow-400 font-semibold">footwork and knee bend</span> to assess balance, loading, and stability.</li>
+
+  <li>7️⃣ Use the visual metrics and overlays to refine timing, body sequencing, and overall stroke mechanics.</li>
+</ul>
+</div>
+      {/* Upload */}
+ <div className="mt-5 mb-5">
+  <label className="inline-block">
+    <input
+      type="file"
+      accept="video/*"
+      onChange={handleVideoUpload}
+      className="hidden"
+    />
+
+    <span
+      className="cursor-pointer bg-blue-600 hover:bg-blue-700 
+                 active:scale-95 active:bg-blue-800
+                 transition-all duration-150
+                 px-6 py-3 rounded-xl shadow-lg
+                 text-white font-medium text-sm"
+    >
+      Upload Video
+    </span>
+  </label>
+</div>
       {/* Show only after upload */}
-      {videoURL && (
         <>
           {/* Speed */}
-          <div className="flex items-center gap-2">
-            <span className="text-sm">Speed:</span>
-            <select
-              value={playbackRate}
-              onChange={(e) => setPlaybackRate(Number(e.target.value))}
-              className="bg-gray-800 border border-gray-600 p-1 rounded"
-            >
-              <option value={0.1}>0.1x</option>
-              <option value={0.2}>0.2x</option>
-              <option value={0.3}>0.3x</option>
-              <option value={0.5}>0.5x</option>
-              <option value={0.7}>0.8x</option>
-              <option value={1}>1x</option>
-            </select>
-          </div>
+        
 
           {/* Video + Canvas Overlay */}
     <div className="w-full max-w-xl space-y-4">
@@ -623,13 +730,56 @@ if (
     ref={canvasRef}
     className="absolute top-0 left-0 w-full h-full pointer-events-none"
   />
+  
 </div>
+<div className="flex items-center justify-between gap-6 
+                bg-gray-800/60 backdrop-blur-md 
+                px-6 py-3 rounded-xl shadow-lg border border-gray-700">
+
+  {/* Metrics Toggle */}
 <button
-  onClick={() => setShowMetrics(prev => !prev)}
-  className="bg-indigo-600 px-4 py-2 rounded"
+  onClick={() => {
+    showMetricsRef.current = !showMetricsRef.current;
+    setMetricsUI(showMetricsRef.current);
+  }}
+  className={`px-4 py-2 rounded-lg text-sm font-medium 
+              transition-all duration-150 active:scale-95 shadow-md
+              ${
+                metricsUI
+                  ? "bg-red-600 hover:bg-red-700 active:bg-red-800 text-white"
+                  : "border-2 border-red-600 text-red-500 hover:bg-red-600/10"
+              }`}
 >
-  {showMetrics ? "Hide Metrics" : "Show Metrics"}
+  {metricsUI ? "Metrics ON" : "Metrics OFF"}
 </button>
+
+  {/* Divider */}
+  <div className="h-6 w-px bg-gray-600" />
+
+  {/* Playback Speed */}
+  <div className="flex items-center gap-3">
+    <span className="text-sm text-gray-300 font-medium">
+      Speed
+    </span>
+
+    <select
+      value={playbackRate}
+      onChange={(e) => setPlaybackRate(Number(e.target.value))}
+      className="bg-gray-900 border border-gray-600 
+                 px-3 py-1.5 rounded-lg text-sm
+                 focus:outline-none focus:ring-2 focus:ring-indigo-500
+                 hover:border-indigo-400 transition"
+    >
+      <option value={0.1}>0.1x</option>
+      <option value={0.2}>0.2x</option>
+      <option value={0.3}>0.3x</option>
+      <option value={0.5}>0.5x</option>
+      <option value={0.8}>0.8x</option> {/* fixed */}
+      <option value={1}>1x</option>
+    </select>
+  </div>
+
+</div>
   {/* Controls */}
   <div className="bg-black/60 backdrop-blur-md p-4 rounded-xl text-white space-y-4 shadow-lg">
 
@@ -693,7 +843,7 @@ if (
     onClick={() =>
       setBrightness((b) => (b === 1 ? 1.4 : 1))
     }
-    className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-lg text-xs"
+    className="bg-yellow-600 hover:bg-yellow-700 px-3 py-1 rounded-lg text-xs"
   >
     {brightness === 1 ? "Enable" : "Disable"}
   </button>
@@ -706,7 +856,7 @@ if (
     onClick={() =>
       setContrast((c) => (c === 1 ? 1.5 : 1))
     }
-    className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded-lg text-xs"
+    className="bg-yellow-600 hover:bg-yellow-700 px-3 py-1 rounded-lg text-xs"
   >
     {contrast === 1 ? "Enable" : "Disable"}
   </button>
@@ -744,7 +894,7 @@ if (
   </div>
 )} */}
         </>
-      )}
+     
     </div>
   );
 }
