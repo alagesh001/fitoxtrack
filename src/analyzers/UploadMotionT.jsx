@@ -22,6 +22,7 @@ const [brightness, setBrightness] = useState(1);
 const [contrast, setContrast] = useState(1);
 const [currentTime, setCurrentTime] = useState(0);
 const [duration, setDuration] = useState(0);
+const [showMetrics, setShowMetrics] = useState(true);
   // ---------- Upload ----------
   const handleVideoUpload = (e) => {
     const file = e.target.files[0];
@@ -197,7 +198,23 @@ const stopLandmarkRecording = () => {
     };
   }, [videoURL, playbackRate]);
 
+function calculateAngle(A, B, C) {
+  // Angle at point B (A-B-C)
 
+  const AB = { x: A.x - B.x, y: A.y - B.y };
+  const CB = { x: C.x - B.x, y: C.y - B.y };
+
+  const dot = AB.x * CB.x + AB.y * CB.y;
+  const magAB = Math.sqrt(AB.x * AB.x + AB.y * AB.y);
+  const magCB = Math.sqrt(CB.x * CB.x + CB.y * CB.y);
+
+  if (magAB === 0 || magCB === 0) return 0;
+
+  const cosAngle = dot / (magAB * magCB);
+  const angle = Math.acos(Math.min(Math.max(cosAngle, -1), 1));
+
+  return (angle * 180) / Math.PI;
+}
   // ---------- Drawing ----------
   const onResults = (results) => {
     const canvas = canvasRef.current;
@@ -231,6 +248,7 @@ if (isRecordingRef.current) {
     if (ctx) drawLandmarks(ctx, results);
 
   };
+  
 function drawLandmarks(ctx, results) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   ctx.save();
@@ -352,7 +370,196 @@ CENTER_CONNECTIONS.forEach(([i, j]) =>
   for (let i = 0; i < lm.length; i++) {
     drawPoint(i);
   }
+  if (showMetrics) {
 
+  const P = (i) => ({
+    x: lm[i].x * ctx.canvas.width,
+    y: lm[i].y * ctx.canvas.height
+  });
+
+  // -------- ROTATION (relative to horizontal) --------
+  const getRotation = (i, j) => {
+    const a = P(i);
+    const b = P(j);
+    return Math.atan2(b.y - a.y, b.x - a.x) * (180 / Math.PI);
+  };
+
+  const shoulderRotation = getRotation(11, 12);
+  const hipRotation = getRotation(23, 24);
+
+  // -------- ARM ANGLE (Elbow) --------
+  const leftArmAngle = calculateAngle(P(11), P(13), P(15));
+  const rightArmAngle = calculateAngle(P(12), P(14), P(16));
+
+  // -------- KNEE ANGLE --------
+  const leftKneeAngle = calculateAngle(P(23), P(25), P(27));
+  const rightKneeAngle = calculateAngle(P(24), P(26), P(28));
+
+  // -------- BIG DISPLAY --------
+  ctx.font = "bold 28px Arial";
+  ctx.fillStyle = "rgba(255,255,255,0.95)";
+  ctx.fillText(`Shoulder Rot: ${shoulderRotation.toFixed(1)}°`, 30, 50);
+  ctx.fillText(`Hip Rot: ${hipRotation.toFixed(1)}°`, 30, 90);
+
+  ctx.fillStyle = "rgba(255, 0, 242, 0.95)";
+  ctx.fillText(`L Arm: ${leftArmAngle.toFixed(1)}°`, 30, 140);
+
+  ctx.fillStyle = "rgba(255, 238, 0, 0.95)";
+  ctx.fillText(`R Arm: ${rightArmAngle.toFixed(1)}°`, 30, 180);
+
+  ctx.fillStyle = "rgba(0, 255, 150, 0.95)";
+  ctx.fillText(`L Knee: ${leftKneeAngle.toFixed(1)}°`, 30, 230);
+
+  ctx.fillStyle = "rgba(0, 200, 255, 0.95)";
+  ctx.fillText(`R Knee: ${rightKneeAngle.toFixed(1)}°`, 30, 270);
+}
+  // -----------------------------
+// EXTENDED BODY AXIS LINES
+// -----------------------------
+const drawExtendedAxis = (indexA, indexB, color, dashed = false) => {
+  const aLm = lm[indexA];
+  const bLm = lm[indexB];
+
+  if (
+    !aLm || !bLm ||
+    aLm.visibility < VISIBILITY_THRESHOLD ||
+    bLm.visibility < VISIBILITY_THRESHOLD
+  ) return;
+
+  const a = P(indexA);
+  const b = P(indexB);
+
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+
+  const length = Math.sqrt(dx * dx + dy * dy);
+  if (length === 0) return;
+
+  const ux = dx / length;
+  const uy = dy / length;
+
+  const extendAmount = 1000;
+
+  const startX = a.x - ux * extendAmount;
+  const startY = a.y - uy * extendAmount;
+
+  const endX = b.x + ux * extendAmount;
+  const endY = b.y + uy * extendAmount;
+
+  ctx.beginPath();
+
+  if (dashed) {
+    ctx.setLineDash([10, 8]); // dotted style
+  } else {
+    ctx.setLineDash([]); // solid
+  }
+
+  ctx.moveTo(startX, startY);
+  ctx.lineTo(endX, endY);
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = color;
+  ctx.stroke();
+
+  ctx.setLineDash([]); // reset dash
+
+  // Optional: show distance
+  ctx.font = "14px Arial";
+  ctx.fillStyle = color;
+  ctx.fillText(
+    `${length.toFixed(1)} px`,
+    (a.x + b.x) / 2,
+    (a.y + b.y) / 2 - 10
+  );
+};
+
+// Shoulders (solid cyan)
+drawExtendedAxis(11, 12, "rgba(255, 72, 0, 0.3)", false);
+
+// Hips (dotted orange/red)
+drawExtendedAxis(23, 24, "rgba(255, 120, 0, 0.3)", true);
+  // -----------------------------
+// WRIST CONNECTION MEASUREMENTS
+// -----------------------------
+const drawConnectionWithDistance = (i, j, color) => {
+  const aLm = lm[i];
+  const bLm = lm[j];
+
+  if (
+    !aLm || !bLm ||
+    aLm.visibility < VISIBILITY_THRESHOLD ||
+    bLm.visibility < VISIBILITY_THRESHOLD
+  ) return;
+
+  const a = P(i);
+  const b = P(j);
+
+  // Draw line
+  ctx.beginPath();
+  ctx.moveTo(a.x, a.y);
+  ctx.lineTo(b.x, b.y);
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = color;
+  ctx.stroke();
+
+  // Calculate distance
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+  // Draw measurement text at midpoint
+  ctx.font = "14px Arial";
+  ctx.fillStyle = color;
+  ctx.fillText(
+    `${distance.toFixed(1)} px`,
+    (a.x + b.x) / 2,
+    (a.y + b.y) / 2
+  );
+};
+
+// LEFT SIDE
+drawConnectionWithDistance(15, 11, "rgba(255, 13, 53, 0.3)"); // wrist → shoulder
+drawConnectionWithDistance(15, 23, "rgba(255, 13, 53, 0.4)"); // wrist → hip
+
+// RIGHT SIDE
+drawConnectionWithDistance(16, 12, "rgba(13, 255, 134, 0.3)"); // wrist → shoulder
+drawConnectionWithDistance(16, 24, "rgba(13, 255, 134, 0.4)"); // wrist → hip
+const LEFT_HEEL = 29;
+const RIGHT_HEEL = 30;
+
+const leftHeel = lm[LEFT_HEEL];
+const rightHeel = lm[RIGHT_HEEL];
+
+if (
+  leftHeel &&
+  rightHeel &&
+  leftHeel.visibility >= VISIBILITY_THRESHOLD &&
+  rightHeel.visibility >= VISIBILITY_THRESHOLD
+) {
+  const a = P(LEFT_HEEL);
+  const b = P(RIGHT_HEEL);
+
+  // Draw line
+  ctx.beginPath();
+  ctx.moveTo(a.x, a.y);
+  ctx.lineTo(b.x, b.y);
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = "rgba(255, 0, 43, 0.9)";
+  ctx.stroke();
+
+  // Calculate distance (pixels)
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+  // Draw distance text
+  ctx.font = "16px Arial";
+  ctx.fillStyle = "white";
+  ctx.fillText(
+    `Heel Distance: ${distance.toFixed(1)} px`,
+    (a.x + b.x) / 2 - 50,
+    (a.y + b.y) / 2 - 10
+  );
+}
   ctx.restore();
 }
 
@@ -417,7 +624,12 @@ CENTER_CONNECTIONS.forEach(([i, j]) =>
     className="absolute top-0 left-0 w-full h-full pointer-events-none"
   />
 </div>
-
+<button
+  onClick={() => setShowMetrics(prev => !prev)}
+  className="bg-indigo-600 px-4 py-2 rounded"
+>
+  {showMetrics ? "Hide Metrics" : "Show Metrics"}
+</button>
   {/* Controls */}
   <div className="bg-black/60 backdrop-blur-md p-4 rounded-xl text-white space-y-4 shadow-lg">
 

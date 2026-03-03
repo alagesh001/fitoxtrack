@@ -43,6 +43,7 @@ useEffect(() => {
 const bicepRef = useRef(null);
 const lateralRef = useRef(null);
 const speedetref = useRef(null);
+const lateralUploadref = useRef(null);
 
 const lateralSideRef = useRef(null);
 const panelRefs = useRef({});
@@ -103,6 +104,7 @@ const refs = {
   bicep: bicepRef,
   lateral: lateralRef,
     speeddet: speedetref,
+    lateralupload: lateralUploadref,
 
   lateralSide:lateralSideRef
 };
@@ -125,7 +127,15 @@ const workouts = [
   {
 
     key: "lateral",
-    name: "Strokes Compare Tracker",
+    name: "Strokes Compare Tracker (Real Time)",
+    emoji: "🎾",
+    description:
+      "Anterior and Posterior View Real-time skeletal overlay powered by tennisX advanced motion tracking for perfect technique refinement.",
+  },
+   {
+
+    key: "lateralupload",
+    name: "Strokes Compare Tracker (Upload Video)",
     emoji: "🎾",
     description:
       "Anterior and Posterior View Real-time skeletal overlay powered by tennisX advanced motion tracking for perfect technique refinement.",
@@ -174,6 +184,14 @@ useEffect(() => {
    if (active === "speeddet") {
     setTimeout(() => {
       speedetref.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }, 120);
+  }
+  if (active === "lateralupload") {
+    setTimeout(() => {
+      lateralUploadref.current?.scrollIntoView({
         behavior: "smooth",
         block: "nearest",
       });
@@ -258,6 +276,14 @@ return prev +7;
       });
     }
     if (type === "lateral") {
+      navigate("/lateral-ai", {
+        state: {
+          fromButton: true,
+          facing: facingMode,
+        },
+      });
+    }
+      if (type === "lateralupload") {
       navigate("/upload-ai", {
         state: {
           fromButton: true,
@@ -695,7 +721,7 @@ return (
                     {w.description}
                   </p>
 
-{active !== "speeddet" && (
+{active == "lateral" && (
 <div className="flex gap-3 justify-center mb-4">
   <button
     onClick={() => setFacingMode("user")} // front camera
