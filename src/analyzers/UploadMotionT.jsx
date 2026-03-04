@@ -610,6 +610,23 @@ if (showMetricsRef.current) {
     x: lm[i].x * ctx.canvas.width,
     y: lm[i].y * ctx.canvas.height
   });
+const getDistance = (i, j) => {
+  const aLm = lm[i];
+  const bLm = lm[j];
+
+  if (
+    !aLm || !bLm ||
+    aLm.visibility < VISIBILITY_THRESHOLD ||
+    bLm.visibility < VISIBILITY_THRESHOLD
+  ) return null;
+
+  const a = P(i);
+  const b = P(j);
+
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  return Math.sqrt(dx * dx + dy * dy);
+};
 
   // -------- ROTATION (relative to horizontal) --------
   const getRotation = (i, j) => {
@@ -617,7 +634,14 @@ if (showMetricsRef.current) {
     const b = P(j);
     return Math.atan2(b.y - a.y, b.x - a.x) * (180 / Math.PI);
   };
+const LEFT_SHOULDER = 11;
+const RIGHT_SHOULDER = 12;
+const LEFT_WRIST = 15;
+const RIGHT_WRIST = 16;
 
+
+const leftSW = getDistance(LEFT_SHOULDER, LEFT_WRIST);
+const rightSW = getDistance(RIGHT_SHOULDER, RIGHT_WRIST);
   const shoulderRotation = getRotation(11, 12);
   const hipRotation = getRotation(23, 24);
 
@@ -646,6 +670,17 @@ if (showMetricsRef.current) {
 
   ctx.fillStyle = "rgba(0, 200, 255, 0.95)";
   ctx.fillText(`R Knee: ${rightKneeAngle.toFixed(1)}°`, 30, 270);
+  
+
+if (leftSW !== null) {
+  ctx.fillStyle = "rgba(255, 0, 242, 0.95)";
+  ctx.fillText(`L Shoulder-Wrist: ${leftSW.toFixed(1)} px`, 30, 320);
+}
+
+if (rightSW !== null) {
+  ctx.fillStyle = "rgba(255, 238, 0, 0.95)";
+  ctx.fillText(`R Shoulder-Wrist: ${rightSW.toFixed(1)} px`, 30, 350);
+}
 }
   // -----------------------------
 // EXTENDED BODY AXIS LINES
