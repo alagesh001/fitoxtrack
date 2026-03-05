@@ -36,19 +36,19 @@ const [uniqueId, setDeviceId] = useState(null);
          // console.log("✅uidaaa",did);
     }, []);
 
-    useEffect(() => {
-        const handleBeforeInstallPrompt = (e) => {
-            e.preventDefault();
-            setDeferredPrompt(e);
-            setShowInstallButton(true);
-        };
+    // useEffect(() => {
+    //     const handleBeforeInstallPrompt = (e) => {
+    //         e.preventDefault();
+    //         setDeferredPrompt(e);
+    //         setShowInstallButton(true);
+    //     };
 
-        window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    //     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
-        return () => {
-            window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-        };
-    }, []);
+    //     return () => {
+    //         window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    //     };
+    // }, []);
 
     const handleInstallClick = async () => {
         if (deferredPrompt) {

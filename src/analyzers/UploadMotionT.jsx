@@ -57,8 +57,14 @@ today.setHours(0, 0, 0, 0);
 const expiry = new Date(storedGym?.renewaldate);
 expiry.setHours(0, 0, 0, 0);
 
-const isExpired = isLoggedIn && storedGym?.renewaldate && expiry < today;
-  // ---------- Upload ----------
+let isExpired = true; // default to expired
+
+if (isLoggedIn && storedGym?.renewaldate) {
+  const expiry = new Date(storedGym.renewaldate);
+  expiry.setHours(0, 0, 0, 0);
+
+  isExpired = expiry < today;
+}  // ---------- Upload ----------
   const handleVideoUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -1056,7 +1062,7 @@ if (
             </div>
 
             <div className="text-right">
-              <p className="text-lg font-bold text-gray-900">₹2999</p>
+              <p className="text-lg font-bold text-gray-900">₹4999</p>
               <p className="text-xs text-gray-500">/ year</p>
             </div>
           </div>

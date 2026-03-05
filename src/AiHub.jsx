@@ -11,6 +11,13 @@ export default function AIhubHere() {
   const [active, setActive] = useState(null);
   const navigate = useNavigate();
 const [loading, setLoading] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [mobile, setMobile] = useState("");
+  const [showDialog, setShowDialog] = useState(false);
+  const [loadingpay, setLoadingPay] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState("strokes");
 const [progress, setProgress] = useState(0);
     const [selectedGym, setSelectedGym] = useState(null);
 const [accessToken, setAccessToken] = useState(null);
@@ -20,7 +27,20 @@ const [authErrorMsg, setAuthErrorMsg] = useState("");
 const isLoggedIn = localStorage.getItem("isLoggedInWeb") === "true";
     const [showExpireBlock, setShowExpireBlock] = useState(false);
   const storedparseGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
+const today = new Date();
+today.setHours(0, 0, 0, 0);
 
+const expiry = new Date(storedparseGym?.renewaldate);
+expiry.setHours(0, 0, 0, 0);
+
+let isExpired = true; // default to expired
+
+if (isLoggedIn && storedparseGym?.renewaldate) {
+  const expiry = new Date(storedparseGym.renewaldate);
+  expiry.setHours(0, 0, 0, 0);
+
+  isExpired = expiry < today;
+}  // ---------- Upload ----------
 useEffect(() => {
 
   if (storedGym) {
@@ -51,7 +71,174 @@ const panelRefs = useRef({});
   const [isLoaded, setIsLoaded] = useState(false);
     const [facingMode, setFacingMode] = useState("user"); // 'user' or 'environment'
       const apiBase = "https://tennisx.in";
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (document.getElementById("razorpay-script")) {
+      resolve(true);
+      return;
+    }
 
+    const script = document.createElement("script");
+    script.id = "razorpay-script";
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+
+const handlePayment = async (name, email, mobile) => {
+  if (!name || !email || !mobile) {
+    alert("Please enter name, email and mobile number");
+    return;
+  }
+   
+ setLoadingPay(true);
+  // Ensure mobile is 10 digits only
+  mobile = mobile.replace(/\D/g, "").slice(-10);
+
+  const sdkLoaded = await loadRazorpayScript();
+
+  if (!sdkLoaded) {
+    setLoadingPay(false);
+    alert("Razorpay SDK failed to load.");
+    return;
+  }
+
+  try {
+    // 🔹 Create order from backend
+    const orderRes = await fetch(
+      "https://tennisx.in/api/razorpay/create-order",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, mobile }),
+      }
+    );
+
+    if (!orderRes.ok) {
+      setLoadingPay(false);
+      throw new Error("Order creation request failed");
+    }
+
+    const order = await orderRes.json();
+
+    if (!order || !order.id) {
+      setLoadingPay(false);
+      alert("Order creation failed");
+      return;
+    }
+setLoadingPay(false);
+    const options = {
+      key: "rzp_live_SIk4XqCcjDia3U",
+      amount: order.amount,
+      currency: order.currency,
+      order_id: order.id,
+
+      name: "Oxad Media",
+      description: "Free Trial Payment",
+
+      prefill: {
+        name,
+        email,
+        contact: mobile,
+      },
+
+      notes: {
+        name,
+        email,
+        mobile,
+      },
+  modal: {
+    ondismiss: function () {
+      console.log("Payment popup closed");
+      setLoadingPay(false); // ✅ Stop loading if user cancels
+    }
+  },
+      theme: {
+        color: "#2ef02e",
+      },
+
+      handler: async function (response) {
+        try {
+          setLoadingPay(false);
+          const verifyRes = await fetch(
+            "https://tennisx.in/api/razorpay/verify-payment",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                name,
+                email,
+                mobile,
+              }),
+            }
+          );
+
+          if (!verifyRes.ok) {
+            
+            throw new Error("Verification request failed");
+          }
+
+          const data = await verifyRes.json();
+
+          if (data.success) {
+            // ✅ Mark login
+            //localStorage.setItem("isLoggedInWeb", "true");
+
+            // ✅ Close dialog
+             const expiryTime = Date.now() + (2 * 24 * 60 * 60 * 1000); // 2 days in ms
+
+  const paymentData = {
+    verified: true,
+    expiresAt: expiryTime
+  };
+
+  localStorage.setItem("paymentStatus", JSON.stringify(paymentData));
+            if (typeof setShowDialog === "function") {
+              setShowDialog(false);
+            }
+
+            // ✅ Start recording
+            // if (typeof startRecording === "function") {
+            //   startRecording();
+            // }
+setShowSuccessDialog(true);
+
+           // alert("Payment Successful!");
+          } else {
+            alert("Payment verification failed.");
+          }
+            setLoadingPay(false);
+        } catch (err) {
+          setLoadingPay(false);
+          console.error("Verification error:", err);
+          alert("Verification error.");
+        }
+      },
+    };
+
+    const paymentObject = new window.Razorpay(options);
+
+    paymentObject.on("payment.failed", function (response) {
+      console.error("Payment Failed:", response.error);
+      alert("Payment Failed. Please try again.");
+    });
+
+    paymentObject.open();
+
+  } catch (error) {
+    console.error("Payment error:", error);
+    alert("Something went wrong. Please try again.");
+  }
+};
   useEffect(() => {
     const img = new Image();
     img.src = myBackground;
@@ -117,26 +304,29 @@ const workouts = [
   //   description:
   //     "Perfect your bicep curls with real-time AI form correction.",
   // },
-   {
+ {
   key: "speeddet",
-  name: "Speed Detection",
-  emoji: "🚀",
+  name: "Serve Velocity Analysis",
+  tier: "FREE",
+  icon: "speed",
   description:
-    "Accurately measure serve speed using baseline-to-net tracking. Get instant velocity analysis with frame-based motion detection for performance benchmarking.",
+    "Precision serve speed measurement using baseline-to-net trajectory tracking. Advanced frame-based motion analysis delivers accurate velocity metrics for performance benchmarking.",
 },
 {
   key: "lateral",
-  name: "Strokes Compare Tracker (Real Time)",
-  emoji: "🎾",
+  name: "Compare Stroke Biomechanics Real Time",
+  tier: "PRO",
+  icon: "biomech",
   description:
-    "Real-time anterior and posterior skeletal overlay powered by TennisX motion tracking. Compare technique live, analyze joint angles, and refine stroke mechanics instantly.",
+    "Live anterior and posterior skeletal mapping powered by TennisX motion intelligence. Evaluate joint sequencing and optimize stroke efficiency instantly.",
 },
 {
   key: "lateralupload",
-  name: "Play Tracker (Uploaded Video)",
-  emoji: "🎾",
+  name: "Rally Analysis",
+  tier: "PRO",
+  icon: "analysis",
   description:
-    "Upload match or practice footage to generate detailed skeletal overlays. Analyze posture, swing path, and body alignment frame-by-frame for deep technical improvement.",
+    "Upload match or training footage for advanced skeletal overlay and biomechanical breakdown. Analyze posture, swing path, and kinetic chain alignment frame-by-frame.",
 },
 
   // {
@@ -514,6 +704,226 @@ return (
 >
   <div className="absolute inset-0 bg-black/50"></div>
 </div>
+      {showSuccessDialog && (
+  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm 
+                  flex items-center justify-center z-50 px-4">
+
+    <div className="bg-white rounded-3xl shadow-2xl 
+                    max-w-md w-full p-8 text-center animate-fadeIn">
+
+      {/* Animated Tick */}
+      <div className="w-20 h-20 mx-auto mb-6 
+                      rounded-full bg-green-100 
+                      flex items-center justify-center">
+
+        <svg
+          className="w-10 h-10 text-green-600 animate-scaleIn"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="3"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M5 13l4 4L19 7"
+          />
+        </svg>
+      </div>
+
+      {/* Title */}
+      <h2 className="text-2xl font-bold text-gray-800 mb-3">
+        Payment Successful 🎾
+      </h2>
+
+      {/* Message */}
+      
+   <p className="text-gray-600 text-sm leading-relaxed mb-6">
+  Your payment has been received. Login credentials will be shared 
+  <span className="text-red-500 font-semibold"> within 24 hours </span> 
+  following account verification to ensure secure account setup.
+  <br /><br />
+  Please check your email for the payment receipt.
+  <br /><br />
+  Our team will also contact you to assist with onboarding, if required.
+  <br /><br />
+  For any queries or feedback, please contact us at 
+  <span className="font-semibold text-gray-800"> oxadmedia@gmail.com</span>.
+</p>
+
+      {/* Button */}
+      <button
+        onClick={() => setShowSuccessDialog(false)}
+        className="w-full bg-gradient-to-r 
+                   from-green-500 to-emerald-600 
+                   text-white py-3 rounded-xl font-semibold
+                   hover:scale-105 transition duration-300"
+      >
+        Continue
+      </button>
+
+    </div>
+  </div>
+)}
+
+{loadingpay && (
+  <div className="fixed inset-0 bg-black flex flex-col 
+                  items-center justify-center z-[9999] text-center">
+
+    {/* Tennis Ball */}
+   <div className="relative mb-10">
+  <div className="relative w-20 h-20 bg-yellow-400 rounded-full 
+                  shadow-2xl animate-tennis overflow-hidden">
+
+    {/* Left curve */}
+    <div className="absolute w-24 h-24 border-[6px] border-white 
+                    rounded-full -left-10 top-0"></div>
+
+    {/* Right curve */}
+    <div className="absolute w-24 h-24 border-[6px] border-white 
+                    rounded-full -right-10 top-0"></div>
+  </div>
+
+  {/* Shadow */}
+  <div className="w-16 h-4 bg-black/40 rounded-full 
+                  absolute left-1/2 -translate-x-1/2 top-20 
+                  blur-sm animate-pulse"></div>
+</div>
+
+    <h2 className="text-white text-2xl font-semibold mb-2">
+      Connecting to your bank...
+    </h2>
+
+    <p className="text-gray-400">
+      Securing your payment 🎾
+    </p>
+  </div>
+)}
+      {showDialog && (
+  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end justify-center z-50">
+
+    <div className="w-full max-w-md bg-white rounded-t-3xl p-6 animate-slideUp shadow-2xl max-h-[95vh] overflow-y-auto">
+
+      {/* Header */}
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">
+          Upgrade TennisX Pro
+        </h2>
+        <p className="text-gray-500 text-sm mt-1">
+          Plans
+        </p>
+      </div>
+
+      {/* Plan Selection */}
+      <div className="space-y-4 mb-6">
+
+        {/* Strokes Motion Tracker */}
+        <div
+          onClick={() => setSelectedPlan("strokes")}
+          className={`border-2 rounded-2xl p-4 cursor-pointer transition ${
+            selectedPlan === "strokes"
+              ? "border-green-500 bg-green-50"
+              : "border-gray-200 hover:border-green-400"
+          }`}
+        >
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="font-semibold text-gray-800">
+                Strokes Motion Tracker
+              </h3>
+              <p className="text-xs text-green-600 font-medium">
+                In Stock
+              </p>
+             <p className="text-xs text-gray-500 mt-1">
+  Unlimited Motion Recording • Footwork Analysis • Biomechanics Breakdown • Skeleton Comparison • Advanced Playback Control
+</p>
+            </div>
+
+            <div className="text-right">
+              <p className="text-lg font-bold text-gray-900">₹4999</p>
+              <p className="text-xs text-gray-500">/ year</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Speed & Fault Detector (Locked) */}
+        <div className="border-2 border-gray-200 rounded-2xl p-4 bg-gray-100 opacity-80 cursor-not-allowed">
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="font-semibold text-gray-700">
+                Rador Speed & Fault Detector
+              </h3>
+              <p className="text-xs text-red-500 font-medium">
+                Physical setup assistance required
+              </p>
+              <p className="text-xs text-gray-500">
+                Offline setup only (Not selectable)
+              </p>
+            </div>
+
+            <div className="text-right">
+              <p className="text-lg font-bold text-gray-800">₹22999</p>
+              {/* <p className="text-xs text-gray-500">/ year</p> */}
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      {/* User Inputs */}
+    <input
+  type="text"
+  placeholder="Full Name*"
+  value={name}
+  onChange={(e) => setName(e.target.value)}
+  className="w-full border border-gray-200
+             text-black
+             placeholder-gray-400
+             focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200
+             p-3 rounded-xl mb-3 outline-none transition"
+/>
+
+     <input
+  type="email"
+  placeholder="Email Address*"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  className="w-full bg-white text-gray-900 placeholder-gray-400
+             border border-gray-200
+             focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200
+             p-3 rounded-xl mb-3 outline-none transition"
+/>
+
+<input
+  type="tel"
+  placeholder="Mobile Number*"
+  value={mobile}
+  onChange={(e) => setMobile(e.target.value)}
+  className="w-full bg-white text-gray-900 placeholder-gray-400
+             border border-gray-200
+             focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200
+             p-3 rounded-xl mb-5 outline-none transition"
+/>
+      {/* Upgrade Button */}
+      <button
+        onClick={() => handlePayment(name, email, mobile, selectedPlan)}
+        disabled={loading || selectedPlan !== "strokes"}
+        className="w-full bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-xl font-semibold hover:scale-105 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {loading ? "Processing..." : "Upgrade Now"}
+      </button>
+
+      {/* Cancel */}
+      <button
+        onClick={() => setShowDialog(false)}
+        className="w-full mt-4 text-gray-400 text-sm hover:text-gray-600 transition"
+      >
+        Cancel
+      </button>
+
+    </div>
+  </div>
+)}
 {showExpireBlock && (
  <div className="px-6 fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999]">
   <div className="bg-white p-7 rounded-2xl shadow-2xl max-w-sm w-full text-center border border-red-200 relative">
@@ -636,25 +1046,57 @@ return (
   </div>
 )}
 
-   <div className="md:flex">
-{!isLoggedIn && (
-  <div className="flex justify-end py-5">
+<div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  {(isExpired || !isLoggedIn) && (
+  <div className="flex flex-col sm:flex-row sm:justify-end items-stretch gap-3 py-4 px-4 sm:px-0">
+    
+    <button
+      onClick={() => {
+        const stored = JSON.parse(localStorage.getItem("paymentStatus") || "{}");
+
+        if (stored.verified && stored.expiresAt > Date.now()) {
+          setShowDialog(false);
+          setShowSuccessDialog(true);
+          return;
+        }
+
+        if (stored.expiresAt && stored.expiresAt <= Date.now()) {
+          localStorage.removeItem("paymentStatus");
+        }
+
+        setShowDialog(true);
+      }}
+      className="w-full sm:w-auto px-6 py-3 rounded-full font-semibold text-black
+                 bg-gradient-to-r from-yellow-400 to-green-500
+                 hover:from-yellow-500 hover:to-green-600
+                 transition-all duration-300
+                 shadow-md hover:shadow-xl
+                 active:scale-95"
+    >
+      🚀 Upgrade to Pro
+    </button>
+
     <button
       onClick={() => navigate("/login")}
-      className="px-6 py-2 rounded-lg font-semibold text-white 
+      className="w-full sm:w-auto px-6 py-3 rounded-full  font-semibold text-white 
                  bg-gradient-to-r from-blue-500 to-indigo-600 
                  hover:from-blue-600 hover:to-indigo-700 
-                 transition duration-300 shadow-lg hover:shadow-xl"
+                 transition duration-300 shadow-lg hover:shadow-xl
+                 active:scale-95"
     >
       Login
     </button>
+
   </div>
 )}
+
 {isLoggedIn && (
- <div className="w-full max-w-xl flex justify-end pr-4 mb-4">
+  <div className="w-full flex justify-end px-4 sm:px-6 mb-4">
     <div
       onClick={() => handleTabClick("Settings")}
-      className="cursor-pointer p-3 rounded-full bg-red-600/60 hover:bg-red-700 transition shadow-lg"
+      className="cursor-pointer p-3 rounded-full 
+                 bg-red-600/60 hover:bg-red-700 
+                 transition shadow-lg"
     >
       <img
         src={settingIcon}
@@ -682,80 +1124,106 @@ return (
 
         <div className="space-y-6">
 
-          {workouts.slice(0, 3).map((w) => (
-            <div key={w.key}>
-              <button
-                onClick={() => setActive(active === w.key ? null : w.key)}
-                className={`w-full text-left rounded-xl px-5 py-4 border transition-all duration-300 shadow-sm
-                ${
-                  active === w.key
-                    ? "bg-gradient-to-br from-[#1b1e2d] to-[#131522] border-indigo-500/50 shadow-[0_0_18px_rgba(99,102,241,0.4)]"
-                    : "bg-[#0f111a]/80 border-white hover:bg-[#171924] hover:border-[#3d4160]"
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <div
-                    className={`flex items-center justify-center w-12 h-12 rounded-xl text-xl transition
-                    ${
-                      active === w.key
-                        ? "bg-indigo-600/20 text-indigo-400"
-                        : "bg-[#161825] text-gray-400"
-                    }`}
-                  >
-                    {w.emoji}
-                  </div>
+      {workouts.slice(0, 3).map((w) => (
+  <div key={w.key}>
+    <button
+      onClick={() => setActive(active === w.key ? null : w.key)}
+      className={`w-full text-left rounded-xl px-5 py-4 border transition-all duration-300 shadow-sm
+      ${
+        active === w.key
+          ? "bg-gradient-to-br from-[#1b1e2d] to-[#131522] border-indigo-500/50 shadow-[0_0_18px_rgba(99,102,241,0.4)]"
+          : w.tier === "PRO"
+          ? "bg-[#0f111a]/80 border-indigo-500/30 hover:border-indigo-400/60 hover:bg-[#171924] shadow-[0_0_12px_rgba(139,92,246,0.2)]"
+          : "bg-[#0f111a]/80 border-white hover:bg-[#171924] hover:border-[#3d4160]"
+      }`}
+    >
+      <div className="flex items-center justify-between">
 
-                  <h3 className="text-base font-semibold text-white drop-shadow-sm">
-                    {w.name}
-                  </h3>
-                </div>
-              </button>
+        <div className="flex items-center gap-4">
+          
+          {/* ICON */}
+          <div
+            className={`flex items-center justify-center w-12 h-12 rounded-xl text-lg transition
+            ${
+              active === w.key
+                ? "bg-indigo-600/20 text-indigo-400"
+                : w.tier === "PRO"
+                ? "bg-gradient-to-br from-indigo-600/20 to-purple-600/20 text-indigo-400"
+                : "bg-[#161825] text-gray-400"
+            }`}
+          >
+            {w.icon === "speed" && "⚡"}
+            {w.icon === "biomech" && "⬡"}
+            {w.icon === "analysis" && "◉"}
+          </div>
 
-              {active === w.key && (
-                <div
-                  ref={refs[w.key]}
-                  className="mt-3 ml-2 p-4 rounded-xl bg-white border border-[#292c40] shadow-inner"
-                >
-                  <p className="text-sm text-black mb-4 leading-relaxed">
-                    {w.description}
-                  </p>
+          {/* TITLE */}
+          <h3 className="text-base font-semibold text-white drop-shadow-sm">
+            {w.name}
+          </h3>
+        </div>
 
-{active == "lateral" && (
-<div className="flex gap-3 justify-center mb-4">
-  <button
-    onClick={() => setFacingMode("user")} // front camera
-    className={`flex-1 py-2 rounded-xl font-regular shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 ${
-      facingMode === "user"
-        ? "bg-gradient-to-r from-gray-800 to-gray-700 text-white text-sm shadow-purple-400/40"
-        :"bg-gray-100 text-gray-400 text-sm hover:bg-gray-200"
-    }`}
-  >
-    Front Cam
-  </button>
+        {/* TIER BADGE */}
+        <span
+          className={`text-[10px] px-3 py-1 rounded-full font-semibold tracking-wide
+          ${
+            w.tier === "PRO"
+              ? "bg-gradient-to-r from-yellow-400 to-amber-500 text-black shadow-md"
+              : "bg-gray-700 text-gray-300"
+          }`}
+        >
+          {w.tier}
+        </span>
+      </div>
+    </button>
 
-  <button
-    onClick={() => setFacingMode("environment")} // back camera
-    className={`flex-1 py-2 rounded-xl font-regular shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 ${
-      facingMode === "environment"
-        ? "bg-gradient-to-r from-gray-800 to-gray-700 text-sm text-white shadow-purple-400/40"
-        : "bg-gray-100 text-gray-400 hover:bg-gray-200 text-sm"
-    }`}
-  >
-    Back Cam
-  </button>
-</div>
-)}
-<button
-  onClick={() => handleClick(w.key)}
-  className="w-full py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold shadow-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105"
->
-  Start
-</button>
+    {active === w.key && (
+      <div
+        ref={refs[w.key]}
+        className="mt-3 ml-2 p-4 rounded-xl bg-white border border-[#292c40] shadow-inner"
+      >
+        <p className="text-sm text-black mb-4 leading-relaxed">
+          {w.description}
+        </p>
 
-                </div>
-              )}
-            </div>
-          ))}
+        {active === "lateral" && (
+          <div className="flex gap-3 justify-center mb-4">
+            <button
+              onClick={() => setFacingMode("user")}
+              className={`flex-1 py-2 rounded-xl shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 text-sm
+              ${
+                facingMode === "user"
+                  ? "bg-gradient-to-r from-gray-800 to-gray-700 text-white shadow-purple-400/40"
+                  : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+              }`}
+            >
+              Front Camera
+            </button>
+
+            <button
+              onClick={() => setFacingMode("environment")}
+              className={`flex-1 py-2 rounded-xl shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105 text-sm
+              ${
+                facingMode === "environment"
+                  ? "bg-gradient-to-r from-gray-800 to-gray-700 text-white shadow-purple-400/40"
+                  : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+              }`}
+            >
+              Back Camera
+            </button>
+          </div>
+        )}
+
+        <button
+          onClick={() => handleClick(w.key)}
+          className="w-full py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold shadow-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105"
+        >
+         Start
+        </button>
+      </div>
+    )}
+  </div>
+))}
 
         </div>
       </div>

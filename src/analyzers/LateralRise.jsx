@@ -1290,7 +1290,7 @@ const stopClient = () => {
             </div>
 
             <div className="text-right">
-              <p className="text-lg font-bold text-gray-900">₹2999</p>
+              <p className="text-lg font-bold text-gray-900">₹4999</p>
               <p className="text-xs text-gray-500">/ year</p>
             </div>
           </div>
