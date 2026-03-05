@@ -15,8 +15,8 @@ export default function VideoPoseSingleScreen() {
   const [currency, setCurrency] = useState("INR");
     const pricing = {
     strokes: {
-      INR: { display: "₹2999", amount: 299900 },
-      USD: { display: "$49", amount: 4900 }
+      INR: { display: "₹4999", amount: 499900 },
+      USD: { display: "$55", amount: 5500 }
     },
     radar: {
       INR: { display: "₹22999", amount: 2299900 },
