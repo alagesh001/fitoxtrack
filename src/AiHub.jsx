@@ -161,13 +161,13 @@ const handlePayment = async (name, email, mobile) => {
     }
 setLoadingPay(false);
     const options = {
-      key: "rzp_live_SIk4XqCcjDia3U",
+      key: "rzp_live_SM3qfZ3C7cCTQ5",
       amount: order.amount,
       currency: order.currency,
       order_id: order.id,
 
       name: "Oxad Media",
-      description: "Free Trial Payment",
+      description: "TennisX",
 
       prefill: {
         name,
