@@ -12,6 +12,17 @@ export default function VideoPoseSingleScreen() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [mobile, setMobile] = useState("");
+  const [currency, setCurrency] = useState("INR");
+    const pricing = {
+    strokes: {
+      INR: { display: "₹2999", amount: 299900 },
+      USD: { display: "$49", amount: 4900 }
+    },
+    radar: {
+      INR: { display: "₹22999", amount: 2299900 },
+      USD: { display: "$300", amount: 30000 }
+    }
+  };
   const [showDialog, setShowDialog] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
@@ -229,7 +240,7 @@ const handlePayment = async (name, email, mobile) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, email, mobile }),
+        body: JSON.stringify({ currency,name, email, mobile }),
       }
     );
 
@@ -1022,129 +1033,154 @@ if (
   </div>
 )}
       {showDialog && (
-  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end justify-center z-50">
+   <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end justify-center z-50">
+      <div className="w-full max-w-md bg-white rounded-t-3xl p-6 shadow-2xl max-h-[95vh] overflow-y-auto">
 
-    <div className="w-full max-w-md bg-white rounded-t-3xl p-6 animate-slideUp shadow-2xl max-h-[95vh] overflow-y-auto">
+        {/* Header */}
+        <div className="text-center mb-4">
+          <h2 className="text-2xl font-bold text-gray-800">
+            Upgrade TennisX Pro
+          </h2>
+          <p className="text-gray-500 text-sm mt-1">Plans</p>
+        </div>
 
-      {/* Header */}
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">
-          Upgrade TennisX Pro
-        </h2>
-        <p className="text-gray-500 text-sm mt-1">
-          Plans
-        </p>
-      </div>
+        {/* Currency Toggle */}
+        <div className="flex justify-center mb-6">
+          <div className="relative flex bg-gray-100 rounded-full p-1 shadow-inner">
 
-      {/* Plan Selection */}
-      <div className="space-y-4 mb-6">
+            <div
+              className={`absolute top-1 bottom-1 w-1/2 rounded-full bg-black transition-all duration-300 ${
+                currency === "USD" ? "translate-x-full" : ""
+              }`}
+            />
 
-        {/* Strokes Motion Tracker */}
-        <div
-          onClick={() => setSelectedPlan("strokes")}
-          className={`border-2 rounded-2xl p-4 cursor-pointer transition ${
-            selectedPlan === "strokes"
-              ? "border-green-500 bg-green-50"
-              : "border-gray-200 hover:border-green-400"
-          }`}
-        >
-          <div className="flex justify-between items-center">
-            <div>
-              <h3 className="font-semibold text-gray-800">
-                Strokes Motion Tracker
-              </h3>
-              <p className="text-xs text-green-600 font-medium">
-                In Stock
-              </p>
-              <p className="text-xs text-gray-500 mt-1">
-                Unlimited motion recordings • Skeleton comparison • Playback control
-              </p>
-            </div>
+            <button
+              onClick={() => setCurrency("INR")}
+              className={`relative z-10 px-6 py-1.5 text-sm font-medium ${
+                currency === "INR" ? "text-white" : "text-gray-600"
+              }`}
+            >
+              ₹ INR
+            </button>
 
-            <div className="text-right">
-              <p className="text-lg font-bold text-gray-900">₹4999</p>
-              <p className="text-xs text-gray-500">/ year</p>
-            </div>
+            <button
+              onClick={() => setCurrency("USD")}
+              className={`relative z-10 px-6 py-1.5 text-sm font-medium ${
+                currency === "USD" ? "text-white" : "text-gray-600"
+              }`}
+            >
+              $ USD
+            </button>
+
           </div>
         </div>
 
-        {/* Speed & Fault Detector (Locked) */}
-        <div className="border-2 border-gray-200 rounded-2xl p-4 bg-gray-100 opacity-80 cursor-not-allowed">
-          <div className="flex justify-between items-center">
-            <div>
-              <h3 className="font-semibold text-gray-700">
-                Rador Speed & Fault Detector
-              </h3>
-              <p className="text-xs text-red-500 font-medium">
-                Physical setup assistance required
-              </p>
-              <p className="text-xs text-gray-500">
-                Offline setup only (Not selectable)
-              </p>
-            </div>
+        {/* Plans */}
+        <div className="space-y-4 mb-6">
 
-            <div className="text-right">
-              <p className="text-lg font-bold text-gray-800">₹22999</p>
-              {/* <p className="text-xs text-gray-500">/ year</p> */}
+          {/* Strokes Plan */}
+          <div
+            onClick={() => setSelectedPlan("strokes")}
+            className={`border-2 rounded-2xl p-4 cursor-pointer transition ${
+              selectedPlan === "strokes"
+                ? "border-green-500 bg-green-50"
+                : "border-gray-200 hover:border-green-400"
+            }`}
+          >
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="font-semibold text-gray-800">
+                 TennisX Pro
+                </h3>
+                 
+                <p className="text-xs text-gray-500 mt-1">
+                  Unlimited Motion Recording • Footwork Analysis • Biomechanics Breakdown • Skeleton Comparison • Advanced Playback Control
+                </p>
+              </div>
+
+              <div className="text-right">
+                <p className="text-lg font-bold text-gray-900">
+                  {pricing.strokes[currency].display}
+                </p>
+                <p className="text-xs text-gray-500">/ year</p>
+              </div>
             </div>
           </div>
+
+          {/* Radar Plan (Locked) */}
+          {/* <div className="border-2 border-gray-200 rounded-2xl p-4 bg-gray-100 opacity-80 cursor-not-allowed">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="font-semibold text-gray-700">
+                  Radar Speed & Fault Detector
+                </h3>
+                <p className="text-xs text-red-500 font-medium">
+                  Physical setup assistance required
+                </p>
+              </div>
+
+              <div className="text-right">
+                <p className="text-lg font-bold text-gray-800">
+                  {pricing.radar[currency].display}
+                </p>
+              </div>
+            </div>
+          </div> */}
+
         </div>
 
-      </div>
-
-      {/* User Inputs */}
-    <input
-  type="text"
-  placeholder="Full Name*"
-  value={name}
-  onChange={(e) => setName(e.target.value)}
-  className="w-full border border-gray-200
+        {/* Inputs */}
+        <input
+          type="text"
+          placeholder="Full Name*"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+className="w-full border border-gray-200
              text-black
              placeholder-gray-400
              focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200
-             p-3 rounded-xl mb-3 outline-none transition"
-/>
+             p-3 rounded-xl mb-3 outline-none transition"        />
 
-     <input
-  type="email"
-  placeholder="Email Address*"
-  value={email}
-  onChange={(e) => setEmail(e.target.value)}
-  className="w-full bg-white text-gray-900 placeholder-gray-400
-             border border-gray-200
+        <input
+          type="email"
+          placeholder="Email Address*"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+className="w-full border border-gray-200
+             text-black
+             placeholder-gray-400
              focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200
-             p-3 rounded-xl mb-3 outline-none transition"
-/>
+             p-3 rounded-xl mb-3 outline-none transition"        />
 
-<input
-  type="tel"
-  placeholder="Mobile Number*"
-  value={mobile}
-  onChange={(e) => setMobile(e.target.value)}
-  className="w-full bg-white text-gray-900 placeholder-gray-400
-             border border-gray-200
+        <input
+          type="tel"
+          placeholder="Mobile Number*"
+          value={mobile}
+          onChange={(e) => setMobile(e.target.value)}
+className="w-full border border-gray-200
+             text-black
+             placeholder-gray-400
              focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200
-             p-3 rounded-xl mb-5 outline-none transition"
-/>
-      {/* Upgrade Button */}
-      <button
-        onClick={() => handlePayment(name, email, mobile, selectedPlan)}
-        disabled={loading || selectedPlan !== "strokes"}
-        className="w-full bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-xl font-semibold hover:scale-105 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {loading ? "Processing..." : "Upgrade Now"}
-      </button>
+             p-3 rounded-xl mb-3 outline-none transition"        />
 
-      {/* Cancel */}
-      <button
-        onClick={() => setShowDialog(false)}
-        className="w-full mt-4 text-gray-400 text-sm hover:text-gray-600 transition"
-      >
-        Cancel
-      </button>
+        {/* Upgrade Button */}
+        <button
+onClick={() => handlePayment(name, email, mobile)}
+          disabled={loading}
+          className="w-full bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-xl font-semibold hover:scale-105 transition duration-300 disabled:opacity-50"
+        >
+          {loading ? "Processing..." : "Upgrade Now"}
+        </button>
 
+        <button
+          onClick={() => setShowDialog(false)}
+          className="w-full mt-4 text-gray-400 text-sm"
+        >
+          Cancel
+        </button>
+
+      </div>
     </div>
-  </div>
 )}
         <div className="w-full flex items-center justify-between">
 
