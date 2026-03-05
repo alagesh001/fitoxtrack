@@ -26,6 +26,8 @@ const [authErrorMsg, setAuthErrorMsg] = useState("");
   const storedGym = localStorage.getItem("selectedGym");
 const isLoggedIn = localStorage.getItem("isLoggedInWeb") === "true";
     const [showExpireBlock, setShowExpireBlock] = useState(false);
+      const [typeIs, setTypeIs] = useState("");
+
   const storedparseGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
 const today = new Date();
 today.setHours(0, 0, 0, 0);
@@ -87,6 +89,33 @@ const loadRazorpayScript = () => {
   });
 };
 
+const handleNavigation = (type) => {
+      console.log("tps b ",type);
+
+  if (type === "lateral") {
+    navigate("/lateral-ai", {
+      state: {
+        fromButton: true,
+        facing: facingMode },
+    });
+  }
+
+  if (type === "lateralupload") {
+    navigate("/upload-ai", {
+      state: {
+        fromButton: true,
+        facing: facingMode },
+    });
+  }
+
+  if (type === "speeddet") {
+    navigate("/speed-ai",{
+      state: {
+        fromButton: true,
+        facing: facingMode },
+    });
+  }
+};
 const handlePayment = async (name, email, mobile) => {
   if (!name || !email || !mobile) {
     alert("Please enter name, email and mobile number");
@@ -438,7 +467,7 @@ const handleClick = (type) => {
   const isLoggedIn =
     localStorage.getItem("isLoggedInWeb") === "true";
 
-  if (isLoggedIn && type === "lateral") {
+  if (isLoggedIn && (type === "lateral" || type === "lateralupload")) {
     handleGenerate(type);
     return;
   }
@@ -540,6 +569,8 @@ setLoading(false);
 // if (type === "bicep") navigate("/bicep-ai", { state: { fromButton: true } });
 //  if (type === "squat") navigate("/squat-ai", { state: { fromButton: true, facing:facingMode } });
    if (type === "lateral") navigate("/lateral-ai", { state: { fromButton: true, facing:facingMode } });
+      if (type === "lateralupload") navigate("/upload-ai", { state: { fromButton: true, facing:facingMode } });
+
   //  if (type === "lateralSide") navigate("/lateralside-ai", { state: { fromButton: true,facing:facingMode } });
   //  if (type === "speeddet") navigate("/speed-ai", { state: { fromButton: true,facing:facingMode } });
 
@@ -567,7 +598,7 @@ setLoading(false);
   setLoading(false);
       clearInterval(progressInterval);
       setAuthErrorMsg(response.data.message || "You are not authorized to continue.");
-
+      setTypeIs(type);
       setShowExpireBlock(true);
        return;
       }
@@ -978,9 +1009,7 @@ return (
 <button
   onClick={() => {
     setShowExpireBlock(false);
-    navigate("/lateral-ai", { 
-      state: { fromButton: true, facing: facingMode } 
-    });
+    handleNavigation(typeIs);
   }}
   className="mt-4 w-full 
              border border-black 
@@ -1047,9 +1076,9 @@ return (
 )}
 
 <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-  {(isExpired || !isLoggedIn) && (
+  { !isLoggedIn && (
   <div className="flex flex-col sm:flex-row sm:justify-end items-stretch gap-3 py-4 px-4 sm:px-0">
-    
+   {isExpired && (
     <button
       onClick={() => {
         const stored = JSON.parse(localStorage.getItem("paymentStatus") || "{}");
@@ -1075,6 +1104,7 @@ return (
     >
       🚀 Upgrade to Pro
     </button>
+   )}
 
     <button
       onClick={() => navigate("/login")}

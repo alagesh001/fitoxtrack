@@ -1208,7 +1208,7 @@ if (
 
           <h2 className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-white">
     <span className="bg-blue-600 text-white text-sm px-2 py-1 rounded-md">TennisX AI</span>
-    Full Tracker
+    Rally Tracker
   </h2>
   <div className="bg-black/40 backdrop-blur-md rounded-xl p-5 border border-yellow-500/20 shadow-lg">
   <h3 className="text-md font-semibold mb-3 text-yellow-400">
