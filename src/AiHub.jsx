@@ -17,7 +17,6 @@ const [loading, setLoading] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const [loadingpay, setLoadingPay] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState("strokes");
 const [progress, setProgress] = useState(0);
     const [selectedGym, setSelectedGym] = useState(null);
 const [accessToken, setAccessToken] = useState(null);
@@ -25,6 +24,9 @@ const [authErrorMsg, setAuthErrorMsg] = useState("");
   const token = localStorage.getItem("accessToken");
   const storedGym = localStorage.getItem("selectedGym");
 const isLoggedIn = localStorage.getItem("isLoggedInWeb") === "true";
+const [selectedPlan, setSelectedPlan] = useState(
+  isLoggedIn ? "strokes" : "trial"
+);
     const [showExpireBlock, setShowExpireBlock] = useState(false);
       const [typeIs, setTypeIs] = useState("");
 const [currency, setCurrency] = useState("INR");
@@ -67,6 +69,10 @@ const lateralRef = useRef(null);
 const speedetref = useRef(null);
 const lateralUploadref = useRef(null);
   const pricing = {
+     trial: {
+    INR: { display: "₹0" },
+    USD: { display: "$0" },
+  },
     strokes: {
       INR: { display: "₹4999", amount: 499900 },
       USD: { display: "$55", amount: 5500 }
@@ -126,6 +132,99 @@ const handleNavigation = (type) => {
     });
   }
 };
+const [showFreeTrialBox, setShowFreeTrialBox] = useState(false);
+const [loadingTRequest, setLoadingTRequest] = useState(false);
+
+const startFreeTrial = async (name, email, mobile) => {
+
+  if (!name || !email || !mobile) {
+    alert("Please enter name, email and mobile number");
+    return;
+  }
+  setLoadingTRequest(true);
+
+  setShowDialog(false);
+
+  const trialData = localStorage.getItem("tennisx_free_trial");
+
+  if (trialData) {
+    const parsed = JSON.parse(trialData);
+
+    if (Date.now() < parsed.expiry) {
+          setLoadingTRequest(false);
+
+      setShowFreeTrialBox({
+        status: "exists",
+        message:
+          "Your free trial request has already been sent. Please wait for activation."
+      });
+      
+      return;
+    }
+  }
+
+  try {
+
+    const res = await fetch(
+      "https://tennisx.in/api/razorpay/create-order",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          mobile,
+          plan: "trial"
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+
+      const trial = {
+        requested: true,
+        expiry: Date.now() + (2 * 24 * 60 * 60 * 1000)
+      };
+
+      localStorage.setItem(
+        "tennisx_free_trial",
+        JSON.stringify(trial)
+      );
+
+      setShowFreeTrialBox({
+        status: "sent",
+        message:
+          "Your request for free trial has been sent. Once activated, you will receive login credentials for the same."
+      });
+
+    } else {
+
+      setShowFreeTrialBox({
+        status: "error",
+        message: data.message || "Unable to process free trial request."
+      });
+
+    }
+
+  } catch (err) {
+
+    console.error(err);
+
+    setShowFreeTrialBox({
+      status: "error",
+      message: "Network error. Please try again later."
+    });
+
+  }
+    setLoadingTRequest(false);
+
+};
+
+
 const handlePayment = async (name, email, mobile) => {
   if (!name || !email || !mobile) {
     alert("Please enter name, email and mobile number");
@@ -745,6 +844,47 @@ return (
 >
   <div className="absolute inset-0 bg-black/50"></div>
 </div>
+{loadingTRequest && (
+  <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    
+    <div className="bg-white rounded-2xl shadow-xl px-8 py-6 flex flex-col items-center gap-4">
+      
+      {/* Spinner */}
+      <div className="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+
+      {/* Message */}
+      <p className="text-gray-700 text-sm font-medium">
+        Sending trial request...
+      </p>
+
+    </div>
+
+  </div>
+)}
+
+{showFreeTrialBox && (
+  <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+    <div className="bg-white rounded-2xl p-6 max-w-sm text-center shadow-xl">
+
+      <h3 className="text-lg font-semibold mb-3">
+        Free Trial
+      </h3>
+
+      <p className="text-gray-600 text-sm mb-5">
+        {showFreeTrialBox.message}
+      </p>
+
+      <button
+        onClick={() => setShowFreeTrialBox(false)}
+        className="bg-black text-white px-6 py-2 rounded-lg"
+      >
+        OK
+      </button>
+
+    </div>
+  </div>
+)}
+
       {showSuccessDialog && (
   <div className="fixed inset-0 bg-black/60 backdrop-blur-sm 
                   flex items-center justify-center z-50 px-4">
@@ -885,7 +1025,33 @@ return (
 
         {/* Plans */}
         <div className="space-y-4 mb-6">
+{!isLoggedIn &&(<div
+  onClick={() => setSelectedPlan("trial")}
+  className={`border-2 rounded-2xl p-4 cursor-pointer transition ${
+    selectedPlan === "trial"
+      ? "border-blue-500 bg-blue-50"
+      : "border-gray-200 hover:border-blue-400"
+  }`}
+>
+  <div className="flex justify-between items-center">
+    <div>
+      <h3 className="font-semibold text-gray-800">
+        1-Day Free Trial
+      </h3>
 
+      <p className="text-xs text-gray-500 mt-1">
+        Try TennisX Pro features free for 24 hours
+      </p>
+    </div>
+
+    <div className="text-right">
+      <p className="text-lg font-bold text-gray-900">
+        {pricing.trial[currency].display}
+      </p>
+    </div>
+  </div>
+</div>
+)}
           {/* Strokes Plan */}
           <div
             onClick={() => setSelectedPlan("strokes")}
@@ -963,13 +1129,21 @@ return (
         />
 
         {/* Upgrade Button */}
-        <button
-onClick={() => handlePayment(name, email, mobile)}
-          disabled={loading}
-          className="w-full bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-xl font-semibold hover:scale-105 transition duration-300 disabled:opacity-50"
-        >
-          {loading ? "Processing..." : "Upgrade Now"}
-        </button>
+      <button
+  onClick={() =>
+    selectedPlan === "trial"
+      ? startFreeTrial(name, email, mobile)
+      : handlePayment(name, email, mobile)
+  }
+  disabled={loading}
+  className="w-full bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-xl font-semibold hover:scale-105 transition duration-300 disabled:opacity-50"
+>
+  {loading
+    ? "Processing..."
+    : selectedPlan === "trial"
+    ? "Start Free Trial"
+    : "Upgrade Now"}
+</button>
 
         <button
           onClick={() => setShowDialog(false)}
@@ -1104,7 +1278,6 @@ onClick={() => handlePayment(name, email, mobile)}
 <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
   { !isLoggedIn && (
   <div className="flex flex-col sm:flex-row sm:justify-end items-stretch gap-3 py-4 px-4 sm:px-0">
-   {isExpired && (
     <button
       onClick={() => {
         const stored = JSON.parse(localStorage.getItem("paymentStatus") || "{}");
@@ -1128,9 +1301,9 @@ onClick={() => handlePayment(name, email, mobile)}
                  shadow-md hover:shadow-xl
                  active:scale-95"
     >
-      🚀 Upgrade to Pro
+      🎁 Start Free Trial
     </button>
-   )}
+   
 
     <button
       onClick={() => navigate("/login")}
@@ -1147,12 +1320,14 @@ onClick={() => handlePayment(name, email, mobile)}
 )}
 
 {isLoggedIn && (
-  <div className="w-full flex justify-end px-4 sm:px-6 mb-4">
+  <div className="w-full flex items-center justify-between px-4 sm:px-6 mb-4">
+
+    {/* Settings */}
     <div
       onClick={() => handleTabClick("Settings")}
       className="cursor-pointer p-3 rounded-full 
                  bg-red-600/60 hover:bg-red-700 
-                 transition shadow-lg"
+                 transition shadow-lg flex-shrink-0"
     >
       <img
         src={settingIcon}
@@ -1160,8 +1335,39 @@ onClick={() => handlePayment(name, email, mobile)}
         className="w-6 h-6 filter brightness-0 invert"
       />
     </div>
+
+    {/* Upgrade Button */}
+    {isExpired && (
+      <button
+        onClick={() => {
+          const stored = JSON.parse(localStorage.getItem("paymentStatus") || "{}");
+
+          if (stored.verified && stored.expiresAt > Date.now()) {
+            setShowDialog(false);
+            setShowSuccessDialog(true);
+            return;
+          }
+
+          if (stored.expiresAt && stored.expiresAt <= Date.now()) {
+            localStorage.removeItem("paymentStatus");
+          }
+
+          setShowDialog(true);
+        }}
+        className="ml-4 px-5 py-2.5 rounded-full font-semibold text-black
+                   bg-gradient-to-r from-yellow-400 to-green-500
+                   hover:from-yellow-500 hover:to-green-600
+                   transition-all duration-300
+                   shadow-md hover:shadow-xl
+                   active:scale-95 text-sm sm:text-base"
+      >
+        🚀 Upgrade to Pro
+      </button>
+    )}
+
   </div>
 )}
+
  
 
     <nav className="flex flex-col gap-14">
