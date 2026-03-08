@@ -33,9 +33,9 @@ const [currency, setCurrency] = useState("INR");
       USD: { display: "$300", amount: 30000 }
     }
   };
-  const [showMetrics, setShowMetrics] = useState(true);
-  const showMetricsRef = useRef(true);
-  const [metricsUI, setMetricsUI] = useState(true);
+  const [showMetrics, setShowMetrics] = useState(false);
+  const showMetricsRef = useRef(false);
+  const [metricsUI, setMetricsUI] = useState(false);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const playbackCanvasRef = useRef(null);
@@ -438,58 +438,252 @@ RIGHT_CONNECTIONS.forEach(([i, j]) =>
 CENTER_CONNECTIONS.forEach(([i, j]) =>
   drawLine(i, j, COLORS.CENTER)
 );
-  // const LEFT = {
-  //   SHOULDER: 11,
-  //   ELBOW: 13,
-  //   WRIST: 15,
-  //   HIP: 23,
-  //   KNEE: 25,
-  //   ANKLE: 27,
-  //   HEEL: 29,
-  //   FOOT: 31
-  // };
-
-  // const RIGHT = {
-  //   SHOULDER: 12,
-  //   ELBOW: 14,
-  //   WRIST: 16,
-  //   HIP: 24,
-  //   KNEE: 26,
-  //   ANKLE: 28,
-  //   HEEL: 30,
-  //   FOOT: 32
-  // };
-
-  // // Torso
-  // drawLine(LEFT.SHOULDER, RIGHT.SHOULDER);
-  // drawLine(LEFT.HIP, RIGHT.HIP);
-  // drawLine(LEFT.SHOULDER, LEFT.HIP);
-  // drawLine(RIGHT.SHOULDER, RIGHT.HIP);
-
-  // // Left Arm
-  // drawLine(LEFT.SHOULDER, LEFT.ELBOW);
-  // drawLine(LEFT.ELBOW, LEFT.WRIST);
-
-  // // Right Arm
-  // drawLine(RIGHT.SHOULDER, RIGHT.ELBOW);
-  // drawLine(RIGHT.ELBOW, RIGHT.WRIST);
-
-  // // Left Leg
-  // drawLine(LEFT.HIP, LEFT.KNEE);
-  // drawLine(LEFT.KNEE, LEFT.ANKLE);
-  // drawLine(LEFT.ANKLE, LEFT.HEEL);
-  // drawLine(LEFT.HEEL, LEFT.FOOT);
-
-  // // Right Leg
-  // drawLine(RIGHT.HIP, RIGHT.KNEE);
-  // drawLine(RIGHT.KNEE, RIGHT.ANKLE);
-  // drawLine(RIGHT.ANKLE, RIGHT.HEEL);
-  // drawLine(RIGHT.HEEL, RIGHT.FOOT);
 
   // Draw Points (all 33)
   for (let i = 0; i < lm.length; i++) {
     drawPoint(i);
   }
+
+  if (showMetricsRef.current) {
+  const P = (i) => ({
+    x: lm[i].x * ctx.canvas.width,
+    y: lm[i].y * ctx.canvas.height
+  });
+const getDistance = (i, j) => {
+  const aLm = lm[i];
+  const bLm = lm[j];
+
+  if (
+    !aLm || !bLm ||
+    aLm.visibility < VISIBILITY_THRESHOLD ||
+    bLm.visibility < VISIBILITY_THRESHOLD
+  ) return null;
+
+  const a = P(i);
+  const b = P(j);
+
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  return Math.sqrt(dx * dx + dy * dy);
+};
+function calculateAngle(A, B, C) {
+  // Angle at point B (A-B-C)
+
+  const AB = { x: A.x - B.x, y: A.y - B.y };
+  const CB = { x: C.x - B.x, y: C.y - B.y };
+
+  const dot = AB.x * CB.x + AB.y * CB.y;
+  const magAB = Math.sqrt(AB.x * AB.x + AB.y * AB.y);
+  const magCB = Math.sqrt(CB.x * CB.x + CB.y * CB.y);
+
+  if (magAB === 0 || magCB === 0) return 0;
+
+  const cosAngle = dot / (magAB * magCB);
+  const angle = Math.acos(Math.min(Math.max(cosAngle, -1), 1));
+
+  return (angle * 180) / Math.PI;
+}
+  // -------- ROTATION (relative to horizontal) --------
+  const getRotation = (i, j) => {
+    const a = P(i);
+    const b = P(j);
+    return Math.atan2(b.y - a.y, b.x - a.x) * (180 / Math.PI);
+  };
+const LEFT_SHOULDER = 11;
+const RIGHT_SHOULDER = 12;
+const LEFT_WRIST = 15;
+const RIGHT_WRIST = 16;
+
+
+const leftSW = getDistance(LEFT_SHOULDER, LEFT_WRIST);
+const rightSW = getDistance(RIGHT_SHOULDER, RIGHT_WRIST);
+  const shoulderRotation = getRotation(11, 12);
+  const hipRotation = getRotation(23, 24);
+
+  // -------- ARM ANGLE (Elbow) --------
+  const leftArmAngle = calculateAngle(P(11), P(13), P(15));
+  const rightArmAngle = calculateAngle(P(12), P(14), P(16));
+
+  // -------- KNEE ANGLE --------
+  const leftKneeAngle = calculateAngle(P(23), P(25), P(27));
+  const rightKneeAngle = calculateAngle(P(24), P(26), P(28));
+
+  // -------- BIG DISPLAY --------
+  ctx.font = "bold 10px Arial";
+  ctx.fillStyle = "rgba(255,255,255,0.95)";
+  ctx.fillText(`Shoulder Rot: ${shoulderRotation.toFixed(1)}°`, 30, 50);
+  ctx.fillText(`Hip Rot: ${hipRotation.toFixed(1)}°`, 30, 60);
+
+  ctx.fillStyle = "rgba(255, 230, 0, 0.95)";
+  ctx.fillText(`L Arm: ${leftArmAngle.toFixed(1)}°`, 30, 70);
+
+  ctx.fillStyle = "rgba(255, 238, 0, 0.95)";
+  ctx.fillText(`R Arm: ${rightArmAngle.toFixed(1)}°`, 30, 80);
+
+  ctx.fillStyle = "rgba(0, 255, 150, 0.95)";
+  ctx.fillText(`L Knee: ${leftKneeAngle.toFixed(1)}°`, 30, 90);
+
+  ctx.fillStyle = "rgba(0, 200, 255, 0.95)";
+  ctx.fillText(`R Knee: ${rightKneeAngle.toFixed(1)}°`, 30, 100);
+  
+
+if (leftSW !== null) {
+  ctx.fillStyle = "rgba(255, 230, 0, 0.95)";
+  ctx.fillText(`L Shoulder-Wrist: ${leftSW.toFixed(1)} px`, 30, 110);
+}
+
+if (rightSW !== null) {
+  ctx.fillStyle = "rgba(255, 238, 0, 0.95)";
+  ctx.fillText(`R Shoulder-Wrist: ${rightSW.toFixed(1)} px`, 30, 120);
+}
+}
+  // -----------------------------
+// EXTENDED BODY AXIS LINES
+// -----------------------------
+const drawExtendedAxis = (indexA, indexB, color, dashed = false) => {
+  const aLm = lm[indexA];
+  const bLm = lm[indexB];
+
+  if (
+    !aLm || !bLm ||
+    aLm.visibility < VISIBILITY_THRESHOLD ||
+    bLm.visibility < VISIBILITY_THRESHOLD
+  ) return;
+
+  const a = P(indexA);
+  const b = P(indexB);
+
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+
+  const length = Math.sqrt(dx * dx + dy * dy);
+  if (length === 0) return;
+
+  const ux = dx / length;
+  const uy = dy / length;
+
+  const extendAmount = 1000;
+
+  const startX = a.x - ux * extendAmount;
+  const startY = a.y - uy * extendAmount;
+
+  const endX = b.x + ux * extendAmount;
+  const endY = b.y + uy * extendAmount;
+
+  ctx.beginPath();
+
+  if (dashed) {
+    ctx.setLineDash([10, 8]); // dotted style
+  } else {
+    ctx.setLineDash([]); // solid
+  }
+
+  ctx.moveTo(startX, startY);
+  ctx.lineTo(endX, endY);
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = color;
+  ctx.stroke();
+
+  ctx.setLineDash([]); // reset dash
+
+  // Optional: show distance
+  ctx.font = "14px Arial";
+  ctx.fillStyle = color;
+  ctx.fillText(
+    `${length.toFixed(1)} px`,
+    (a.x + b.x) / 2,
+    (a.y + b.y) / 2 - 10
+  );
+};
+
+// Shoulders (solid cyan)
+drawExtendedAxis(11, 12, "rgba(255, 72, 0, 0.5)", false);
+
+// Hips (dotted orange/red)
+drawExtendedAxis(23, 24, "rgba(255, 120, 0, 0.5)", true);
+  // -----------------------------
+// WRIST CONNECTION MEASUREMENTS
+// -----------------------------
+const drawConnectionWithDistance = (i, j, color) => {
+  const aLm = lm[i];
+  const bLm = lm[j];
+
+  if (
+    !aLm || !bLm ||
+    aLm.visibility < VISIBILITY_THRESHOLD ||
+    bLm.visibility < VISIBILITY_THRESHOLD
+  ) return;
+
+  const a = P(i);
+  const b = P(j);
+
+  // Draw line
+  ctx.beginPath();
+  ctx.moveTo(a.x, a.y);
+  ctx.lineTo(b.x, b.y);
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = color;
+  ctx.stroke();
+
+  // Calculate distance
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+  // // Draw measurement text at midpoint
+  // ctx.font = "14px Arial";
+  // ctx.fillStyle = color;
+  // ctx.fillText(
+  //   `${distance.toFixed(1)} px`,
+  //   (a.x + b.x) / 2,
+  //   (a.y + b.y) / 2
+  // );
+};
+
+// LEFT SIDE
+drawConnectionWithDistance(15, 11, "rgba(255, 13, 53, 0.5)"); // wrist → shoulder
+drawConnectionWithDistance(15, 23, "rgba(255, 13, 53, 0.5)"); // wrist → hip
+
+// RIGHT SIDE
+drawConnectionWithDistance(16, 12, "rgba(13, 255, 134, 0.5)"); // wrist → shoulder
+drawConnectionWithDistance(16, 24, "rgba(13, 255, 134, 0.5)"); // wrist → hip
+  const LEFT_HEEL = 29;
+const RIGHT_HEEL = 30;
+
+const leftHeel = lm[LEFT_HEEL];
+const rightHeel = lm[RIGHT_HEEL];
+
+if (
+  leftHeel &&
+  rightHeel &&
+  leftHeel.visibility >= VISIBILITY_THRESHOLD &&
+  rightHeel.visibility >= VISIBILITY_THRESHOLD
+) {
+  const a = P(LEFT_HEEL);
+  const b = P(RIGHT_HEEL);
+
+  // Draw line
+  ctx.beginPath();
+  ctx.moveTo(a.x, a.y);
+  ctx.lineTo(b.x, b.y);
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = "rgba(255, 0, 43, 0.9)";
+  ctx.stroke();
+
+  // Calculate distance (pixels)
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+  // Draw distance text
+  // ctx.font = "16px Arial";
+  // ctx.fillStyle = "white";
+  // ctx.fillText(
+  //   `Heel Distance: ${distance.toFixed(1)} px`,
+  //   (a.x + b.x) / 2 - 50,
+  //   (a.y + b.y) / 2 - 10
+  // );
+}
 
   ctx.restore();
 }
@@ -935,7 +1129,10 @@ const drawPlayback = (frame, canvas) => {
   const ctx = canvas.getContext("2d");
   const width = canvas.width;
   const height = canvas.height;
-
+  const P = (i) => ({
+  x: frame[i][0] * ctx.canvas.width,
+  y: frame[i][1] * ctx.canvas.height
+});
   ctx.clearRect(0, 0, width, height);
 
   // ---- Connection Groups ----
@@ -997,10 +1194,7 @@ const drawPlayback = (frame, canvas) => {
   });
   
 if (showMetricsRef.current) {
-   const P = (i) => ({
-  x: frame[i][0] * ctx.canvas.width,
-  y: frame[i][1] * ctx.canvas.height
-});
+ 
   function calculateAngle(A, B, C) {
   // Angle at point B (A-B-C)
 
@@ -1089,7 +1283,7 @@ if (rightSW !== null) {
   ctx.fillStyle = "rgba(255, 238, 0, 0.95)";
   ctx.fillText(`R Shoulder-Wrist: ${rightSW.toFixed(1)} px`, 30, baseFont * 12.5);
 }
-
+}
 // EXTENDED BODY AXIS LINES
 // -----------------------------
 const drawExtendedAxis = (indexA, indexB, color, dashed = false) => {
@@ -1239,7 +1433,7 @@ ctx.fillText(
   (ax + bx) / 2 - 40,   // slightly centered
   (ay + by) / 2 + 20    // move text below the line
 );
-}
+
 }
 };
 
@@ -1306,7 +1500,10 @@ const drawPlaybackC = (landmarks, canvas) => {
   const ctx = canvas.getContext("2d");
   const width = canvas.width;
   const height = canvas.height;
-
+ const P = (i) => ({
+  x: landmarks[i].x * width,
+  y: landmarks[i].y * height
+});
   ctx.clearRect(0, 0, width, height);
 
   // ---- Connection Groups ----
@@ -1371,10 +1568,7 @@ const drawPlaybackC = (landmarks, canvas) => {
     ctx.fill();
   });
   if (showMetricsRef.current) {
-  const P = (i) => ({
-  x: landmarks[i].x * width,
-  y: landmarks[i].y * height
-});
+ 
   function calculateAngle(A, B, C) {
   // Angle at point B (A-B-C)
 
@@ -1464,6 +1658,7 @@ if (rightSW !== null) {
   ctx.fillText(`R Shoulder-Wrist: ${rightSW.toFixed(1)} px`, 30, baseFont * 12.5);
 }
 
+  }
 // EXTENDED BODY AXIS LINES
 // -----------------------------
 const drawExtendedAxis = (indexA, indexB, color, dashed = false) => {
@@ -1614,7 +1809,7 @@ ctx.fillText(
   (ay + by) / 2 + 20    // move text below the line
 );
 }
-}
+
 };
 
 
@@ -1628,7 +1823,7 @@ const playClient = () => {
   setClientPlaying(true);
   setClientPaused(false);
     const speed = playbackSpeedRefClient.current; // 0.25, 0.5, 1, 2
-  const intervalMs = (1000 / 60) /speed;
+  const intervalMs = (1000 / 30) /speed;
 
 
   clientIntervalRef.current = setInterval(() => {
@@ -2234,7 +2429,21 @@ setShowDialog(true)
     </>
   )}
 </button>
-
+<button
+  onClick={() => {
+    showMetricsRef.current = !showMetricsRef.current;
+    setMetricsUI(showMetricsRef.current);
+  }}
+  className={`px-4 py-2 rounded-lg text-sm font-medium 
+              transition-all duration-150 active:scale-95 shadow-md
+              ${
+                metricsUI
+                  ? "bg-red-600 hover:bg-red-700 active:bg-red-800 text-white"
+                  : "border-2 border-red-600 text-red-500 hover:bg-red-600/10"
+              }`}
+>
+  {metricsUI ? "Metrics ON" : "Metrics OFF"}
+</button>
    {/* <button
   onClick={() => {
     const newMode = facingMode === "user" ? "environment" : "user";
