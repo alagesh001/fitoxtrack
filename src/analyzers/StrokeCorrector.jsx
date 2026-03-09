@@ -1,0 +1,2301 @@
+import React, { useEffect, useRef, useState } from "react";
+import { Pose } from "@mediapipe/pose";
+import { Camera } from "@mediapipe/camera_utils";
+import { useLocation,useNavigate } from "react-router-dom";
+import { openPoseDB,saveTrainerSession,downloadTrainerSessionsJSON,getAllTrainerSessions,deleteTrainerSessionById,getPoseSessionById,clearTrainerSessions } from "../helper/trackerdb";
+import jsonSessions  from "../helper/trainer-sessions.json";
+import { Play, Pause, RotateCcw } from "lucide-react";
+import { Circle, Trash2 ,Square } from "lucide-react";
+import { Navigate } from "react-router-dom";
+import { XCircle, ArrowUpRight,X } from "lucide-react";
+
+const StrokeCorrectTracker = () => {
+    const location = useLocation();
+const { facing = "user" } = location.state || {}; // ✅ DIRECT READ
+const [facingMode, setFacingMode] = useState(facing);
+const [trainerReady, setTrainerReady] = useState(false);
+const clientFpsRef = useRef(30); // default
+const [name, setName] = useState("");
+const [email, setEmail] = useState("");
+const [mobile, setMobile] = useState("");
+const [currency, setCurrency] = useState("INR");
+  const pricing = {
+     trial: {
+    INR: { display: "₹0" },
+    USD: { display: "$0" },
+  },
+   strokes: {
+      INR: { display: "₹4999", amount: 499900 },
+      USD: { display: "$55", amount: 5500 }
+    },
+    radar: {
+      INR: { display: "₹22999", amount: 2299900 },
+      USD: { display: "$300", amount: 30000 }
+    }
+  };
+  const [showMetrics, setShowMetrics] = useState(false);
+  const showMetricsRef = useRef(false);
+  const [metricsUI, setMetricsUI] = useState(false);
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const playbackCanvasRef = useRef(null);
+  const playbackCanvasClientRef = useRef(null);
+const playbackIntervalRef = useRef(null);
+const playbackIndexRef = useRef(0);
+  const [isRecording, setIsRecording] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const recordedFramesRef = useRef([]);
+    const recordedFramesClientRef = useRef([]);
+const isRecordingRef = useRef(false);
+const trainerIndexRef = useRef(0);
+const [showDialog, setShowDialog] = useState(false);
+const [loading, setLoading] = useState(false);
+const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+const playbackSpeedRef = useRef(1);
+const playbackSpeedRefClient = useRef(1);
+const isLoggedIn = localStorage.getItem("isLoggedInWeb") === "true";
+const [selectedPlan, setSelectedPlan] = useState(
+  isLoggedIn ? "strokes" : "trial"
+);
+  const storedGym = JSON.parse(localStorage.getItem("selectedGym") || "{}");
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+const expiry = new Date(storedGym?.renewaldate);
+expiry.setHours(0, 0, 0, 0);
+let isExpired = true; // default to expired
+
+if (isLoggedIn && storedGym?.renewaldate) {
+  const expiry = new Date(storedGym.renewaldate);
+  expiry.setHours(0, 0, 0, 0);
+
+  isExpired = expiry < today;
+}
+const clientIndexRef = useRef(0);
+  const poseRef = useRef(null);
+    const [lastSessionId, setLastSessionId] = useState("");
+  const [accuracyLevel, setAccuracyLevel] = useState("medium");
+  const gymid = storedGym?.GymId;
+  const [showAuthBlock, setShowAuthBlock] = useState(false);
+    const [showExpireBlock, setShowExpireBlock] = useState(false);
+
+    const navigate = useNavigate();
+
+   if (!location.state?.fromButton) {
+  return <Navigate to="/ai-hub/" replace />;
+}
+// useEffect(() => {
+//   const storedGymRaw = localStorage.getItem("selectedGym");
+//   const storedGym = storedGymRaw ? JSON.parse(storedGymRaw) : null;
+
+//   const storedRenew = localStorage.getItem(`renew_data_${gymid}`);
+
+
+//   if (!storedGym || !storedRenew) {
+//     console.log("Access Blocked: Missing required localStorage data");
+//     setShowAuthBlock(true);
+//     return;
+//   }
+//    const now = new Date();
+
+//   // storedRenew.expiresAt = "17-07-2025"
+//   const [day, month, year] = storedRenew.split("-");
+
+//   // Convert to JS date: yyyy-mm-ddT23:59:59
+//   const expiryDate = new Date(`${year}-${month}-${day}T23:59:59`);
+
+//   if (now > expiryDate) {
+//     console.log("Access Blocked: Renew date expired");
+//     setShowAuthBlock(true);
+//     return;
+//   }
+
+//   console.log("Access Allowed");
+// }, []);
+useEffect(() => {
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth", // remove this if you want instant scroll
+  });
+}, []);
+const poseAccuracyPresets = {
+  low: {
+    modelComplexity: 0,
+    minDetectionConfidence: 0.5,
+    minTrackingConfidence: 0.5,
+  },
+  medium: {
+    modelComplexity: 1,
+    minDetectionConfidence: 0.6,
+    minTrackingConfidence: 0.6,
+  },
+  high: {
+    modelComplexity: 2,
+    minDetectionConfidence: 0.75,
+    minTrackingConfidence: 0.75,
+  },
+};
+
+const trainerIntervalRef = useRef(null);
+const clientIntervalRef = useRef(null);
+const [trainerSessions, setTrainerSessions] = useState([]);
+const [selectedSessionId, setSelectedSessionId] = useState("");
+
+useEffect(() => {
+  const loadSessions = async () => {
+    const dbSessions = await getAllTrainerSessions();
+
+    const sessionMap = new Map();
+
+    // 1️⃣ add JSON sessions
+    jsonSessions.forEach(session => {
+      sessionMap.set(session.id, session);
+    });
+
+    // 2️⃣ add IndexedDB sessions (overwrite if same id)
+    dbSessions.forEach(session => {
+      sessionMap.set(session.id, session);
+    });
+
+    // 3️⃣ convert back to array
+    const mergedSessions = Array.from(sessionMap.values());
+
+    // 4️⃣ sort by createdAt desc
+    mergedSessions.sort((a, b) => b.createdAt - a.createdAt);
+
+    setTrainerSessions(mergedSessions);
+  };
+
+  loadSessions();
+}, []);
+useEffect(() => {
+  if (!trainerSessions.length) return;
+
+  const defaultSession = trainerSessions.find(
+    (s) =>
+      s.name === "Service" 
+  );
+
+  if (defaultSession) {
+    setSelectedSessionId(defaultSession.id);
+  }
+}, [trainerSessions]);
+const [trainerPlaying, setTrainerPlaying] = useState(false);
+const [trainerPaused, setTrainerPaused] = useState(false);
+  const [running, setRunning] = useState(false);
+
+const [clientPlaying, setClientPlaying] = useState(false);
+const [clientPaused, setClientPaused] = useState(false);
+const [userRole, setUserRole] = useState("client");
+const userRoleRef = useRef(userRole);
+const [cameraFacing, setCameraFacing] = useState("user"); // "user" = front, "environment" = back
+const cameraRef = useRef(null);
+useEffect(() => {
+  userRoleRef.current = userRole;
+}, [userRole]);
+const hasMountedRef = useRef(false);
+
+useEffect(() => {
+  hasMountedRef.current = true;
+
+  return () => {
+    if (!hasMountedRef.current) return;
+
+    // Stop camera stream
+    if (videoRef.current && videoRef.current.srcObject) {
+      videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+    }
+
+    // Reset states
+    setClientPlaying(false);
+    setClientPaused(false);
+    setTrainerPlaying(false);
+    setTrainerPaused(false);
+
+    // Clear canvas
+    if (canvasRef.current) {
+      const ctx = canvasRef.current.getContext("2d");
+      ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    }
+
+   
+  };
+}, []);
+
+function applyAccuracyLevel(level) {
+  const settings = poseAccuracyPresets[level] || poseAccuracyPresets.medium;
+
+  poseRef.current.setOptions({
+    selfieMode: facingMode === "user",
+    smoothLandmarks: true,
+    enableSegmentation: false,
+    smoothSegmentation: false,
+
+    modelComplexity: settings.modelComplexity,
+    minDetectionConfidence: settings.minDetectionConfidence,
+    minTrackingConfidence: settings.minTrackingConfidence,
+  });
+}
+const VISIBILITY_THRESHOLD = 0.3;
+
+useEffect(() => {
+  isRecordingRef.current = isRecording;
+}, [isRecording]);
+useEffect(() => {
+  if (!videoRef.current) return;
+
+  // Initialize Pose only once
+  if (!poseRef.current) {
+    poseRef.current = new Pose({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
+    });
+
+    poseRef.current.setOptions({
+      selfieMode: facingMode === "user",
+      modelComplexity: 1,
+      smoothLandmarks: true,
+      enableSegmentation: false,
+      smoothSegmentation: false,
+      minDetectionConfidence: 0.6,
+      minTrackingConfidence: 0.6,
+    });
+ 
+  poseRef.current.onResults((results) => {
+    if (!results.poseLandmarks) return;
+ const role = userRoleRef.current;
+
+    const ctx = canvasRef.current?.getContext("2d");
+    if (ctx) drawLandmarks(ctx, results);
+
+    if (isRecordingRef.current) {
+if (role === "trainer") {
+      const compressed = results.poseLandmarks.map(lm => ([
+        +lm.x.toFixed(4),
+        +lm.y.toFixed(4),
+        +lm.z.toFixed(4),
+        lm.visibility ?? 1,
+      ]));
+ //const clonedLandmarks = results.poseLandmarks.map((lm) => ({ ...lm }));
+      recordedFramesRef.current.push(compressed);
+    }
+    if (role === "client") {
+      const clonedLandmarks = results.poseLandmarks.map((lm) => ({ ...lm }));
+recordedFramesClientRef.current.push(clonedLandmarks);    }
+    }
+    
+  });
+        
+ 
+
+ 
+  }
+
+  // Stop previous camera stream
+  cameraRef.current?.stop?.();
+
+  // Start new camera
+  cameraRef.current = new Camera(videoRef.current, {
+    onFrame: async () => {
+      await poseRef.current.send({ image: videoRef.current });
+    },
+    facingMode: facingMode,
+    width: 1280,
+    height: 720,
+  });
+
+  cameraRef.current.start().then(() => setRunning(true)).catch((err) => {
+    console.error("Camera start failed", err);
+    setRunning(false);
+  });
+
+  // Cleanup only on unmount
+  return () => {
+    setRunning(false);
+    try {
+      cameraRef.current?.stop?.();
+      // don't close poseRef.current
+    } catch (err) {
+      console.warn("Error during cleanup", err);
+    }
+    cameraRef.current = null;
+  };
+}, [facingMode]);
+
+function drawLandmarks(ctx, results) {
+  ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+  ctx.save();
+
+  // Mirror horizontally
+  // ctx.translate(ctx.canvas.width, 0);
+  // ctx.scale(-1, 1);
+
+  ctx.globalAlpha = 0.9;
+
+  const lm = results?.poseLandmarks;
+  if (!lm || lm.length < 33) {
+    ctx.restore();
+    return;
+  }
+
+  // Convert relative coordinates to canvas coords
+  const P = (i) => ({
+    x: lm[i].x * ctx.canvas.width,
+    y: lm[i].y * ctx.canvas.height
+  });
+
+  const drawLine = (i, j, color = "rgba(0,255,0,0.9)") => {
+    ctx.beginPath();
+    const a = P(i);
+    const b = P(j);
+       const lmchecka = lm[i];
+       const lmcheckb = lm[j];
+  if (!lmchecka || !lmcheckb) return;
+
+    // 🚫 Skip if not visible
+  if (
+    lmchecka.visibility < VISIBILITY_THRESHOLD ||
+    lmcheckb.visibility < VISIBILITY_THRESHOLD
+  ) return;  // 🚫 Skip if either point invisible
+      ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = color;
+    ctx.stroke();
+  };
+// Use Set for fast lookup
+const LEFT_SET = new Set([
+  13,      // left elbow
+  25, 27   // left knee, ankle
+]);
+
+const RIGHT_SET = new Set([
+  14,      // right elbow
+  26, 28   // right knee, ankle
+]);
+const CENTER_SET = new Set([
+  11, 12,   // shoulders
+  23, 24    // hips
+]);
+const drawPoint = (i, r = 6) => {
+   const lmcheck = lm[i];
+
+    // 🚫 Skip if not visible
+    if (!lmcheck || lmcheck.visibility < VISIBILITY_THRESHOLD) return;
+  const p = P(i);
+
+  let color = "white";
+
+  if (LEFT_SET.has(i)) {
+    color = "rgba(255, 0, 242, 0.9)";
+  } 
+  else if (RIGHT_SET.has(i)) {
+    color = "rgba(255, 238, 0, 0.9)";
+  } 
+  else if (CENTER_SET.has(i)) {
+    color = "rgba(0, 225, 255, 0.9)";
+  }
+
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, r, 0, 2 * Math.PI);
+  ctx.fillStyle = color;
+  ctx.fill();
+};
+
+  // -----------------------------
+  // FULL BODY CONNECTIONS
+  // -----------------------------
+  const COLORS = {
+  LEFT: "rgba(255, 0, 242, 0.9)",      // Red
+  RIGHT: "rgba(255, 238, 0, 0.9)",     // Blue
+  CENTER: "rgba(0, 225, 255, 0.9)"     // Green
+};
+const LEFT_CONNECTIONS = [
+  [11, 13], [13, 15],       // left arm
+  [23, 25], [25, 27],       // left leg
+  [11, 23]                  // left torso
+];
+
+const RIGHT_CONNECTIONS = [
+  [12, 14], [14, 16],       // right arm
+  [24, 26], [26, 28],       // right leg
+  [12, 24]                  // right torso
+];
+
+const CENTER_CONNECTIONS = [
+  [11, 12],                 // shoulders
+  [23, 24],                 // hips
+  [0, 1], [1, 2], [2, 3], [3, 7]  // face / nose bridge
+];
+LEFT_CONNECTIONS.forEach(([i, j]) =>
+  drawLine(i, j, COLORS.LEFT)
+);
+
+RIGHT_CONNECTIONS.forEach(([i, j]) =>
+  drawLine(i, j, COLORS.RIGHT)
+);
+
+CENTER_CONNECTIONS.forEach(([i, j]) =>
+  drawLine(i, j, COLORS.CENTER)
+);
+
+  // Draw Points (all 33)
+  for (let i = 0; i < lm.length; i++) {
+    drawPoint(i);
+  }
+  ctx.font = "20px Arial";
+
+const drawCheck = (text, ok, y) => {
+  ctx.fillStyle = ok ? "lime" : "red";
+  ctx.fillText(`${ok ? "✔" : "❌"} ${text}`, 20, y);
+};
+let checks = {
+  backswing: false,
+  shoulderRotate: false,
+  contact: false,
+  finish: false
+};
+drawCheck("Backswing", checks.backswing, 30);
+drawCheck("Shoulder Rotate", checks.shoulderRotate, 60);
+drawCheck("Contact", checks.contact, 90);
+drawCheck("Finish", checks.finish, 120);
+
+const angle = (a, b, c) => {
+  const ab = { x: a.x - b.x, y: a.y - b.y };
+  const cb = { x: c.x - b.x, y: c.y - b.y };
+
+  const dot = ab.x * cb.x + ab.y * cb.y;
+  const magAB = Math.hypot(ab.x, ab.y);
+  const magCB = Math.hypot(cb.x, cb.y);
+
+  return Math.acos(dot / (magAB * magCB)) * (180 / Math.PI);
+};
+const isRightOf = (a, b) => a.x > b.x;
+const isLeftOf = (a, b) => a.x < b.x;
+const isAbove = (a, b) => a.y < b.y;
+const isBelow = (a, b) => a.y > b.y;
+
+const shoulderR = P(12);
+const shoulderL = P(11);
+const elbowR = P(14);
+const wristR = P(16);
+const hipR = P(24);
+const hipL = P(23);
+const kneeR = P(26);
+// BACKSWING CHECK
+const armAngle = angle(shoulderR, elbowR, wristR);
+
+if (
+  armAngle > 150 &&                 // straight arm
+  isLeftOf(wristR, hipR) &&         // behind body
+  isBelow(wristR, hipR)             // below hip
+) {
+  checks.backswing = true;
+}
+//SHOULDER ROTATION CHECK
+const shoulderDiff = Math.abs(shoulderR.x - shoulderL.x);
+
+if (shoulderDiff > 80) {
+  checks.shoulderRotate = true;
+}
+//CONTACT CHECK
+if (
+  isLeftOf(wristR, elbowR) &&
+  isAbove(wristR, hipR)
+) {
+  checks.contact = true;
+}
+if (
+  isRightOf(kneeR, hipR) &&
+  isAbove(wristR, shoulderL)
+) {
+  checks.finish = true;
+}
+
+
+  ctx.restore();
+}
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (document.getElementById("razorpay-script")) {
+      resolve(true);
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = "razorpay-script";
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+const [showFreeTrialBox, setShowFreeTrialBox] = useState(false);
+const [loadingTRequest, setLoadingTRequest] = useState(false);
+
+const startFreeTrial = async (name, email, mobile) => {
+
+  if (!name || !email || !mobile) {
+    alert("Please enter name, email and mobile number");
+    return;
+  }
+  setLoadingTRequest(true);
+
+  setShowDialog(false);
+
+  const trialData = localStorage.getItem("tennisx_free_trial");
+
+  if (trialData) {
+    const parsed = JSON.parse(trialData);
+
+    if (Date.now() < parsed.expiry) {
+                setLoadingTRequest(false);
+
+      setShowFreeTrialBox({
+        status: "exists",
+        message:
+          "Your free trial request has already been sent. Please wait for activation."
+      });
+      return;
+    }
+  }
+
+  try {
+
+    const res = await fetch(
+      "https://tennisx.in/api/razorpay/create-order",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          mobile,
+          plan: "trial"
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+
+      const trial = {
+        requested: true,
+        expiry: Date.now() + (2 * 24 * 60 * 60 * 1000)
+      };
+
+      localStorage.setItem(
+        "tennisx_free_trial",
+        JSON.stringify(trial)
+      );
+
+      setShowFreeTrialBox({
+        status: "sent",
+        message:
+          "Your request for free trial has been sent. Once activated, you will receive login credentials for the same."
+      });
+
+    } else {
+
+      setShowFreeTrialBox({
+        status: "error",
+        message: data.message || "Unable to process free trial request."
+      });
+
+    }
+
+  } catch (err) {
+
+    console.error(err);
+
+    setShowFreeTrialBox({
+      status: "error",
+      message: "Network error. Please try again later."
+    });
+
+  }
+      setLoadingTRequest(false);
+
+};
+const handlePayment = async (name, email, mobile) => {
+  if (!name || !email || !mobile) {
+    alert("Please enter name, email and mobile number");
+    return;
+  }
+   
+ setLoading(true);
+  // Ensure mobile is 10 digits only
+  mobile = mobile.replace(/\D/g, "").slice(-10);
+
+  const sdkLoaded = await loadRazorpayScript();
+
+  if (!sdkLoaded) {
+    setLoading(false);
+    alert("Razorpay SDK failed to load.");
+    return;
+  }
+
+  try {
+    // 🔹 Create order from backend
+    const orderRes = await fetch(
+      "https://tennisx.in/api/razorpay/create-order",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ currency,name, email, mobile }),
+      }
+    );
+
+    if (!orderRes.ok) {
+      setLoading(false);
+      throw new Error("Order creation request failed");
+    }
+
+    const order = await orderRes.json();
+
+    if (!order || !order.id) {
+      setLoading(false);
+      alert("Order creation failed");
+      return;
+    }
+setLoading(false);
+    const options = {
+      key: "rzp_live_SM3qfZ3C7cCTQ5",
+      amount: order.amount,
+      currency: order.currency,
+      order_id: order.id,
+
+      name: "Oxad Media",
+      description: "TennisX",
+
+      prefill: {
+        name,
+        email,
+        contact: mobile,
+      },
+
+      notes: {
+        name,
+        email,
+        mobile,
+      },
+  modal: {
+    ondismiss: function () {
+      console.log("Payment popup closed");
+      setLoading(false); // ✅ Stop loading if user cancels
+    }
+  },
+      theme: {
+        color: "#2ef02e",
+      },
+
+      handler: async function (response) {
+        try {
+          setLoading(false);
+          const verifyRes = await fetch(
+            "https://tennisx.in/api/razorpay/verify-payment",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                name,
+                email,
+                mobile,
+              }),
+            }
+          );
+
+          if (!verifyRes.ok) {
+            
+            throw new Error("Verification request failed");
+          }
+
+          const data = await verifyRes.json();
+
+          if (data.success) {
+            // ✅ Mark login
+            //localStorage.setItem("isLoggedInWeb", "true");
+
+            // ✅ Close dialog
+             const expiryTime = Date.now() + (2 * 24 * 60 * 60 * 1000); // 2 days in ms
+
+  const paymentData = {
+    verified: true,
+    expiresAt: expiryTime
+  };
+
+  localStorage.setItem("paymentStatus", JSON.stringify(paymentData));
+            if (typeof setShowDialog === "function") {
+              setShowDialog(false);
+            }
+
+            // ✅ Start recording
+            // if (typeof startRecording === "function") {
+            //   startRecording();
+            // }
+setShowSuccessDialog(true);
+
+           // alert("Payment Successful!");
+          } else {
+            alert("Payment verification failed.");
+          }
+            setLoading(false);
+        } catch (err) {
+          setLoading(false);
+          console.error("Verification error:", err);
+          alert("Verification error.");
+        }
+      },
+    };
+
+    const paymentObject = new window.Razorpay(options);
+
+    paymentObject.on("payment.failed", function (response) {
+      console.error("Payment Failed:", response.error);
+      alert("Payment Failed. Please try again.");
+    });
+
+    paymentObject.open();
+
+  } catch (error) {
+    console.error("Payment error:", error);
+    alert("Something went wrong. Please try again.");
+  }
+};
+
+
+const checkLogin = () => {
+  const isLoggedIn =
+    localStorage.getItem("isLoggedInWeb") === "true";
+
+  if (isLoggedIn) {
+    if(isExpired){
+      setShowExpireBlock(true);
+      return;
+    }
+   startRecording();
+    return;
+  }
+
+   const stored = JSON.parse(localStorage.getItem("paymentStatus") || "{}");
+
+  if (stored.verified && stored.expiresAt > Date.now()) {
+    console.log("✅ Payment already verified and valid");
+
+    setShowDialog(false);
+    setShowSuccessDialog(true);
+    return; // ⛔ Stop further execution
+  }
+
+  // ❌ If expired, clean it
+  if (stored.expiresAt && stored.expiresAt <= Date.now()) {
+    localStorage.removeItem("paymentStatus");
+    console.log("⚠️ Stored payment expired, removed.");
+  }
+  //handlePayment(name, email, mobile);
+    setShowDialog(true); // 👈 open bottom dialog
+
+//handlePayment();
+ 
+};
+  const startRecording = () => {
+    //downloadTrainerSessionsJSON();
+       if (userRole === "trainer")
+       recordedFramesRef.current = [];
+     if (userRole === "client")
+        recordedFramesClientRef.current = [];
+             
+    
+    setIsRecording(true);
+  };
+
+const stopRecording = async () => {
+ // await clearTrainerSessions();
+    setIsRecording(false);
+     if (userRole === "trainer")
+     {
+ const name = prompt("Enter trainer session name:");
+if (!name) return;
+  const currentCount = trainerSessions.length; // use the state directly
+
+  if (currentCount >= 10) {
+    alert("Cannot save: limit of 10 sessions reached. Delete an old session first.");
+    return;
+  }
+const session = await saveTrainerSession(
+  recordedFramesRef.current,
+  30,
+  name
+);
+
+// ✅ instant UI update
+setTrainerSessions((prev) =>
+  [session, ...prev].sort((a, b) => b.createdAt - a.createdAt)
+);
+
+setLastSessionId(session.id);
+setSelectedSessionId(session.id);
+setTrainerReady(true);
+
+console.log("Saved trainer session:", session.id);
+     }
+   
+  };
+const removeTrainer = async () => {
+  if (!selectedSessionId) return;
+
+  // 1️⃣ stop playback
+  stopTrainer();
+
+  // 2️⃣ delete from DB
+const deleted = await deleteTrainerSessionById(selectedSessionId);
+
+if (!deleted) {
+  alert("Built-in sessions cannot be deleted.");
+  return;
+}
+  // 3️⃣ clear refs
+  trainerFramesRef.current = [];
+  trainerFpsRef.current = 0;
+  trainerIndexRef.current = 0;
+
+  // 4️⃣ reset UI state
+  setSelectedSessionId("");
+  setTrainerReady(false);
+  setTrainerPlaying(false);
+  setTrainerPaused(false);
+
+  // 5️⃣ clear canvas
+  const canvas = playbackCanvasRef.current;
+  if (canvas) {
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  // 6️⃣ reload dropdown sessions
+setTrainerSessions((prev) =>
+  prev.filter((s) => s.id !== selectedSessionId)
+);;
+
+  console.log("Trainer session deleted");
+};
+const trainerFramesRef = useRef([]);
+const trainerFpsRef = useRef(30);
+// useEffect(() => {
+//   const loadSession = async () => {
+//     const sid = "ce173038-1073-4ad3-8044-bab69cd162b2";
+
+//     const session = await getPoseSessionById(sid);
+//     if (!session) return;
+
+//     trainerFramesRef.current = session.frames;
+//     trainerFpsRef.current = session.fps;
+//     trainerIndexRef.current = 0;
+
+//     console.log("Trainer session loaded:", session.frames.length);
+//   };
+
+//   loadSession();
+// }, []);
+async function getSessionById(id) {
+  // 1️⃣ try IndexedDB first
+  const dbSession = await getPoseSessionById(id);
+  if (dbSession) return dbSession;
+
+  // 2️⃣ fallback to JSON
+  return jsonSessions.find(s => s.id === id) || null;
+}
+useEffect(() => {
+  if (!selectedSessionId) return;
+
+  const loadSession = async () => {
+    // 🛑 HARD reset playback state
+    clearInterval(trainerIntervalRef.current);
+    trainerIntervalRef.current = null;
+
+    setTrainerPlaying(false);
+    setTrainerPaused(false);
+
+    const session = await getSessionById(selectedSessionId);
+    if (!session) return;
+
+    trainerFramesRef.current = session.frames;
+    trainerFpsRef.current = session.fps;
+    trainerIndexRef.current = 0;
+setTrainerReady(session.frames.length > 0);
+
+    console.log(
+      "Trainer session loaded:",
+      session.name,
+      session.frames.length
+    );
+
+    // optional preview
+    if (session.frames.length) {
+      drawPlayback(
+        session.frames[0],
+        playbackCanvasRef.current
+      );
+    }
+  };
+
+  loadSession();
+}, [selectedSessionId]);
+const drawPlayback = (frame, canvas) => {
+  if (!frame || !canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  const width = canvas.width;
+  const height = canvas.height;
+  const P = (i) => ({
+  x: frame[i][0] * ctx.canvas.width,
+  y: frame[i][1] * ctx.canvas.height
+});
+  ctx.clearRect(0, 0, width, height);
+
+  // ---- Connection Groups ----
+  const LEFT_CONNECTIONS = [
+    [11, 13], [13, 15],       // left arm
+    [23, 25], [25, 27],       // left leg
+    [11, 23]                  // left torso
+  ];
+
+  const RIGHT_CONNECTIONS = [
+    [12, 14], [14, 16],       // right arm
+    [24, 26], [26, 28],       // right leg
+    [12, 24]                  // right torso
+  ];
+
+  const CENTER_CONNECTIONS = [
+    [11, 12],                 // shoulders
+    [23, 24]                  // hips
+  ];
+
+  const drawConnections = (connections, color) => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+
+    connections.forEach(([s, e]) => {
+      const start = frame[s];
+      const end = frame[e];
+  if (
+      !start || !end ||
+      start[3] < VISIBILITY_THRESHOLD ||
+      end[3] < VISIBILITY_THRESHOLD
+    ) return;
+      ctx.beginPath();
+      ctx.moveTo(start[0] * width, start[1] * height);
+      ctx.lineTo(end[0] * width, end[1] * height);
+      ctx.stroke();
+    });
+  };
+
+  // ---- Draw Skeleton ----
+  drawConnections(LEFT_CONNECTIONS, "rgba(255, 0, 242, 0.9)");   // Left = Red
+  drawConnections(RIGHT_CONNECTIONS, "rgba(255, 238, 0, 0.9)");  // Right = Blue
+  drawConnections(CENTER_CONNECTIONS, "rgba(0, 225, 255, 0.9)"); // Center = Green
+
+  // ---- Draw Joints ----
+  frame.forEach((lm, index) => {
+  if (!lm || lm[3] < VISIBILITY_THRESHOLD) return; // 🚫 Skip invisible
+
+    let jointColor = "white";
+
+    if ([11,13,15,23,25,27].includes(index)) jointColor = "rgba(255, 0, 242, 0.9)";
+    else if ([12,14,16,24,26,28].includes(index)) jointColor = "rgba(255, 238, 0, 0.9)";
+    else if ([11,12,23,24].includes(index)) jointColor = "rgba(0, 225, 255, 0.9)";
+
+    ctx.beginPath();
+    ctx.arc(lm[0] * width, lm[1] * height, 4, 0, Math.PI * 2);
+    ctx.fillStyle = jointColor;
+    ctx.fill();
+  });
+  
+if (showMetricsRef.current) {
+ 
+  function calculateAngle(A, B, C) {
+  // Angle at point B (A-B-C)
+
+  const AB = { x: A.x - B.x, y: A.y - B.y };
+  const CB = { x: C.x - B.x, y: C.y - B.y };
+
+  const dot = AB.x * CB.x + AB.y * CB.y;
+  const magAB = Math.sqrt(AB.x * AB.x + AB.y * AB.y);
+  const magCB = Math.sqrt(CB.x * CB.x + CB.y * CB.y);
+
+  if (magAB === 0 || magCB === 0) return 0;
+
+  const cosAngle = dot / (magAB * magCB);
+  const angle = Math.acos(Math.min(Math.max(cosAngle, -1), 1));
+
+  return (angle * 180) / Math.PI;
+}
+ 
+const getDistance = (i, j) => {
+  const aLm = frame[i];
+  const bLm = frame[j];
+
+  if (
+    !aLm || !bLm ||
+    aLm[3] < VISIBILITY_THRESHOLD ||
+    bLm[3] < VISIBILITY_THRESHOLD
+  ) return null;
+
+  const a = P(i);
+  const b = P(j);
+
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  return Math.sqrt(dx * dx + dy * dy);
+};
+
+  // -------- ROTATION (relative to horizontal) --------
+  const getRotation = (i, j) => {
+    const a = P(i);
+    const b = P(j);
+    return Math.atan2(b.y - a.y, b.x - a.x) * (180 / Math.PI);
+  };
+const LEFT_SHOULDER = 11;
+const RIGHT_SHOULDER = 12;
+const LEFT_WRIST = 15;
+const RIGHT_WRIST = 16;
+
+
+const leftSW = getDistance(LEFT_SHOULDER, LEFT_WRIST);
+const rightSW = getDistance(RIGHT_SHOULDER, RIGHT_WRIST);
+  const shoulderRotation = getRotation(11, 12);
+  const hipRotation = getRotation(23, 24);
+
+  // -------- ARM ANGLE (Elbow) --------
+  const leftArmAngle = calculateAngle(P(11), P(13), P(15));
+  const rightArmAngle = calculateAngle(P(12), P(14), P(16));
+
+  // -------- KNEE ANGLE --------
+  const leftKneeAngle = calculateAngle(P(23), P(25), P(27));
+  const rightKneeAngle = calculateAngle(P(24), P(26), P(28));
+const baseFont = Math.max(10, canvas.width * 0.018);
+  // -------- BIG DISPLAY --------
+  ctx.font = `bold ${baseFont}px Arial`;
+ctx.fillStyle = "rgba(255,255,255,0.95)";
+ctx.fillText(`Shoulder Rot: ${shoulderRotation.toFixed(1)}°`, 30, baseFont * 2);
+ctx.fillText(`Hip Rot: ${hipRotation.toFixed(1)}°`, 30, baseFont * 3.5);
+
+ctx.fillStyle = "rgba(255, 0, 242, 0.95)";
+ctx.fillText(`L Arm: ${leftArmAngle.toFixed(1)}°`, 30, baseFont * 5);
+
+ctx.fillStyle = "rgba(255, 238, 0, 0.95)";
+ctx.fillText(`R Arm: ${rightArmAngle.toFixed(1)}°`, 30, baseFont * 6.5);
+
+ctx.fillStyle = "rgba(0, 255, 150, 0.95)";
+ctx.fillText(`L Knee: ${leftKneeAngle.toFixed(1)}°`, 30, baseFont * 8);
+
+ctx.fillStyle = "rgba(0, 200, 255, 0.95)";
+ctx.fillText(`R Knee: ${rightKneeAngle.toFixed(1)}°`, 30, baseFont * 9.5);
+
+if (leftSW !== null) {
+  ctx.fillStyle = "rgba(255, 0, 242, 0.95)";
+  ctx.fillText(`L Shoulder-Wrist: ${leftSW.toFixed(1)} px`, 30, baseFont * 11);
+}
+
+if (rightSW !== null) {
+  ctx.fillStyle = "rgba(255, 238, 0, 0.95)";
+  ctx.fillText(`R Shoulder-Wrist: ${rightSW.toFixed(1)} px`, 30, baseFont * 12.5);
+}
+}
+// EXTENDED BODY AXIS LINES
+// -----------------------------
+const drawExtendedAxis = (indexA, indexB, color, dashed = false) => {
+  const aLm = frame[indexA];
+  const bLm = frame[indexB];
+
+  if (
+    !aLm || !bLm ||
+   aLm[3] < VISIBILITY_THRESHOLD ||
+   bLm[3]< VISIBILITY_THRESHOLD
+  ) return;
+
+  const a = P(indexA);
+  const b = P(indexB);
+
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+
+  const length = Math.sqrt(dx * dx + dy * dy);
+  if (length === 0) return;
+
+  const ux = dx / length;
+  const uy = dy / length;
+
+  const extendAmount = 1000;
+
+  const startX = a.x - ux * extendAmount;
+  const startY = a.y - uy * extendAmount;
+
+  const endX = b.x + ux * extendAmount;
+  const endY = b.y + uy * extendAmount;
+
+  ctx.beginPath();
+
+  if (dashed) {
+    ctx.setLineDash([10, 8]); // dotted style
+  } else {
+    ctx.setLineDash([]); // solid
+  }
+
+  ctx.moveTo(startX, startY);
+  ctx.lineTo(endX, endY);
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = color;
+  ctx.stroke();
+
+  ctx.setLineDash([]); // reset dash
+
+//   // Optional: show distance
+//   ctx.font = "12px Arial";
+// ctx.fillStyle = "white";
+//   ctx.fillText(
+//     `${length.toFixed(1)} px`,
+//     (a.x + b.x) / 2,
+//     (a.y + b.y) / 2 - 10
+//   );
+};
+
+// Shoulders (solid cyan)
+drawExtendedAxis(11, 12, "rgba(255, 72, 0, 0.3)", false);
+
+// Hips (dotted orange/red)
+drawExtendedAxis(23, 24, "rgba(255, 120, 0, 0.3)", true);
+  // -----------------------------
+// WRIST CONNECTION MEASUREMENTS
+// -----------------------------
+const drawConnectionWithDistance = (i, j, color) => {
+  const aLm = frame[i];
+  const bLm = frame[j];
+
+if (
+  !aLm || !bLm ||
+  aLm[3] < VISIBILITY_THRESHOLD ||
+  bLm[3] < VISIBILITY_THRESHOLD
+) return;
+
+  const a = P(i);
+  const b = P(j);
+
+  // Draw line
+  ctx.beginPath();
+  ctx.moveTo(a.x, a.y);
+  ctx.lineTo(b.x, b.y);
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = color;
+  ctx.stroke();
+
+  // Calculate distance
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+  // Draw measurement text at midpoint
+//   ctx.font = "12px Arial";
+// ctx.fillStyle = "white";
+//   ctx.fillText(
+//     `${distance.toFixed(1)} px`,
+//     (a.x + b.x) / 2,
+//     (a.y + b.y) / 2
+//   );
+};
+
+// LEFT SIDE
+drawConnectionWithDistance(15, 11, "rgba(255, 13, 53, 0.3)"); // wrist → shoulder
+drawConnectionWithDistance(15, 23, "rgba(255, 13, 53, 0.4)"); // wrist → hip
+
+// RIGHT SIDE
+drawConnectionWithDistance(16, 12, "rgba(13, 255, 134, 0.3)"); // wrist → shoulder
+drawConnectionWithDistance(16, 24, "rgba(13, 255, 134, 0.4)"); // wrist → hip
+  // -------- Heel Distance (run once) --------
+const LEFT_HEEL = 29;
+const RIGHT_HEEL = 30;
+
+const leftHeel = frame[LEFT_HEEL];
+const rightHeel = frame[RIGHT_HEEL];
+
+if (
+  leftHeel &&
+  rightHeel &&
+  leftHeel[3] >= VISIBILITY_THRESHOLD &&
+  rightHeel[3] >= VISIBILITY_THRESHOLD
+) {
+
+  const ax = leftHeel[0] * width;
+  const ay = leftHeel[1] * height;
+  const bx = rightHeel[0] * width;
+  const by = rightHeel[1] * height;
+
+  // Draw line
+  ctx.beginPath();
+  ctx.moveTo(ax, ay);
+  ctx.lineTo(bx, by);
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = "rgba(255, 0, 43, 0.9)";
+  ctx.stroke();
+
+  // Distance
+  const dx = bx - ax;
+  const dy = by - ay;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+ ctx.font = "12px Arial"; // smaller font
+ctx.fillStyle = "white";
+
+ctx.fillText(
+  `Heel Distance: ${distance.toFixed(1)} px`,
+  (ax + bx) / 2 - 40,   // slightly centered
+  (ay + by) / 2 + 20    // move text below the line
+);
+
+}
+};
+
+
+const playTrainer = () => {
+//loadSelectedTrainerSession();
+  // 🛑 Guard: prevent multiple intervals
+  console.log("playTrainer");
+
+  if (trainerIntervalRef.current) return;
+
+  const frames = trainerFramesRef.current;
+  if (!frames.length) return;
+
+  if (!trainerPaused) {
+    trainerIndexRef.current = 0;
+  }
+
+  setTrainerPlaying(true);
+  setTrainerPaused(false);
+  const speed = playbackSpeedRef.current; // 0.25, 0.5, 1, 2
+  console.log("playTrainer speed ",speed);
+
+  const intervalMs = (1000 / trainerFpsRef.current) /speed;
+
+  trainerIntervalRef.current = setInterval(() => {
+    const i = trainerIndexRef.current;
+
+    if (!frames[i]) {
+      stopTrainer();
+      return;
+    }
+
+    drawPlayback(frames[i], playbackCanvasRef.current);
+    trainerIndexRef.current++;
+  }, intervalMs);
+};
+
+
+
+const pauseTrainer = () => {
+  if (trainerIntervalRef.current) {
+    clearInterval(trainerIntervalRef.current);
+    trainerIntervalRef.current = null;
+  }
+
+  setTrainerPlaying(false);
+  setTrainerPaused(true);
+};
+
+const stopTrainer = () => {
+  if (trainerIntervalRef.current) {
+    clearInterval(trainerIntervalRef.current);
+    trainerIntervalRef.current = null;
+  }
+
+  setTrainerPlaying(false);
+  setTrainerPaused(false);
+  trainerIndexRef.current = 0;
+};
+const drawPlaybackC = (landmarks, canvas) => {
+  if (!landmarks || !canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  const width = canvas.width;
+  const height = canvas.height;
+ const P = (i) => ({
+  x: landmarks[i].x * width,
+  y: landmarks[i].y * height
+});
+  ctx.clearRect(0, 0, width, height);
+
+  // ---- Connection Groups ----
+  const LEFT_CONNECTIONS = [
+    [11, 13], [13, 15],       // left arm
+    [23, 25], [25, 27],       // left leg
+    [11, 23]                  // left torso
+  ];
+
+  const RIGHT_CONNECTIONS = [
+    [12, 14], [14, 16],       // right arm
+    [24, 26], [26, 28],       // right leg
+    [12, 24]                  // right torso
+  ];
+
+  const CENTER_CONNECTIONS = [
+    [11, 12],                 // shoulders
+    [23, 24]                  // hips
+  ];
+
+  const drawConnections = (connections, color) => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+
+    connections.forEach(([s, e]) => {
+      const start = landmarks[s];
+      const end = landmarks[e];
+  if (
+      !start || !end ||
+      start[3] < VISIBILITY_THRESHOLD ||
+      end[3] < VISIBILITY_THRESHOLD
+    ) return;
+
+      ctx.beginPath();
+      ctx.moveTo(start.x * width, start.y * height);
+      ctx.lineTo(end.x * width, end.y * height);
+      ctx.stroke();
+    });
+  };
+
+  // ---- Draw Skeleton ----
+  drawConnections(LEFT_CONNECTIONS, "rgba(255, 0, 242, 0.9)");   // Left = Red
+  drawConnections(RIGHT_CONNECTIONS, "rgba(255, 238, 0, 0.9)");  // Right = Blue
+  drawConnections(CENTER_CONNECTIONS, "rgba(0, 225, 255, 0.9"); // Center = Green
+
+  // ---- Draw Joints (Colored by Side) ----
+  landmarks.forEach((lm, index) => {
+  if (!lm || lm[3] < VISIBILITY_THRESHOLD) return; // 🚫 Skip invisible
+
+    let jointColor = "white";
+
+    if ([11,13,15,23,25,27].includes(index))
+      jointColor = "rgba(255, 0, 242, 0.9)";
+    else if ([12,14,16,24,26,28].includes(index))
+      jointColor = "rgba(255, 238, 0, 0.9)";
+    else if ([11,12,23,24].includes(index))
+      jointColor = "rgba(0, 225, 255, 0.9)";
+
+    ctx.beginPath();
+    ctx.arc(lm.x * width, lm.y * height, 4, 0, Math.PI * 2);
+    ctx.fillStyle = jointColor;
+    ctx.fill();
+  });
+  if (showMetricsRef.current) {
+ 
+  function calculateAngle(A, B, C) {
+  // Angle at point B (A-B-C)
+
+  const AB = { x: A.x - B.x, y: A.y - B.y };
+  const CB = { x: C.x - B.x, y: C.y - B.y };
+
+  const dot = AB.x * CB.x + AB.y * CB.y;
+  const magAB = Math.sqrt(AB.x * AB.x + AB.y * AB.y);
+  const magCB = Math.sqrt(CB.x * CB.x + CB.y * CB.y);
+
+  if (magAB === 0 || magCB === 0) return 0;
+
+  const cosAngle = dot / (magAB * magCB);
+  const angle = Math.acos(Math.min(Math.max(cosAngle, -1), 1));
+
+  return (angle * 180) / Math.PI;
+}
+ 
+const getDistance = (i, j) => {
+  const aLm = landmarks[i];
+  const bLm = landmarks[j];
+
+  if (
+    !aLm || !bLm ||
+    aLm.visibility < VISIBILITY_THRESHOLD ||
+    bLm.visibility < VISIBILITY_THRESHOLD
+  ) return null;
+
+  const a = P(i);
+  const b = P(j);
+
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  return Math.sqrt(dx * dx + dy * dy);
+};
+
+  // -------- ROTATION (relative to horizontal) --------
+  const getRotation = (i, j) => {
+    const a = P(i);
+    const b = P(j);
+    return Math.atan2(b.y - a.y, b.x - a.x) * (180 / Math.PI);
+  };
+const LEFT_SHOULDER = 11;
+const RIGHT_SHOULDER = 12;
+const LEFT_WRIST = 15;
+const RIGHT_WRIST = 16;
+
+
+const leftSW = getDistance(LEFT_SHOULDER, LEFT_WRIST);
+const rightSW = getDistance(RIGHT_SHOULDER, RIGHT_WRIST);
+  const shoulderRotation = getRotation(11, 12);
+  const hipRotation = getRotation(23, 24);
+
+  // -------- ARM ANGLE (Elbow) --------
+  const leftArmAngle = calculateAngle(P(11), P(13), P(15));
+  const rightArmAngle = calculateAngle(P(12), P(14), P(16));
+
+  // -------- KNEE ANGLE --------
+  const leftKneeAngle = calculateAngle(P(23), P(25), P(27));
+  const rightKneeAngle = calculateAngle(P(24), P(26), P(28));
+const baseFont = Math.max(10, canvas.width * 0.018);
+  // -------- BIG DISPLAY --------
+  ctx.font = `bold ${baseFont}px Arial`;
+ctx.fillStyle = "rgba(255,255,255,0.95)";
+ctx.fillText(`Shoulder Rot: ${shoulderRotation.toFixed(1)}°`, 30, baseFont * 2);
+ctx.fillText(`Hip Rot: ${hipRotation.toFixed(1)}°`, 30, baseFont * 3.5);
+
+ctx.fillStyle = "rgba(255, 0, 242, 0.95)";
+ctx.fillText(`L Arm: ${leftArmAngle.toFixed(1)}°`, 30, baseFont * 5);
+
+ctx.fillStyle = "rgba(255, 238, 0, 0.95)";
+ctx.fillText(`R Arm: ${rightArmAngle.toFixed(1)}°`, 30, baseFont * 6.5);
+
+ctx.fillStyle = "rgba(0, 255, 150, 0.95)";
+ctx.fillText(`L Knee: ${leftKneeAngle.toFixed(1)}°`, 30, baseFont * 8);
+
+ctx.fillStyle = "rgba(0, 200, 255, 0.95)";
+ctx.fillText(`R Knee: ${rightKneeAngle.toFixed(1)}°`, 30, baseFont * 9.5);
+
+if (leftSW !== null) {
+  ctx.fillStyle = "rgba(255, 0, 242, 0.95)";
+  ctx.fillText(`L Shoulder-Wrist: ${leftSW.toFixed(1)} px`, 30, baseFont * 11);
+}
+
+if (rightSW !== null) {
+  ctx.fillStyle = "rgba(255, 238, 0, 0.95)";
+  ctx.fillText(`R Shoulder-Wrist: ${rightSW.toFixed(1)} px`, 30, baseFont * 12.5);
+}
+
+  }
+// EXTENDED BODY AXIS LINES
+// -----------------------------
+const drawExtendedAxis = (indexA, indexB, color, dashed = false) => {
+  const aLm = landmarks[indexA];
+  const bLm = landmarks[indexB];
+
+  if (
+    !aLm || !bLm ||
+    aLm.visibility < VISIBILITY_THRESHOLD ||
+    bLm.visibility < VISIBILITY_THRESHOLD
+  ) return;
+
+  const a = P(indexA);
+  const b = P(indexB);
+
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+
+  const length = Math.sqrt(dx * dx + dy * dy);
+  if (length === 0) return;
+
+  const ux = dx / length;
+  const uy = dy / length;
+
+  const extendAmount = 1000;
+
+  const startX = a.x - ux * extendAmount;
+  const startY = a.y - uy * extendAmount;
+
+  const endX = b.x + ux * extendAmount;
+  const endY = b.y + uy * extendAmount;
+
+  ctx.beginPath();
+
+  if (dashed) {
+    ctx.setLineDash([10, 8]); // dotted style
+  } else {
+    ctx.setLineDash([]); // solid
+  }
+
+  ctx.moveTo(startX, startY);
+  ctx.lineTo(endX, endY);
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = color;
+  ctx.stroke();
+
+  ctx.setLineDash([]); // reset dash
+
+//   // Optional: show distance
+//   ctx.font = "12px Arial";
+// ctx.fillStyle = "white";
+//   ctx.fillText(
+//     `${length.toFixed(1)} px`,
+//     (a.x + b.x) / 2,
+//     (a.y + b.y) / 2 - 10
+//   );
+};
+
+// Shoulders (solid cyan)
+drawExtendedAxis(11, 12, "rgba(255, 72, 0, 0.3)", false);
+
+// Hips (dotted orange/red)
+drawExtendedAxis(23, 24, "rgba(255, 120, 0, 0.3)", true);
+  // -----------------------------
+// WRIST CONNECTION MEASUREMENTS
+// -----------------------------
+const drawConnectionWithDistance = (i, j, color) => {
+  const aLm = landmarks[i];
+  const bLm = landmarks[j];
+
+if (
+  !aLm || !bLm ||
+  aLm.visibility < VISIBILITY_THRESHOLD ||
+    bLm.visibility < VISIBILITY_THRESHOLD
+) return;
+
+  const a = P(i);
+  const b = P(j);
+
+  // Draw line
+  ctx.beginPath();
+  ctx.moveTo(a.x, a.y);
+  ctx.lineTo(b.x, b.y);
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = color;
+  ctx.stroke();
+
+  // Calculate distance
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+  // Draw measurement text at midpoint
+//   ctx.font = "12px Arial";
+// ctx.fillStyle = "white";
+//   ctx.fillText(
+//     `${distance.toFixed(1)} px`,
+//     (a.x + b.x) / 2,
+//     (a.y + b.y) / 2
+//   );
+};
+
+// LEFT SIDE
+drawConnectionWithDistance(15, 11, "rgba(255, 13, 53, 0.3)"); // wrist → shoulder
+drawConnectionWithDistance(15, 23, "rgba(255, 13, 53, 0.4)"); // wrist → hip
+
+// RIGHT SIDE
+drawConnectionWithDistance(16, 12, "rgba(13, 255, 134, 0.3)"); // wrist → shoulder
+drawConnectionWithDistance(16, 24, "rgba(13, 255, 134, 0.4)"); // wrist → hip
+  // -------- Heel Distance (run once) --------
+const LEFT_HEEL = 29;
+const RIGHT_HEEL = 30;
+
+const leftHeel = landmarks[LEFT_HEEL];
+const rightHeel = landmarks[RIGHT_HEEL];
+
+if (
+  leftHeel &&
+  rightHeel &&
+  leftHeel.visibility >= VISIBILITY_THRESHOLD &&
+  rightHeel.visibility >= VISIBILITY_THRESHOLD
+) {
+
+  const ax = leftHeel.x * width;
+const ay = leftHeel.y * height;
+const bx = rightHeel.x * width;
+const by = rightHeel.y * height;
+
+  // Draw line
+  ctx.beginPath();
+  ctx.moveTo(ax, ay);
+  ctx.lineTo(bx, by);
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = "rgba(255, 0, 43, 0.9)";
+  ctx.stroke();
+
+  // Distance
+  const dx = bx - ax;
+  const dy = by - ay;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+ ctx.font = "12px Arial"; // smaller font
+ctx.fillStyle = "white";
+
+ctx.fillText(
+  `Heel Distance: ${distance.toFixed(1)} px`,
+  (ax + bx) / 2 - 40,   // slightly centered
+  (ay + by) / 2 + 20    // move text below the line
+);
+}
+
+};
+
+
+const playClient = () => {
+   console.log("playClient" );
+  const frames = recordedFramesClientRef.current;
+  if (!frames.length) return;
+
+  if (!clientPaused) clientIndexRef.current = 0;
+
+  setClientPlaying(true);
+  setClientPaused(false);
+    const speed = playbackSpeedRefClient.current; // 0.25, 0.5, 1, 2
+  const intervalMs = (1000 / 30) /speed;
+
+
+  clientIntervalRef.current = setInterval(() => {
+    const i = clientIndexRef.current;
+
+    if (frames[i]) {
+      drawPlaybackC(frames[i], playbackCanvasClientRef.current);
+      clientIndexRef.current++;
+    }
+
+    if (clientIndexRef.current >= frames.length) stopClient();
+  }, intervalMs);
+};
+
+const pauseClient = () => {
+  clearInterval(clientIntervalRef.current);
+  setClientPlaying(false);
+  setClientPaused(true);
+};
+
+const stopClient = () => {
+  clearInterval(clientIntervalRef.current);
+  setClientPlaying(false);
+  setClientPaused(false);
+  clientIndexRef.current = 0;
+};
+
+
+
+
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-700 p-1">
+         {showAuthBlock && (
+  <div className="px-10 fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[9999]">
+    <div className="bg-white p-6 rounded-xl shadow-xl max-w-sm w-full text-center">
+      <h2 className="text-xl font-bold text-red-600 mb-3">
+        Not Authorised
+      </h2>
+      <p className="text-gray-700 text-base">
+        Kindly login through authorized account to access.
+      </p>
+    </div>
+  </div>
+)}
+{showExpireBlock && (
+ <div className="px-6 fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999]">
+  <div className="bg-white p-7 rounded-2xl shadow-2xl max-w-sm w-full text-center border border-red-200 relative">
+
+    {/* Top Close (X icon) */}
+    <button
+      onClick={() => setShowExpireBlock(false)}
+      className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
+    >
+      <X size={18} />
+    </button>
+
+    {/* Red Icon */}
+    <div className="flex justify-center mb-4">
+      <XCircle size={55} className="text-red-500" />
+    </div>
+
+    {/* Title */}
+    <h2 className="text-2xl font-extrabold text-red-600 mb-3">
+      Subscription Expired
+    </h2>
+
+    {/* Actual Backend Message */}
+      <p>
+    on {" "}
+    <span className="font- regular ">
+      {storedGym?.renewaldate
+        ? new Date(storedGym.renewaldate).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })
+        : "N/A"}
+    </span>
+  </p>
+
+
+    {/* Upgrade Button */}
+    <button
+    onClick={() => {
+        setShowExpireBlock(false);
+ const stored = JSON.parse(localStorage.getItem("paymentStatus") || "{}");
+
+  if (stored.verified && stored.expiresAt > Date.now()) {
+    console.log("✅ Payment already verified and valid");
+
+    setShowDialog(false);
+    setShowSuccessDialog(true);
+    return; // ⛔ Stop further execution
+  }
+
+  // ❌ If expired, clean it
+  if (stored.expiresAt && stored.expiresAt <= Date.now()) {
+    localStorage.removeItem("paymentStatus");
+    console.log("⚠️ Stored payment expired, removed.");
+  } 
+  //handlePayment(name, email, mobile);
+  setShowDialog(true);
+}}
+      className="mt-6 w-full flex text-white items-center justify-center gap-2 bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-lg font-semibold hover:scale-105 transition"
+    >
+      🚀 Upgrade Now 
+      
+    </button>
+
+    {/* Close Button */}
+  <button
+  onClick={() => setShowExpireBlock(false)}
+  className="mt-4 text-sm text-gray-400 hover:text-gray-600 transition"
+>
+  Close
+</button>
+
+  </div>
+</div>
+
+)}
+{loadingTRequest && (
+  <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    
+    <div className="bg-white rounded-2xl shadow-xl px-8 py-6 flex flex-col items-center gap-4">
+      
+      {/* Spinner */}
+      <div className="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+
+      {/* Message */}
+      <p className="text-gray-700 text-sm font-medium">
+        Sending trial request...
+      </p>
+
+    </div>
+
+  </div>
+)}
+
+{showFreeTrialBox && (
+  <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+    <div className="bg-white rounded-2xl p-6 max-w-sm text-center shadow-xl">
+
+      <h3 className="text-lg font-semibold mb-3">
+        Free Trial
+      </h3>
+
+      <p className="text-gray-600 text-sm mb-5">
+        {showFreeTrialBox.message}
+      </p>
+
+      <button
+        onClick={() => setShowFreeTrialBox(false)}
+        className="bg-black text-white px-6 py-2 rounded-lg"
+      >
+        OK
+      </button>
+
+    </div>
+  </div>
+)}
+{showSuccessDialog && (
+  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm 
+                  flex items-center justify-center z-50 px-4">
+
+    <div className="bg-white rounded-3xl shadow-2xl 
+                    max-w-md w-full p-8 text-center animate-fadeIn">
+
+      {/* Animated Tick */}
+      <div className="w-20 h-20 mx-auto mb-6 
+                      rounded-full bg-green-100 
+                      flex items-center justify-center">
+
+        <svg
+          className="w-10 h-10 text-green-600 animate-scaleIn"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="3"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M5 13l4 4L19 7"
+          />
+        </svg>
+      </div>
+
+      {/* Title */}
+      <h2 className="text-2xl font-bold text-gray-800 mb-3">
+        Payment Successful 🎾
+      </h2>
+
+      {/* Message */}
+      
+   <p className="text-gray-600 text-sm leading-relaxed mb-6">
+  Your payment has been received. Login credentials will be shared 
+  <span className="text-red-500 font-semibold"> within 24 hours </span> 
+  following account verification to ensure secure account setup.
+  <br /><br />
+  Please check your email for the payment receipt.
+  <br /><br />
+  Our team will also contact you to assist with onboarding, if required.
+  <br /><br />
+  For any queries or feedback, please contact us at 
+  <span className="font-semibold text-gray-800"> oxadmedia@gmail.com</span>.
+</p>
+
+      {/* Button */}
+      <button
+        onClick={() => setShowSuccessDialog(false)}
+        className="w-full bg-gradient-to-r 
+                   from-green-500 to-emerald-600 
+                   text-white py-3 rounded-xl font-semibold
+                   hover:scale-105 transition duration-300"
+      >
+        Continue
+      </button>
+
+    </div>
+  </div>
+)}
+
+{loading && (
+  <div className="fixed inset-0 bg-black flex flex-col 
+                  items-center justify-center z-[9999] text-center">
+
+    {/* Tennis Ball */}
+   <div className="relative mb-10">
+  <div className="relative w-20 h-20 bg-yellow-400 rounded-full 
+                  shadow-2xl animate-tennis overflow-hidden">
+
+    {/* Left curve */}
+    <div className="absolute w-24 h-24 border-[6px] border-white 
+                    rounded-full -left-10 top-0"></div>
+
+    {/* Right curve */}
+    <div className="absolute w-24 h-24 border-[6px] border-white 
+                    rounded-full -right-10 top-0"></div>
+  </div>
+
+  {/* Shadow */}
+  <div className="w-16 h-4 bg-black/40 rounded-full 
+                  absolute left-1/2 -translate-x-1/2 top-20 
+                  blur-sm animate-pulse"></div>
+</div>
+
+    <h2 className="text-white text-2xl font-semibold mb-2">
+      Connecting to your bank...
+    </h2>
+
+    <p className="text-gray-400">
+      Securing your payment 🎾
+    </p>
+  </div>
+)}
+
+
+      {showDialog && (
+   <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end justify-center z-50">
+      <div className="w-full max-w-md bg-white rounded-t-3xl p-6 shadow-2xl max-h-[95vh] overflow-y-auto">
+
+        {/* Header */}
+        <div className="text-center mb-4">
+          <h2 className="text-2xl font-bold text-gray-800">
+            Upgrade TennisX Pro
+          </h2>
+          <p className="text-gray-500 text-sm mt-1">Plans</p>
+        </div>
+
+        {/* Currency Toggle */}
+        <div className="flex justify-center mb-6">
+          <div className="relative flex bg-gray-100 rounded-full p-1 shadow-inner">
+
+            <div
+              className={`absolute top-1 bottom-1 w-1/2 rounded-full bg-black transition-all duration-300 ${
+                currency === "USD" ? "translate-x-full" : ""
+              }`}
+            />
+
+            <button
+              onClick={() => setCurrency("INR")}
+              className={`relative z-10 px-6 py-1.5 text-sm font-medium ${
+                currency === "INR" ? "text-white" : "text-gray-600"
+              }`}
+            >
+              ₹ INR
+            </button>
+
+            <button
+              onClick={() => setCurrency("USD")}
+              className={`relative z-10 px-6 py-1.5 text-sm font-medium ${
+                currency === "USD" ? "text-white" : "text-gray-600"
+              }`}
+            >
+              $ USD
+            </button>
+
+          </div>
+        </div>
+
+        {/* Plans */}
+        <div className="space-y-4 mb-6">
+          {!isLoggedIn &&(
+
+<div
+  onClick={() => setSelectedPlan("trial")}
+  className={`border-2 rounded-2xl p-4 cursor-pointer transition ${
+    selectedPlan === "trial"
+      ? "border-blue-500 bg-blue-50"
+      : "border-gray-200 hover:border-blue-400"
+  }`}
+>
+  <div className="flex justify-between items-center">
+    <div>
+      <h3 className="font-semibold text-gray-800">
+        1-Day Free Trial
+      </h3>
+
+      <p className="text-xs text-gray-500 mt-1">
+        Try TennisX Pro features free for 24 hours
+      </p>
+    </div>
+
+    <div className="text-right">
+      <p className="text-lg font-bold text-gray-900">
+        {pricing.trial[currency].display}
+      </p>
+    </div>
+  </div>
+</div>
+          )}
+          {/* Strokes Plan */}
+          <div
+            onClick={() => setSelectedPlan("strokes")}
+            className={`border-2 rounded-2xl p-4 cursor-pointer transition ${
+              selectedPlan === "strokes"
+                ? "border-green-500 bg-green-50"
+                : "border-gray-200 hover:border-green-400"
+            }`}
+          >
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="font-semibold text-gray-800">
+                 TennisX Pro
+                </h3>
+                 
+                <p className="text-xs text-gray-500 mt-1">
+                  Unlimited Motion Recording • Footwork Analysis • Biomechanics Breakdown • Skeleton Comparison • Advanced Playback Control
+                </p>
+              </div>
+
+              <div className="text-right">
+                <p className="text-lg font-bold text-gray-900">
+                  {pricing.strokes[currency].display}
+                </p>
+                <p className="text-xs text-gray-500">/ year</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Radar Plan (Locked) */}
+          {/* <div className="border-2 border-gray-200 rounded-2xl p-4 bg-gray-100 opacity-80 cursor-not-allowed">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="font-semibold text-gray-700">
+                  Radar Speed & Fault Detector
+                </h3>
+                <p className="text-xs text-red-500 font-medium">
+                  Physical setup assistance required
+                </p>
+              </div>
+
+              <div className="text-right">
+                <p className="text-lg font-bold text-gray-800">
+                  {pricing.radar[currency].display}
+                </p>
+              </div>
+            </div>
+          </div> */}
+
+        </div>
+
+        {/* Inputs */}
+        <input
+          type="text"
+          placeholder="Full Name*"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full border border-gray-200 p-3 rounded-xl mb-3"
+        />
+
+        <input
+          type="email"
+          placeholder="Email Address*"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full border border-gray-200 p-3 rounded-xl mb-3"
+        />
+
+        <input
+          type="tel"
+          placeholder="Mobile Number*"
+          value={mobile}
+          onChange={(e) => setMobile(e.target.value)}
+          className="w-full border border-gray-200 p-3 rounded-xl mb-5"
+        />
+
+        {/* Upgrade Button */}
+         <button
+  onClick={() =>
+    selectedPlan === "trial"
+      ? startFreeTrial(name, email, mobile)
+      : handlePayment(name, email, mobile)
+  }
+  disabled={loading}
+  className="w-full bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-xl font-semibold hover:scale-105 transition duration-300 disabled:opacity-50"
+>
+  {loading
+    ? "Processing..."
+    : selectedPlan === "trial"
+    ? "Start Free Trial"
+    : "Upgrade Now"}
+</button>
+
+        <button
+          onClick={() => setShowDialog(false)}
+          className="w-full mt-4 text-gray-400 text-sm"
+        >
+          Cancel
+        </button>
+
+      </div>
+    </div>
+)}
+
+
+      <div className="bg-gray-900 rounded-2xl shadow-xl px-5 py-6 w-full max-w-4xl space-y-6">
+         <div className="flex justify-between items-center flex-wrap gap-3">
+
+  {/* Back Button */}
+  <button
+     onClick={() => {
+    if (window.history.length > 1) {
+      navigate(-1);   // Go back
+    } else {
+      navigate("/ai-hub");  // Fallback
+    }
+  }}
+    className="p-3 rounded-full 
+               bg-gray-800 hover:bg-gray-700
+               text-white shadow-md hover:shadow-lg
+               transition duration-300 hover:scale-105"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-5 h-5"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+    </svg>
+  </button>
+
+  {/* Upgrade Button */}
+ {(isExpired || !isLoggedIn) && (
+  <button
+    onClick={() =>{
+ const stored = JSON.parse(localStorage.getItem("paymentStatus") || "{}");
+
+  if (stored.verified && stored.expiresAt > Date.now()) {
+    console.log("✅ Payment already verified and valid");
+
+    setShowDialog(false);
+    setShowSuccessDialog(true);
+    return; // ⛔ Stop further execution
+  }
+
+  // ❌ If expired, clean it
+  if (stored.expiresAt && stored.expiresAt <= Date.now()) {
+    localStorage.removeItem("paymentStatus");
+    console.log("⚠️ Stored payment expired, removed.");
+  }
+  //handlePayment(name, email, mobile);
+setShowDialog(true)
+    } }
+    className="px-6 py-2.5 rounded-full font-semibold text-black
+               bg-gradient-to-r from-yellow-400 to-green-500
+               hover:from-yellow-500 hover:to-green-600
+               transition-all duration-300
+               shadow-md hover:shadow-xl
+               hover:scale-105 active:scale-95"
+  >
+    {isLoggedIn ? "🚀 Upgrade to Pro" : "🎁 Start Free Trial"}
+  </button>
+)}
+
+</div>
+
+          <h2 className="flex items-center gap-2 text-xl sm:text-2xl font-bold text-white">
+    <span className="bg-blue-600 text-white text-sm px-2 py-1 rounded-md">TennisX AI</span>
+    Real-Time Stroke Corrector
+  </h2>
+ <div className="bg-black/40 backdrop-blur-md rounded-xl p-5 border border-yellow-500/20 shadow-lg">
+  <h3 className="text-md font-semibold mb-3 text-yellow-400">
+    📌 How to Use
+  </h3>
+
+  <ul className="space-y-3 text-sm text-gray-200 leading-relaxed">
+    <li>1️⃣ Position your camera so your full body is clearly visible in the frame.</li>
+
+    <li>2️⃣ Select <span className="text-yellow-400 font-semibold">Forehand</span> analysis mode.</li>
+
+    <li>3️⃣ Tap <span className="text-yellow-400 font-semibold">Start</span> to begin motion tracking.</li>
+
+    <li>4️⃣ Perform a slow <span className="text-yellow-400 font-semibold">shadow forehand swing</span> (no ball required).</li>
+
+    <li>5️⃣ The system will check four key phases of the stroke:
+      <br/>✔ Backswing – Left leg forward, arm straight, racket behind body, wrist below hip
+      <br/>✔ Shoulder Rotation – shoulders rotate forward before the swing
+      <br/>✔ Contact Position – wrist lag with wrist above hip
+      <br/>✔ Finish – right leg forward with wrist finishing above left shoulder
+    </li>
+
+    <li>6️⃣ Each phase will display a <span className="text-green-400 font-semibold">✔</span> when performed correctly or a <span className="text-red-400 font-semibold">✖</span> if incorrect.</li>
+
+    <li>7️⃣ Adjust your swing and repeat until all four checkpoints are completed successfully.</li>
+  </ul>
+</div>
+<div className="flex justify-center mt-4">
+  <div className="flex rounded-xl overflow-hidden border shadow-sm">
+
+    {/* <button
+      onClick={() => setUserRole("trainer")}
+      className={`px-6 py-2 font-semibold
+        ${userRole === "trainer"
+          ? "bg-gradient-to-r from-blue-600 to-indigo-700 text-white"
+          : "bg-gray-100 text-gray-600"
+        }`}
+    >
+      Trainer
+    </button>
+
+    <button
+      onClick={() => setUserRole("client")}
+      className={`px-6 py-2 font-semibold
+        ${userRole === "client"
+          ? "bg-gradient-to-r from-green-600 to-emerald-700 text-white"
+          : "bg-gray-100 text-gray-600"
+        }`}
+    >
+      Learner
+    </button> */}
+
+  </div>
+ 
+
+</div>
+<div className="w-full flex justify-center mt-4">
+  <select
+    value={accuracyLevel}          // default "medium" from useState
+    onChange={(e) => {
+      setAccuracyLevel(e.target.value);
+      applyAccuracyLevel(e.target.value);
+    }}
+    className="p-2 rounded-xl border bg-white text-black shadow-sm"
+  >
+    <option value="low">⚡ Low (Fastest)</option>
+    <option value="medium">✨ Medium (Balanced)</option>
+    <option value="high">🎯 High (Most Accurate)</option>
+  </select>
+</div>
+        <div className="relative">
+<video
+    ref={videoRef}
+    className="w-full h-auto object-cover"
+    playsInline
+    muted
+    style={{
+      transform: facingMode === "user" ? "scaleX(-1)" : "scaleX(1)",
+    }}
+  /> 
+          <canvas
+            ref={canvasRef}
+    className="absolute inset-0 w-full h-full pointer-events-none"
+
+          />
+        </div>
+
+       <div className="flex flex-col gap-6 mt-4">
+
+  {/* ROW 1 — RECORD CONTROLS */}
+  <div className="flex gap-4 justify-start">
+   <button
+  onClick={isRecording ? stopRecording : checkLogin}
+  className={`flex items-center justify-center gap-3 px-8 py-4 rounded-full font-semibold text-white transition-all duration-200 ${
+    isRecording
+      ? "bg-red-600 hover:bg-red-700"
+      : "bg-green-600 hover:bg-green-700"
+  }`}
+>
+  {isRecording ? (
+    <>
+      <Square size={20} />
+      Stop Tracking
+    </>
+  ) : (
+    <>
+      <Circle size={20} className="animate-pulse" />
+      Start Tracking
+    </>
+  )}
+</button>
+<button
+  onClick={() => {
+    showMetricsRef.current = !showMetricsRef.current;
+    setMetricsUI(showMetricsRef.current);
+  }}
+  className={`px-4 py-2 rounded-lg text-sm font-medium 
+              transition-all duration-150 active:scale-95 shadow-md
+              ${
+                metricsUI
+                  ? "bg-red-600 hover:bg-red-700 active:bg-red-800 text-white"
+                  : "border-2 border-red-600 text-red-500 hover:bg-red-600/10"
+              }`}
+>
+  {metricsUI ? "Metrics ON" : "Metrics OFF"}
+</button>
+   
+  </div>
+
+
+</div>
+
+
+   
+
+        
+      </div>
+    </div>
+  );
+};
+
+export default StrokeCorrectTracker;

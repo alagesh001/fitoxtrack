@@ -125,7 +125,7 @@ const handleNavigation = (type) => {
   }
 
   if (type === "speeddet") {
-    navigate("/speed-ai",{
+    navigate("/stroke-ai",{
       state: {
         fromButton: true,
         facing: facingMode },
@@ -595,7 +595,7 @@ return prev +7;
   setTimeout(() => {
     setLoading(false);
   if (type === "speeddet") {
-      navigate("/speedd-ai", {
+      navigate("/stroke-ai", {
         state: {
           fromButton: true,
           facing: facingMode,

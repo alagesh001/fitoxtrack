@@ -90,11 +90,11 @@ const formatted = `${day}-${month}-${year}`;
 // };
  
 const handleAddMember = () => {
-  navigate("/add-member", {
-    state: {
-      type: "add", // 👈 type is "add"
-    },
-  });
+  // navigate("/add-member", {
+  //   state: {
+  //     type: "add", // 👈 type is "add"
+  //   },
+  // });
 };
 const fetchTrainers = async (gymId,token) => {
     try {
@@ -147,30 +147,30 @@ const handleTabClick = (tabName) => {
         if (tabName === "Settings") {
             navigate("/settings");
         } else if (tabName === "Active Clients"){
-            navigate("/activeClients");
+           // navigate("/activeClients");
         }else if (tabName === "Admins"){
-            navigate("/trainer-list");
+          //  navigate("/trainer-list");
 
        
         }else if (tabName === "Transaction History"){
-            navigate("/transac-hist");
+           // navigate("/transac-hist");
 
         
         } else if (tabName === "Dashboard"){
-            navigate("/dash-admin");
+           // navigate("/dash-admin");
 
         
         }else if (tabName === "Analytics"){
-            navigate("/analytics-screen");
+         //   navigate("/analytics-screen");
 
         
         }else if (tabName === "Biometric"){
-            navigate("/bio-dash");
+         //   navigate("/bio-dash");
 
         
         }else if (tabName === "My Hub"){
          
-            navigate("/fitox-hub");
+           // navigate("/fitox-hub");
 
         
         }else if (tabName === "AI Hub"){
@@ -209,7 +209,7 @@ const handleTabClick = (tabName) => {
         }else if (tabName === "Inactive Clients"){
         //      const storedGym = localStorage.getItem("selectedGym");
         // const parsedGym = JSON.parse(storedGym);
-navigate("/inactive-screen");
+//navigate("/inactive-screen");
 // if (Number(parsedGym.is_active) === 1) {
 // showUpgradePopup({
 //   price: "₹5000 / Year",
@@ -220,14 +220,14 @@ navigate("/inactive-screen");
 // }
         
         }else if (tabName === "Leads"){
-            navigate("/lead_data");
+          //  navigate("/lead_data");
 
         
         }else if (tabName === "Add Lead"){
    const storedGym = localStorage.getItem("selectedGym");
  if (storedGym) {
         const parsedGym = JSON.parse(storedGym);
-        navigate(`/add_lead?gymid=${parsedGym.GymId}`);
+       // navigate(`/add_lead?gymid=${parsedGym.GymId}`);
  }
         
         }else{
