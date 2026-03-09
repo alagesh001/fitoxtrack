@@ -321,7 +321,13 @@ recordedFramesClientRef.current.push(clonedLandmarks);    }
     cameraRef.current = null;
   };
 }, [facingMode]);
-
+const checksRef = useRef({
+  backswing: false,
+  shoulderRotate: false,
+  contact: false,
+  finish: false
+});
+const shoulderWidthRef = useRef(null);
 function drawLandmarks(ctx, results) {
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   ctx.save();
@@ -455,10 +461,10 @@ let checks = {
   contact: false,
   finish: false
 };
-drawCheck("Backswing", checks.backswing, 30);
-drawCheck("Shoulder Rotate", checks.shoulderRotate, 60);
-drawCheck("Contact", checks.contact, 90);
-drawCheck("Finish", checks.finish, 120);
+drawCheck("Backswing", checksRef.current.backswing, 30);
+drawCheck("Shoulder Rotate", checksRef.current.shoulderRotate, 60);
+drawCheck("Contact", checksRef.current.contact, 90);
+drawCheck("Finish", checksRef.current.finish, 120);
 
 const angle = (a, b, c) => {
   const ab = { x: a.x - b.x, y: a.y - b.y };
@@ -470,10 +476,7 @@ const angle = (a, b, c) => {
 
   return Math.acos(dot / (magAB * magCB)) * (180 / Math.PI);
 };
-const isRightOf = (a, b) => a.x > b.x;
-const isLeftOf = (a, b) => a.x < b.x;
-const isAbove = (a, b) => a.y < b.y;
-const isBelow = (a, b) => a.y > b.y;
+
 
 const shoulderR = P(12);
 const shoulderL = P(11);
@@ -484,33 +487,58 @@ const hipL = P(23);
 const kneeR = P(26);
 // BACKSWING CHECK
 const armAngle = angle(shoulderR, elbowR, wristR);
+const rightShoulderLower = (shoulderR.y - shoulderL.y) > 0.04;
+const isRightOf = (a, b) => a.x > b.x;
+const isLeftOf = (a, b) => a.x < b.x;
+const isAbove = (a, b) => a.y < b.y;
+const isBelow = (a, b) => a.y > b.y;
+const currentShoulderWidth = Math.abs(shoulderR.x - shoulderL.x);
+const bodyArmAngle  = angle( elbowR,shoulderR, hipR); // elbow to lats angle
 
 if (
   armAngle > 150 &&                 // straight arm
-  isLeftOf(wristR, hipR) &&         // behind body
-  isBelow(wristR, hipR)             // below hip
+  isAbove(wristR,hipR) &&            // above hip
+   bodyArmAngle  > 60 &&                // elbow away from body (lats)         
+     rightShoulderLower  &&       // right shoulder lower than left
+  isRightOf(elbowR, shoulderR)
 ) {
-  checks.backswing = true;
+  checksRef.current.backswing = true;
+}
+if (checksRef.current.backswing) {
+  if (!shoulderWidthRef.current) {
+    shoulderWidthRef.current = currentShoulderWidth;
+  } else {
+    shoulderWidthRef.current = Math.max(
+      shoulderWidthRef.current,
+      currentShoulderWidth
+    );
+  }
 }
 //SHOULDER ROTATION CHECK
-const shoulderDiff = Math.abs(shoulderR.x - shoulderL.x);
-
-if (shoulderDiff > 80) {
-  checks.shoulderRotate = true;
+if (
+  shoulderWidthRef.current &&
+  currentShoulderWidth < shoulderWidthRef.current * 0.4 && // 60% reduction
+  armAngle > 150 &&
+  bodyArmAngle > 40
+) {
+  checksRef.current.shoulderRotate = true;
+}
+if (!checksRef.current.backswing) {
+  shoulderWidthRef.current = null;
 }
 //CONTACT CHECK
-if (
-  isLeftOf(wristR, elbowR) &&
-  isAbove(wristR, hipR)
-) {
-  checks.contact = true;
-}
-if (
-  isRightOf(kneeR, hipR) &&
-  isAbove(wristR, shoulderL)
-) {
-  checks.finish = true;
-}
+// if (
+//   isLeftOf(wristR, elbowR) &&
+//   isAbove(wristR, hipR)
+// ) {
+//   checksRef.current.contact = true;
+// }
+// if (
+//   isRightOf(kneeR, hipR) &&
+//   isAbove(wristR, shoulderL)
+// ) {
+//   checksRef.current.finish = true;
+// }
 
 
   ctx.restore();

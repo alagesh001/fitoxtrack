@@ -24,6 +24,10 @@ const [authErrorMsg, setAuthErrorMsg] = useState("");
   const token = localStorage.getItem("accessToken");
   const storedGym = localStorage.getItem("selectedGym");
 const isLoggedIn = localStorage.getItem("isLoggedInWeb") === "true";
+const [couponCode, setCouponCode] = useState("");
+const [couponStatus, setCouponStatus] = useState(null);
+const [couponLoading, setCouponLoading] = useState(false);
+const [appliedCoupon, setAppliedCoupon] = useState(null);
 const [selectedPlan, setSelectedPlan] = useState(
   isLoggedIn ? "strokes" : "trial"
 );
@@ -61,6 +65,37 @@ useEffect(() => {
     setAccessToken(token);
   }
 }, []);
+const verifyCoupon = async () => {
+  if (!couponCode) return;
+
+  setCouponLoading(true);
+  setCouponStatus(null);
+
+  try {
+    const res = await fetch("https://tennisx.in/api/coupon_verify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ code: couponCode })
+    });
+
+    const data = await res.json();
+
+    if (data.valid) {
+      setAppliedCoupon(data.coupon);
+      setCouponStatus({ type: "success", message: "Coupon applied!" });
+    } else {
+      setAppliedCoupon(null);
+      setCouponStatus({ type: "error", message: data.message });
+    }
+
+  } catch (err) {
+    setCouponStatus({ type: "error", message: "Server error" });
+  }
+
+  setCouponLoading(false);
+};
 
   const [showAuthBlock, setShowAuthBlock] = useState(false);
   const squatRef = useRef(null);
@@ -125,7 +160,7 @@ const handleNavigation = (type) => {
   }
 
   if (type === "speeddet") {
-    navigate("/stroke-ai",{
+    navigate("/speedd-ai",{
       state: {
         fromButton: true,
         facing: facingMode },
@@ -595,7 +630,7 @@ return prev +7;
   setTimeout(() => {
     setLoading(false);
   if (type === "speeddet") {
-      navigate("/stroke-ai", {
+      navigate("/speedd-ai", {
         state: {
           fromButton: true,
           facing: facingMode,
@@ -1079,6 +1114,38 @@ return (
                 <p className="text-xs text-gray-500">/ year</p>
               </div>
             </div>
+            <div className="mt-4">
+
+  <div className="flex gap-2">
+    <input
+      type="text"
+      placeholder="Enter coupon code"
+      value={couponCode}
+      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+      className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500"
+    />
+
+    <button
+      onClick={verifyCoupon}
+      className="bg-green-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-600"
+    >
+      {couponLoading ? "Checking..." : "Apply"}
+    </button>
+  </div>
+
+  {couponStatus && (
+    <p
+      className={`text-xs mt-2 ${
+        couponStatus.type === "success"
+          ? "text-green-600"
+          : "text-red-500"
+      }`}
+    >
+      {couponStatus.message}
+    </p>
+  )}
+
+</div>
           </div>
 
           {/* Radar Plan (Locked) */}
