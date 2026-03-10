@@ -19,6 +19,9 @@ const [name, setName] = useState("");
 const [email, setEmail] = useState("");
 const [mobile, setMobile] = useState("");
 const [currency, setCurrency] = useState("INR");
+const [arcEnabled, setArcEnabled] = useState(false);
+const [arcEnabledC, setArcEnabledC] = useState(false);
+
    const pricing = {
      trial: {
     INR: { display: "₹0" },
@@ -66,6 +69,9 @@ const [loading, setLoading] = useState(false);
 const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 const playbackSpeedRef = useRef(1);
 const playbackSpeedRefClient = useRef(1);
+const showSwingArcRef = useRef(false);
+const showSwingArcRefC = useRef(false);
+
 const isLoggedIn = localStorage.getItem("isLoggedInWeb") === "true";
 const [selectedPlan, setSelectedPlan] = useState(
   isLoggedIn ? "strokes" : "trial"
@@ -1142,6 +1148,9 @@ setTrainerReady(session.frames.length > 0);
 
   loadSession();
 }, [selectedSessionId]);
+
+const currentPathRef = useRef([]);
+const allPathsRef = useRef([]);
 const drawPlayback = (frame, canvas) => {
   if (!frame || !canvas) return;
 
@@ -1211,7 +1220,49 @@ const drawPlayback = (frame, canvas) => {
     ctx.fillStyle = jointColor;
     ctx.fill();
   });
-  
+
+function drawSwingArc(ctx, path) {
+  if (path.length < 3) return;
+
+  ctx.beginPath();
+  ctx.moveTo(path[0].x, path[0].y);
+
+  for (let i = 1; i < path.length - 1; i++) {
+    const xc = (path[i].x + path[i + 1].x) / 2;
+    const yc = (path[i].y + path[i + 1].y) / 2;
+
+    ctx.quadraticCurveTo(path[i].x, path[i].y, xc, yc);
+  }
+
+  ctx.strokeStyle = "rgba(0,255,255,0.9)";
+  ctx.lineWidth = 4;
+  ctx.stroke();
+}
+if (showSwingArcRef.current) {
+
+  const rightWrist = frame[16];
+
+  if (rightWrist && rightWrist[3] > VISIBILITY_THRESHOLD) {
+    currentPathRef.current.push({
+      x: rightWrist[0] * width,
+      y: rightWrist[1] * height
+    });
+
+    if (currentPathRef.current.length > MAX_PATH) {
+      currentPathRef.current.shift();
+    }
+  }
+}
+
+// draw old arcs
+allPathsRef.current.forEach(path => {
+  drawSwingArc(ctx, path);
+});
+
+// draw current arc
+if (showSwingArcRef.current) {
+  drawSwingArc(ctx, currentPathRef.current);
+}
 if (showMetricsRef.current) {
  
   function calculateAngle(A, B, C) {
@@ -1513,6 +1564,10 @@ const stopTrainer = () => {
   setTrainerPaused(false);
   trainerIndexRef.current = 0;
 };
+const MAX_PATH = 40;
+
+const currentPathRefC = useRef([]);
+const allPathsRefC = useRef([]);
 const drawPlaybackC = (landmarks, canvas) => {
   if (!landmarks || !canvas) return;
 
@@ -1566,7 +1621,7 @@ const drawPlaybackC = (landmarks, canvas) => {
   // ---- Draw Skeleton ----
   drawConnections(LEFT_CONNECTIONS, "rgba(255, 0, 242, 0.9)");   // Left = Red
   drawConnections(RIGHT_CONNECTIONS, "rgba(255, 238, 0, 0.9)");  // Right = Blue
-  drawConnections(CENTER_CONNECTIONS, "rgba(0, 225, 255, 0.9"); // Center = Green
+  drawConnections(CENTER_CONNECTIONS, "rgba(0, 225, 255, 0.9)"); // Center = Green
 
   // ---- Draw Joints (Colored by Side) ----
   landmarks.forEach((lm, index) => {
@@ -1586,6 +1641,56 @@ const drawPlaybackC = (landmarks, canvas) => {
     ctx.fillStyle = jointColor;
     ctx.fill();
   });
+
+function drawSwingArc(ctx, path) {
+
+  if (path.length < 3) return;
+
+  ctx.beginPath();
+  ctx.moveTo(path[0].x, path[0].y);
+
+  for (let i = 1; i < path.length - 1; i++) {
+
+    const xc = (path[i].x + path[i+1].x) / 2;
+    const yc = (path[i].y + path[i+1].y) / 2;
+
+    ctx.quadraticCurveTo(path[i].x, path[i].y, xc, yc);
+
+  }
+
+  ctx.strokeStyle = "rgba(0,255,255,0.9)";
+  ctx.lineWidth = 4;
+  ctx.stroke();
+}
+if (showSwingArcRefC.current) {
+
+  const rightWrist = landmarks[16];
+
+  if (rightWrist && rightWrist.visibility > VISIBILITY_THRESHOLD) {
+
+    currentPathRefC.current.push({
+      x: rightWrist.x * width,
+      y: rightWrist.y * height
+    });
+
+    if (currentPathRefC.current.length > MAX_PATH) {
+      currentPathRefC.current.shift();
+    }
+
+  }
+
+}
+
+allPathsRefC.current.forEach(path => {
+  drawSwingArc(ctx, path);
+});
+
+// draw current arc while recording
+if (showSwingArcRefC.current) {
+  drawSwingArc(ctx, currentPathRefC.current);
+}
+
+
   if (showMetricsRef.current) {
  
   function calculateAngle(A, B, C) {
@@ -2670,6 +2775,46 @@ setShowDialog(true)
   Remove
 </button>
       </div>
+ <div className="flex gap-2">
+
+<button
+  onClick={() => {
+
+    if (showSwingArcRef.current) {
+
+      if (currentPathRef.current.length > 2) {
+        allPathsRef.current.push([...currentPathRef.current]);
+      }
+
+      currentPathRef.current = [];
+      showSwingArcRef.current = false;
+      setArcEnabled(false);
+
+    } else {
+
+      currentPathRef.current = [];
+      showSwingArcRef.current = true;
+      setArcEnabled(true);
+
+    }
+
+  }}
+  className="px-4 py-2 bg-cyan-600 text-white rounded-lg"
+>
+  Swing Arc: {arcEnabled ? "ON" : "OFF"}
+</button>
+
+<button
+  onClick={() => {
+    allPathsRef.current = [];
+    currentPathRef.current = [];
+  }}
+  className="px-4 py-2 bg-red-600 text-white rounded-lg"
+>
+  Clear Arcs
+</button>
+
+</div>
     </div>
 
     {/* Canvas */}
@@ -2740,7 +2885,46 @@ setShowDialog(true)
     </>
   )}
 </button>
+ <div className="flex gap-2">
 
+<button
+  onClick={() => {
+
+    if (showSwingArcRefC.current) {
+
+      if (currentPathRefC.current.length > 2) {
+        allPathsRefC.current.push([...currentPathRefC.current]);
+      }
+
+      currentPathRefC.current = [];
+      showSwingArcRefC.current = false;
+      setArcEnabledC(false);
+
+    } else {
+
+      currentPathRefC.current = [];
+      showSwingArcRefC.current = true;
+      setArcEnabledC(true);
+
+    }
+
+  }}
+  className="px-4 py-2 bg-cyan-600 text-white rounded-lg"
+>
+  Swing Arc: {arcEnabledC ? "ON" : "OFF"}
+</button>
+
+<button
+  onClick={() => {
+    allPathsRefC.current = [];
+    currentPathRefC.current = [];
+  }}
+  className="px-4 py-2 bg-red-600 text-white rounded-lg"
+>
+  Clear Arcs
+</button>
+
+</div>
     </div>
 
     {/* Canvas */}
