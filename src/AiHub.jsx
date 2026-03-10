@@ -65,37 +65,68 @@ useEffect(() => {
     setAccessToken(token);
   }
 }, []);
-const verifyCoupon = async () => {
-  if (!couponCode) return;
+const [verifiedCoupon, setVerifiedCoupon] = useState(null);
+const [couponApplied, setCouponApplied] = useState(false);
+const coupon = {
+  code: "FIRST1000",
+  name: "First Time User Offer",
+  discount: {
+    INR: 1000,
+    USD: 12
+  }
+};
+const verifyCoupon = () => {
 
-  setCouponLoading(true);
-  setCouponStatus(null);
-
-  try {
-    const res = await fetch("https://tennisx.in/api/coupon_verify", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ code: couponCode })
+  if (couponCode === "FIRST1000") {
+    setVerifiedCoupon({
+      code: "FIRST1000",
+      name: "First Time User Offer",
+      discount: 1000
     });
-
-    const data = await res.json();
-
-    if (data.valid) {
-      setAppliedCoupon(data.coupon);
-      setCouponStatus({ type: "success", message: "Coupon applied!" });
-    } else {
-      setAppliedCoupon(null);
-      setCouponStatus({ type: "error", message: data.message });
-    }
-
-  } catch (err) {
-    setCouponStatus({ type: "error", message: "Server error" });
+    setCouponStatus(null);
+  } else {
+    setVerifiedCoupon(null);
+    setCouponStatus({
+      type: "error",
+      message: "Invalid coupon"
+    });
   }
 
-  setCouponLoading(false);
 };
+// const verifyCoupon = async () => {
+//   if (!couponCode) return;
+
+//   setCouponLoading(true);
+//   setCouponStatus(null);
+
+//   try {
+//     const res = await fetch("https://tennisx.in/api/coupon_verify", {
+//       method: "POST",
+//       headers: {
+//         "Content-Type": "application/json"
+//       },
+//       body: JSON.stringify({ code: couponCode })
+//     });
+
+//     const data = await res.json();
+
+//     if (data.valid) {
+      
+//       setAppliedCoupon(null);
+//       setVerifiedCoupon(Number(data.coupon)); 
+//       setCouponStatus({ type: "success", message: "Coupon applied!" });
+//     } else {
+//       setAppliedCoupon(null);
+//       setVerifiedCoupon(null); 
+//       setCouponStatus({ type: "error", message: data.message });
+//     }
+
+//   } catch (err) {
+//     setCouponStatus({ type: "error", message: "Server error" });
+//   }
+
+//   setCouponLoading(false);
+// };
 
   const [showAuthBlock, setShowAuthBlock] = useState(false);
   const squatRef = useRef(null);
@@ -108,9 +139,13 @@ const lateralUploadref = useRef(null);
     INR: { display: "₹0" },
     USD: { display: "$0" },
   },
-    strokes: {
-      INR: { display: "₹4999", amount: 499900 },
-      USD: { display: "$55", amount: 5500 }
+  strokesM: {
+      INR: { display: "₹3999", amount: 399900 },
+      USD: { display: "$45", amount: 4500 }
+    },
+    strokesY: {
+      INR: { display: "₹14999", amount: 1499900 },
+      USD: { display: "$162", amount: 16200 }
     },
     radar: {
       INR: { display: "₹22999", amount: 2299900 },
@@ -287,8 +322,14 @@ const handlePayment = async (name, email, mobile) => {
         headers: {
           "Content-Type": "application/json",
         },
-         body: JSON.stringify({ currency,name, email, mobile }),
-     }
+body: JSON.stringify({
+  name,
+  email,
+  mobile,
+  currency,
+  plan: selectedPlan,
+  couponApplied
+}),     }
     );
 
     if (!orderRes.ok) {
@@ -1088,7 +1129,7 @@ return (
 </div>
 )}
           {/* Strokes Plan */}
-          <div
+          {/* <div
             onClick={() => setSelectedPlan("strokes")}
             className={`border-2 rounded-2xl p-4 cursor-pointer transition ${
               selectedPlan === "strokes"
@@ -1146,8 +1187,126 @@ return (
   )}
 
 </div>
-          </div>
+          </div> */}
+          <div
+  onClick={() => setSelectedPlan("strokesM")}
+  className={`border-2 rounded-2xl p-4 cursor-pointer transition ${
+    selectedPlan === "strokesM"
+      ? "border-green-500 bg-green-50"
+      : "border-gray-200 hover:border-green-400"
+  }`}
+>
+  <div className="flex justify-between items-center">
+    <div>
+      <h3 className="font-semibold text-gray-800">
+        TennisX Pro Monthly
+      </h3>
 
+      <p className="text-xs text-gray-500 mt-1">
+        Unlimited Motion Recording • Footwork Analysis • Biomechanics Breakdown • Skeleton Comparison • Advanced Playback Control 
+      </p>
+    </div>
+
+    <div className="text-right">
+      <p className="text-lg font-bold text-gray-900">
+        {pricing.strokesM[currency].display}
+      </p>
+      <p className="text-xs text-gray-500"> / month</p>
+    </div>
+  </div>
+</div>
+<div
+  onClick={() => setSelectedPlan("strokesY")}
+  className={`relative border-2 rounded-2xl p-4 cursor-pointer transition shadow-sm ${
+    selectedPlan === "strokesY"
+      ? "border-green-600 bg-green-50"
+      : "border-orange-200 bg-gradient-to-br from-orange-50 to-white hover:border-orange-400"
+  }`}
+>
+
+  {/* Best Value Badge */}
+  <span className="absolute -top-2 right-3 bg-green-600 text-white text-[10px] font-semibold px-2 py-1 rounded-full shadow">
+    Best Value
+  </span>
+
+  <div className="flex justify-between items-center">
+    <div>
+      <h3 className="font-semibold text-gray-800">
+        TennisX Pro Annual
+      </h3>
+
+      <p className="text-xs text-gray-500 mt-1">
+        Unlimited Motion Recording • Footwork Analysis • Biomechanics Breakdown • Skeleton Comparison • Advanced Playback Control • Priority Customer Support
+      </p>
+    </div>
+
+    <div className="text-right">
+  <p className="text-lg font-bold text-green-700">
+    {pricing.strokesY[currency].display}
+  </p>
+
+  <p className="text-xs text-gray-500">
+    ({currency === "INR" ? "₹1249" : "$13.5"} / month)
+  </p>
+</div>
+  </div>
+</div>
+
+
+{selectedPlan === "strokesY" && (
+  <div className="mt-4">
+
+    {!couponApplied ? (
+      <div className="flex justify-between items-center bg-green-50 border border-green-200 rounded-lg p-3">
+
+        <div>
+          <p className="text-sm font-semibold text-green-700">
+            {coupon.code}
+          </p>
+
+          <p className="text-xs text-gray-500">
+            {coupon.name} 
+            {" "}
+            -{currency === "INR" ? "₹" : "$"}
+            {coupon.discount[currency]}
+          </p>
+        </div>
+
+        <button
+          onClick={() => setCouponApplied(true)}
+          className="text-xs bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+        >
+          Apply
+        </button>
+
+      </div>
+    ) : (
+      <div className="flex justify-between items-center bg-green-100 border border-green-300 rounded-lg p-3">
+
+        <div className="text-sm text-green-800">
+          {coupon.code} — {coupon.name}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="font-semibold text-green-700">
+            -{currency === "INR" ? "₹" : "$"}
+            {coupon.discount[currency]}
+          </span>
+
+          <button
+            onClick={() => setCouponApplied(false)}
+            className="text-xs text-gray-500 hover:text-red-500"
+          >
+            Cancel
+          </button>
+        </div>
+
+      </div>
+    )}
+
+  </div>
+)}
+         
           {/* Radar Plan (Locked) */}
           {/* <div className="border-2 border-gray-200 rounded-2xl p-4 bg-gray-100 opacity-80 cursor-not-allowed">
             <div className="flex justify-between items-center">
