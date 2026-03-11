@@ -520,7 +520,7 @@ const workouts = [
   // },
  {
   key: "speeddet",
-  name: "Serve Velocity Analysis",
+  name: "Find your serve speed",
   tier: "FREE",
   icon: "speed",
   description:
@@ -528,7 +528,7 @@ const workouts = [
 },
 {
   key: "lateral",
-  name: "Compare Stroke Biomechanics Real Time",
+  name: "Perfect your strokes",
   tier: "PRO",
   icon: "biomech",
   description:
@@ -536,11 +536,11 @@ const workouts = [
 },
 {
   key: "lateralupload",
-  name: "Rally Analysis",
+  name: "Perfect your rally",
   tier: "PRO",
   icon: "analysis",
   description:
-    "Upload match or training footage for advanced skeletal overlay and biomechanical breakdown. Analyze posture, swing path, and kinetic chain alignment frame-by-frame.",
+    "Upload match or training footage for advanced skeletal overlay and biomechanical breakdown. Analyze footwork, posture, swing path, and kinetic chain alignment frame-by-frame.",
 },
 
   // {
