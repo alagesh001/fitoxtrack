@@ -1069,6 +1069,8 @@ return (
         </div>
 
         {/* Currency Toggle */}
+        {isLoggedIn && (
+
         <div className="flex justify-center mb-6">
           <div className="relative flex bg-gray-100 rounded-full p-1 shadow-inner">
 
@@ -1098,32 +1100,52 @@ return (
 
           </div>
         </div>
+        )}
 
         {/* Plans */}
         <div className="space-y-4 mb-6">
-{!isLoggedIn &&(<div
+{!isLoggedIn && (
+ <div
   onClick={() => setSelectedPlan("trial")}
-  className={`border-2 rounded-2xl p-4 cursor-pointer transition ${
+  className={`relative border-2 rounded-2xl p-5 cursor-pointer transition transform hover:scale-[1.02] ${
     selectedPlan === "trial"
-      ? "border-blue-500 bg-blue-50"
-      : "border-gray-200 hover:border-blue-400"
+      ? "border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-lg"
+      : "border-gray-200 hover:border-blue-400 hover:shadow-md"
   }`}
 >
-  <div className="flex justify-between items-center">
+  {/* Badge */}
+  <span className="absolute -top-3 left-4 bg-blue-600 text-white text-xs px-3 py-1 rounded-full shadow">
+    Free Trial
+  </span>
+
+  <div className="flex justify-between items-start">
     <div>
-      <h3 className="font-semibold text-gray-800">
-        1-Day Free Trial
+      <h3 className="font-bold text-lg text-gray-900 flex items-center gap-2">
+        🚀 7-Day Free Trial
       </h3>
 
-      <p className="text-xs text-gray-500 mt-1">
-        Try TennisX Pro features free for 24 hours
+      <p className="text-sm text-gray-600 mt-1">
+        Try all premium AI coaching features free for 7 days.
       </p>
+
+      {/* Trust signal */}
+      <p className="text-xs text-green-600 font-medium mt-1">
+        ✔ No card required
+      </p>
+
+      <ul className="text-xs text-gray-500 mt-3 space-y-1">
+        <li>✔ Unlimited Motion Recording</li>
+        <li>✔ Footwork Analysis</li>
+        <li>✔ Biomechanics Breakdown</li>
+        <li>✔ Skeleton Comparison</li>
+        <li>✔ Advanced Playback Control</li>
+        <li>✔ Priority Customer Support</li>
+      </ul>
     </div>
 
     <div className="text-right">
-      <p className="text-lg font-bold text-gray-900">
-        {pricing.trial[currency].display}
-      </p>
+      <p className="text-2xl font-bold text-blue-600">FREE</p>
+      <p className="text-xs text-gray-500">for 7 days</p>
     </div>
   </div>
 </div>
@@ -1188,6 +1210,8 @@ return (
 
 </div>
           </div> */}
+                          {isLoggedIn && (
+  
           <div
   onClick={() => setSelectedPlan("strokesM")}
   className={`border-2 rounded-2xl p-4 cursor-pointer transition ${
@@ -1215,6 +1239,8 @@ return (
     </div>
   </div>
 </div>
+       )}
+         {isLoggedIn && (                  
 <div
   onClick={() => setSelectedPlan("strokesY")}
   className={`relative border-2 rounded-2xl p-4 cursor-pointer transition shadow-sm ${
@@ -1252,7 +1278,7 @@ return (
   </div>
 </div>
 
-
+         )}
 {selectedPlan === "strokesY" && (
   <div className="mt-4">
 
