@@ -11,7 +11,7 @@ import { XCircle, ArrowUpRight,X } from "lucide-react";
 
 const LiveSkeletonTracker = () => {
     const location = useLocation();
-const { facing = "user" } = location.state || {}; // ✅ DIRECT READ
+const { facing = "environment" } = location.state || {}; // ✅ DIRECT READ
 const [facingMode, setFacingMode] = useState(facing);
 const [trainerReady, setTrainerReady] = useState(false);
 const clientFpsRef = useRef(30); // default
@@ -991,11 +991,31 @@ setShowSuccessDialog(true);
     alert("Something went wrong. Please try again.");
   }
 };
+function sendSessionEvent(pageName) {
+  let sessionId = localStorage.getItem("tx_session");
 
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    localStorage.setItem("tx_session", sessionId);
+  }
+
+  fetch("https://tennisx.in/api/session", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      isp: "TennisX",
+      session_id: sessionId,
+      page: pageName
+    })
+  }).catch(() => {});
+}
 
 const checkLogin = () => {
   const isLoggedIn =
     localStorage.getItem("isLoggedInWeb") === "true";
+sendSessionEvent("Start Record Clicked");
 
   if (isLoggedIn) {
     if(isExpired){
@@ -2528,8 +2548,8 @@ const stopClient = () => {
   <button
      onClick={() => {
     if (window.history.length > 1) {
-      navigate(-1);   // Go back
-    } else {
+    //   navigate(-1);  
+    // } else {
       navigate("/ai-hub");  // Fallback
     }
   }}
@@ -2555,6 +2575,7 @@ const stopClient = () => {
   <button
     onClick={() =>{
  const stored = JSON.parse(localStorage.getItem("paymentStatus") || "{}");
+sendSessionEvent("Start Free Trial Clicked");
 
   if (stored.verified && stored.expiresAt > Date.now()) {
     console.log("✅ Payment already verified and valid");
