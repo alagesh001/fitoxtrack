@@ -66,7 +66,7 @@ const [arcEnabledC, setArcEnabledC] = useState(false);
       body: JSON.stringify({
         isp: "TennisX",
         session_id: sessionId,
-        page: window.location.pathname
+        page: "ai-tracker"
       })
     }).catch(() => {});
   
@@ -122,9 +122,9 @@ const clientIndexRef = useRef(0);
 
     const navigate = useNavigate();
 
-   if (!location.state?.fromButton) {
-  return <Navigate to="/ai-hub/" replace />;
-}
+//    if (!location.state?.fromButton) {
+//   return <Navigate to="/ai-hub/" replace />;
+// }
 // useEffect(() => {
 //   const storedGymRaw = localStorage.getItem("selectedGym");
 //   const storedGym = storedGymRaw ? JSON.parse(storedGymRaw) : null;
@@ -229,7 +229,7 @@ const [clientPlaying, setClientPlaying] = useState(false);
 const [clientPaused, setClientPaused] = useState(false);
 const [userRole, setUserRole] = useState("trainer");
 const userRoleRef = useRef(userRole);
-const [cameraFacing, setCameraFacing] = useState("user"); // "user" = front, "environment" = back
+const [cameraFacing, setCameraFacing] = useState("environment"); // "user" = front, "environment" = back
 const cameraRef = useRef(null);
 useEffect(() => {
   userRoleRef.current = userRole;

@@ -55,7 +55,7 @@ function App() {
       />
       <Routes>
         {/* Root route renders dynamically based on standalone mode */}
-        <Route path="/" element={isStandalone ? <AIhubHere /> : <AIhubHere />} />
+        <Route path="/" element={isStandalone ? <LiveSkeletonTracker /> : <LiveSkeletonTracker />} />
         <Route path="/login" element={<Login />} />
                 <Route path="/GymList" element={<GymList />} />
                 <Route path="/home" element={<HomeScreen />} />
