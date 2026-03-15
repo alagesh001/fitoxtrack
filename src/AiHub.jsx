@@ -152,7 +152,28 @@ const lateralUploadref = useRef(null);
       USD: { display: "$300", amount: 30000 }
     }
   };
+ useEffect(() => {
 
+  let sessionId = localStorage.getItem("tx_session");
+
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    localStorage.setItem("tx_session", sessionId);
+  }
+
+  fetch("https://tennisx.in/api/session", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      isp: "TennisX",
+      session_id: sessionId,
+      page: window.location.pathname
+    })
+  }).catch(() => {});
+
+}, []);
 const lateralSideRef = useRef(null);
 const panelRefs = useRef({});
  const [backgroundImage, setBackgroundImage] = useState(null);

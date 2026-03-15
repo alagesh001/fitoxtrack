@@ -21,6 +21,28 @@ const [isMuted, setIsMuted] = useState(true);
 const [zoom, setZoom] = useState(1);
 const [position, setPosition] = useState({ x: 0, y: 0 });
     const navigate = useNavigate();
+     useEffect(() => {
+    
+      let sessionId = localStorage.getItem("tx_session");
+    
+      if (!sessionId) {
+        sessionId = crypto.randomUUID();
+        localStorage.setItem("tx_session", sessionId);
+      }
+    
+      fetch("https://tennisx.in/api/session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          isp: "TennisX",
+          session_id: sessionId,
+          page: window.location.pathname
+        })
+      }).catch(() => {});
+    
+    }, []);
 useEffect(() => {
   window.scrollTo({
     top: 0,
