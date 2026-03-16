@@ -2343,7 +2343,6 @@ const stopClient = () => {
 </div>
           )}
           {/* Strokes Plan */}
-            {isLoggedIn && (
              <div
   onClick={() => setSelectedPlan("strokesM")}
   className={`border-2 rounded-2xl p-4 cursor-pointer transition ${
@@ -2371,8 +2370,7 @@ const stopClient = () => {
     </div>
   </div>
 </div>
-            )}
-              {isLoggedIn && (
+            
 <div
   onClick={() => setSelectedPlan("strokesY")}
   className={`relative border-2 rounded-2xl p-4 cursor-pointer transition shadow-sm ${
@@ -2409,7 +2407,7 @@ const stopClient = () => {
 </div>
   </div>
 </div>
-              )}
+              
 
 {selectedPlan === "strokesY" && (
   <div className="mt-4">

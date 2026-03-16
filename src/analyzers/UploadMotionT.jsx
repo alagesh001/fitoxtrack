@@ -1301,7 +1301,6 @@ if (
 </div>
 )}
           {/* Strokes Plan */}
-            {isLoggedIn && (
                 <div
   onClick={() => setSelectedPlan("strokesM")}
   className={`border-2 rounded-2xl p-4 cursor-pointer transition ${
@@ -1329,8 +1328,8 @@ if (
     </div>
   </div>
 </div>
-            )}
-              {isLoggedIn && (
+           
+         
 <div
   onClick={() => setSelectedPlan("strokesY")}
   className={`relative border-2 rounded-2xl p-4 cursor-pointer transition shadow-sm ${
@@ -1367,7 +1366,7 @@ if (
 </div>
   </div>
 </div>
-              )}
+             
 
 {selectedPlan === "strokesY" && (
   <div className="mt-4">
