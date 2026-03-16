@@ -7,6 +7,8 @@ import myBackground from "./assets/fitgymbg.jpg";
 import settingIcon from "./assets/settings.png";
 import { XCircle, ArrowUpRight,X } from "lucide-react";
 import { FaWhatsapp } from "react-icons/fa";
+import xlogo from "./assets/logo.webp";
+
 export default function AIhubHere() {
   const [active, setActive] = useState(null);
   const navigate = useNavigate();
@@ -531,52 +533,83 @@ const refs = {
   lateralSide:lateralSideRef
 };
 const workouts = [
- 
-  // {
-  //   key: "bicep",
-  //   name: "Bicep curl Form AI",
-  //   emoji: "💪",
-  //   description:
-  //     "Perfect your bicep curls with real-time AI form correction.",
-  // },
- {
-  key: "speeddet",
-  name: "Find your serve speed",
-  tier: "FREE",
-  icon: "speed",
-  description:
-    "Precision serve speed measurement using baseline-to-net trajectory tracking. Advanced frame-based motion analysis delivers accurate velocity metrics for performance benchmarking.",
-},
-{
-  key: "lateral",
-  name: "Perfect your strokes",
-  tier: "PRO",
-  icon: "biomech",
-  description:
-    "Live anterior and posterior skeletal mapping powered by TennisX motion intelligence. Evaluate joint sequencing and optimize stroke efficiency instantly.",
-},
-{
-  key: "lateralupload",
-  name: "Perfect your rally",
-  tier: "PRO",
-  icon: "analysis",
-  description:
-    "Upload match or training footage for advanced skeletal overlay and biomechanical breakdown. Analyze footwork, posture, swing path, and kinetic chain alignment frame-by-frame.",
-},
+  {
+    key: "lateral",
+    name: "Perfect your strokes",
+    tier: "PRO",
+    icon: "biomech",
+    description:
+      "Real-time skeletal tracking powered by TennisX AI. Analyze and compare joint movements to optimize your forehand, backhand, and serve.",
+  },
 
-  // {
-  //   key: "lateralSide",
-  //   name: "Form Compare AI (Left/Right)",
-  //   emoji: "🏃‍♂️",
-  //   description:
-  //     "Lateral View Real-time skeletal overlay powered by tennisX advanced motion tracking for perfect technique refinement.",
-  // },
- 
-  // Add more workouts here
+  ...(isLoggedIn
+    ? [
+        {
+          key: "speeddet",
+          name: "Find your serve speed",
+          tier: "FREE",
+          icon: "speed",
+          description:
+            "Precision serve speed measurement using baseline-to-net trajectory tracking. Advanced frame-based motion analysis delivers accurate velocity metrics for performance benchmarking.",
+        },
+        {
+          key: "lateralupload",
+          name: "Perfect your rally",
+          tier: "PRO",
+          icon: "analysis",
+          description:
+            "Upload match or training footage for advanced skeletal overlay and biomechanical breakdown. Analyze footwork, posture, swing path, and kinetic chain alignment frame-by-frame.",
+        },
+      ]
+    : []),
 ];
+// const workouts = [
+ 
+//   // {
+//   //   key: "bicep",
+//   //   name: "Bicep curl Form AI",
+//   //   emoji: "💪",
+//   //   description:
+//   //     "Perfect your bicep curls with real-time AI form correction.",
+//   // },
+// //  {
+// //   key: "speeddet",
+// //   name: "Find your serve speed",
+// //   tier: "FREE",
+// //   icon: "speed",
+// //   description:
+// //     "Precision serve speed measurement using baseline-to-net trajectory tracking. Advanced frame-based motion analysis delivers accurate velocity metrics for performance benchmarking.",
+// // },
+// {
+//   key: "lateral",
+//   name: "Perfect your strokes",
+//   tier: "PRO",
+//   icon: "biomech",
+//   description:
+//     "Real-time skeletal tracking powered by TennisX AI. Analyze and compare joint movements to optimize your forehand, backhand, and serve.",
+// },
+// // {
+// //   key: "lateralupload",
+// //   name: "Perfect your rally",
+// //   tier: "PRO",
+// //   icon: "analysis",
+// //   description:
+// //     "Upload match or training footage for advanced skeletal overlay and biomechanical breakdown. Analyze footwork, posture, swing path, and kinetic chain alignment frame-by-frame.",
+// // },
+
+//   // {
+//   //   key: "lateralSide",
+//   //   name: "Form Compare AI (Left/Right)",
+//   //   emoji: "🏃‍♂️",
+//   //   description:
+//   //     "Lateral View Real-time skeletal overlay powered by tennisX advanced motion tracking for perfect technique refinement.",
+//   // },
+ 
+//   // Add more workouts here
+// ];
 useEffect(() => {
   if (workouts.length && active === null) {
-   // setActive(workouts[0].key);
+    setActive(workouts[0].key);
   }
 }, [workouts]);
 useEffect(() => {
@@ -932,7 +965,7 @@ return (
  <div className="min-h-screen p-8 ">
     <div className="fixed inset-0 bg-black -z-20"></div>
 
-<div
+{/* <div
   className={`fixed inset-0 w-screen h-screen bg-center bg-black transition-opacity duration-1000 
     ${isLoaded ? "opacity-100 bg-cover" : "opacity-0"} -z-10`}
   style={{
@@ -940,7 +973,7 @@ return (
   }}
 >
   <div className="absolute inset-0 bg-black/50"></div>
-</div>
+</div> */}
 {loadingTRequest && (
   <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
     
@@ -1142,12 +1175,12 @@ return (
   <div className="flex justify-between items-start">
     <div>
       <h3 className="font-bold text-lg text-gray-900 flex items-center gap-2">
-        🎾 4-Day Skill Booster
+        🎾 2-Day Free Trial
       </h3>
 
-      <p className="text-sm text-gray-600 mt-1">
+      {/* <p className="text-sm text-gray-600 mt-1">
         Improve your tennis strokes with AI Tracking in just a few days.
-      </p>
+      </p> */}
 
       {/* Trust signal */}
       <p className="text-xs text-green-600 font-medium mt-1">
@@ -1155,14 +1188,7 @@ return (
       </p>
 
       {/* Skill roadmap */}
-      <div className="mt-3 text-xs space-y-1">
-        <p className="text-gray-700 font-medium">What you'll improve:</p>
-        <ul className="text-gray-600 space-y-1">
-          <li>🎯 Forehand improvement in ~4 days</li>
-          <li>🎯 Backhand consistency in ~7 days</li>
-          <li>🎯 Powerful Serve in ~10 days</li>
-        </ul>
-      </div>
+     
 
       {/* Features */}
       {/* <ul className="text-xs text-gray-500 mt-3 space-y-1">
@@ -1176,7 +1202,7 @@ return (
 
     <div className="text-right">
       <p className="text-2xl font-bold text-blue-600">FREE</p>
-      <p className="text-xs text-gray-500">for 4 days</p>
+      <p className="text-xs text-gray-500">for 2 days</p>
     </div>
   </div>
 </div>
@@ -1261,7 +1287,15 @@ return (
         Unlimited Motion Recording • Footwork Analysis • Biomechanics Breakdown • Skeleton Comparison • Advanced Playback Control 
       </p>
     </div>
-
+ {/* <div className="mt-3 text-xs space-y-1">
+        <p className="text-gray-700 font-medium">What you'll improve:</p>
+       <ul className="text-gray-600 space-y-1">
+  <li>🎯 Forehand improvement</li>
+  <li>🎯 Backhand consistency</li>
+  <li>🎯 Powerful Serve</li>
+  <li>🎯 Faster Footwork</li>
+</ul>
+      </div> */}
     <div className="text-right">
       <p className="text-lg font-bold text-gray-900">
         {pricing.strokesM[currency].display}
@@ -1289,7 +1323,7 @@ return (
   <div className="flex justify-between items-center">
     <div>
       <h3 className="font-semibold text-gray-800">
-        TennisX Pro Annual
+        TennisX Pro Life-Time
       </h3>
 
       <p className="text-xs text-gray-500 mt-1">
@@ -1302,9 +1336,9 @@ return (
     {pricing.strokesY[currency].display}
   </p>
 
-  <p className="text-xs text-gray-500">
+  {/* <p className="text-xs text-gray-500">
     ({currency === "INR" ? "₹1249" : "$13.5"} / month)
-  </p>
+  </p> */}
 </div>
   </div>
 </div>
@@ -1532,15 +1566,38 @@ return (
   </div>
 )}
 
-<h1
+{/* <h1
   className="text-5xl font-extrabold text-center mb-10 tracking-tight drop-shadow-lg
              bg-gradient-to-r from-blue-500 via-teal-400 to-cyan-400
              text-transparent bg-clip-text"
 >
-  TennisX AI Hub
-</h1>
+  TennisX
+</h1> */}
+<div className="w-full">
+  
+  {/* Top Right Login */}
+  <div className="flex justify-end mb-4">
+    <button
+      onClick={() => navigate("/login")}
+      className="px-6 py-2 rounded-full font-semibold text-white
+                 bg-transparent border border-white/30
+                 hover:border-white hover:bg-white/10
+                 transition duration-300 backdrop-blur-sm"
+    >
+      Login
+    </button>
+  </div>
 
+  {/* Logo */}
+  <div className="flex items-center justify-center">
+    <img
+      src={xlogo}
+      alt="TennisX Logo"
+      className="max-w-[200px] h-auto object-contain"
+    />
+  </div>
 
+</div>
 
     {/* Loading Overlay */}
    {loading && (
@@ -1559,7 +1616,7 @@ return (
 )}
 
 <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-  { !isLoggedIn && (
+  {/* { !isLoggedIn && (
   <div className="flex flex-col sm:flex-row sm:justify-end items-stretch gap-3 py-4 px-4 sm:px-0">
     <button
       onClick={() => {
@@ -1588,19 +1645,9 @@ return (
     </button>
    
 
-    <button
-      onClick={() => navigate("/login")}
-      className="w-full sm:w-auto px-6 py-3 rounded-full  font-semibold text-white 
-                 bg-gradient-to-r from-blue-500 to-indigo-600 
-                 hover:from-blue-600 hover:to-indigo-700 
-                 transition duration-300 shadow-lg hover:shadow-xl
-                 active:scale-95"
-    >
-      Login
-    </button>
 
   </div>
-)}
+)} */}
 
 {isLoggedIn && (
   <div className="w-full flex items-center justify-between px-4 sm:px-6 mb-4">
@@ -1659,13 +1706,13 @@ return (
       <div className="bg-[#0b0c12]/60 border border-[#191c29] rounded-2xl p-6 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
 
 
-        <h2
+        {/* <h2
           className="text-lg font-bold mb-5 tracking-wide
                      bg-gradient-to-r from-yellow-400 via-amber-500 to-yellow-300
                      text-transparent bg-clip-text drop-shadow-lg"
         >
           ⭐ Motion Tracker
-        </h2>
+        </h2> */}
 
         <div className="space-y-6">
 
@@ -1761,7 +1808,7 @@ return (
 
         <button
           onClick={() => handleClick(w.key)}
-          className="w-full py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold shadow-xl hover:from-indigo-700 hover:to-purple-700 transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105"
+          className="w-full py-3 rounded-2xl bg-gradient-to-r from-red-600 to-red-600 text-white font-bold shadow-xl hover:from-red-700 hover:to-red-700 transition-all duration-200 transform hover:-translate-y-0.5 hover:scale-105"
         >
          Start
         </button>
@@ -1791,7 +1838,7 @@ return (
     </a>
   </p>
 
-  <p>
+  {/* <p>
     📞 Contact:{" "}
     <a
       href="tel:+918148602102"
@@ -1799,7 +1846,7 @@ return (
     >
       +91 81486 02102
     </a>
-  </p>
+  </p> */}
 
   <a
     href="https://wa.me/918595509389"

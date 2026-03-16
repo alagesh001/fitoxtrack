@@ -1255,47 +1255,50 @@ if (
         {/* Plans */}
         <div className="space-y-4 mb-6">
 {!isLoggedIn &&(
- <div
+<div
   onClick={() => setSelectedPlan("trial")}
-  className={`relative border-2 rounded-2xl p-5 cursor-pointer transition transform hover:scale-[1.02] ${
+  className={`relative border-2 rounded-2xl p-5 cursor-pointer transition transform hover:scale-[1.03] ${
     selectedPlan === "trial"
-      ? "border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-lg"
-      : "border-gray-200 hover:border-blue-400 hover:shadow-md"
+      ? "border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-xl"
+      : "border-gray-200 hover:border-blue-400 hover:shadow-lg"
   }`}
 >
   {/* Badge */}
-  <span className="absolute -top-3 left-4 bg-blue-600 text-white text-xs px-3 py-1 rounded-full shadow">
-    Free Trial
+  <span className="absolute -top-3 left-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs px-3 py-1 rounded-full shadow">
+    Limited Free Trial
   </span>
 
   <div className="flex justify-between items-start">
     <div>
       <h3 className="font-bold text-lg text-gray-900 flex items-center gap-2">
-        🚀 7-Day Free Trial
+        🎾 2-Day Free Trial
       </h3>
 
-      <p className="text-sm text-gray-600 mt-1">
-        Try all premium AI coaching features free for 7 days.
-      </p>
+      {/* <p className="text-sm text-gray-600 mt-1">
+        Improve your tennis strokes with AI Tracking in just a few days.
+      </p> */}
 
       {/* Trust signal */}
       <p className="text-xs text-green-600 font-medium mt-1">
         ✔ No card required
       </p>
 
-      <ul className="text-xs text-gray-500 mt-3 space-y-1">
-        <li>✔ Unlimited Motion Recording</li>
+      {/* Skill roadmap */}
+     
+
+      {/* Features */}
+      {/* <ul className="text-xs text-gray-500 mt-3 space-y-1">
+        <li>✔ AI Motion Recording</li>
         <li>✔ Footwork Analysis</li>
         <li>✔ Biomechanics Breakdown</li>
         <li>✔ Skeleton Comparison</li>
-        <li>✔ Advanced Playback Control</li>
-        <li>✔ Priority Customer Support</li>
-      </ul>
+        <li>✔ Advanced Playback</li>
+      </ul> */}
     </div>
 
     <div className="text-right">
       <p className="text-2xl font-bold text-blue-600">FREE</p>
-      <p className="text-xs text-gray-500">for 7 days</p>
+      <p className="text-xs text-gray-500">for 2 days</p>
     </div>
   </div>
 </div>
@@ -1347,7 +1350,7 @@ if (
   <div className="flex justify-between items-center">
     <div>
       <h3 className="font-semibold text-gray-800">
-        TennisX Pro Annual
+        TennisX Pro Life-Time
       </h3>
 
       <p className="text-xs text-gray-500 mt-1">
@@ -1360,9 +1363,9 @@ if (
     {pricing.strokesY[currency].display}
   </p>
 
-  <p className="text-xs text-gray-500">
+  {/* <p className="text-xs text-gray-500">
     ({currency === "INR" ? "₹1249" : "$13.5"} / month)
-  </p>
+  </p> */}
 </div>
   </div>
 </div>

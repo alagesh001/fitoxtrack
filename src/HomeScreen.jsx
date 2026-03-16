@@ -239,7 +239,7 @@ return (
   <div className="fixed inset-0 bg-black overflow-hidden">
     
     {/* BACKDROP */}
-    <div
+    {/* <div
       className={`fixed inset-0 bg-center bg-black transition-opacity duration-1000 ${
         isLoaded ? "opacity-100 bg-cover" : "opacity-0"
       }`}
@@ -250,7 +250,7 @@ return (
       }}
     >
       <div className="absolute inset-0 bg-black/50"></div>
-    </div>
+    </div> */}
     
     {/* TITLE FRAME */}
     <div className="absolute top-0 z-30 bg-black/70 w-full p-5 text-center shadow-lg">

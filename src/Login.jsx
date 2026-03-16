@@ -18,6 +18,28 @@ function Login() {
     let mobileSaved = null;
 
 const [uniqueId, setDeviceId] = useState(null);
+useEffect(() => {
+
+  let sessionId = localStorage.getItem("tx_session");
+
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    localStorage.setItem("tx_session", sessionId);
+  }
+
+  fetch("https://tennisx.in/api/session", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      isp: "TennisX",
+      session_id: sessionId,
+      page: window.location.pathname
+    })
+  }).catch(() => {});
+
+}, []);
     useEffect(() => {
         const isLoggedIn = localStorage.getItem("isLoggedInWeb");
         const roleType = localStorage.getItem("type");
@@ -36,19 +58,19 @@ const [uniqueId, setDeviceId] = useState(null);
          // console.log("✅uidaaa",did);
     }, []);
 
-    // useEffect(() => {
-    //     const handleBeforeInstallPrompt = (e) => {
-    //         e.preventDefault();
-    //         setDeferredPrompt(e);
-    //         setShowInstallButton(true);
-    //     };
+    useEffect(() => {
+        const handleBeforeInstallPrompt = (e) => {
+            e.preventDefault();
+            setDeferredPrompt(e);
+            setShowInstallButton(true);
+        };
 
-    //     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+        window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
-    //     return () => {
-    //         window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-    //     };
-    // }, []);
+        return () => {
+            window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+        };
+    }, []);
 
     const handleInstallClick = async () => {
         if (deferredPrompt) {
