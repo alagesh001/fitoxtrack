@@ -23,7 +23,7 @@ function GymList() {
 
     return (
         <div className="p-4">
-            <h1 className="text-2xl font-bold mb-4">Select Your Gym</h1>
+            <h1 className="text-2xl font-bold mb-4">Select your Account</h1>
 
             <div className="border rounded-lg shadow max-h-[500px] overflow-y-auto">
                 <ul className="divide-y">

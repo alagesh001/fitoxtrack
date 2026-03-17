@@ -2391,7 +2391,7 @@ const stopClient = () => {
   <div className="flex justify-between items-center">
     <div>
       <h3 className="font-semibold text-gray-800">
-        TennisX Pro Life-Time
+        TennisX Pro Annual
       </h3>
 
       <p className="text-xs text-gray-500 mt-1">

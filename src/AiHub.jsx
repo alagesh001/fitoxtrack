@@ -1323,7 +1323,7 @@ return (
   <div className="flex justify-between items-center">
     <div>
       <h3 className="font-semibold text-gray-800">
-        TennisX Pro Life-Time
+        TennisX Pro Annual
       </h3>
 
       <p className="text-xs text-gray-500 mt-1">
@@ -1584,19 +1584,22 @@ return (
                  hover:border-white hover:bg-white/10
                  transition duration-300 backdrop-blur-sm"
     >
-      Login
+      {isLoggedIn ? "Home" : "Login"}
     </button>
   </div>
 
   {/* Logo */}
-  <div className="flex items-center justify-center">
-    <img
-      src={xlogo}
-      alt="TennisX Logo"
-      className="max-w-[200px] h-auto object-contain"
-    />
-  </div>
+<div className="flex flex-col items-center justify-center">
+  <img
+    src={xlogo}
+    alt="TennisX Logo"
+    className="max-w-[200px] h-auto object-contain"
+  />
 
+<p className="mt-3 text-sm text-white/70 tracking-wide uppercase  text-center">
+  Powered by passion ❤️ • IIT Madras Tennis Community
+</p>
+</div>
 </div>
 
     {/* Loading Overlay */}
