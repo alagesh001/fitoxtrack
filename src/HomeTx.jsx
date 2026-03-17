@@ -910,7 +910,7 @@ className="w-full border border-gray-200
   {loading
     ? "Processing..."
     : selectedPlan === "trial"
-    ? "Improve NOW!"
+    ? "Start FREE Trial!"
     : "Upgrade Now!"}
 </button>
 
