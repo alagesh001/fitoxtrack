@@ -10,6 +10,7 @@ import HomeScreen from "./HomeScreen";
 
 
 
+import HomeTennisX from "./HomeTx";
 
 import InstallPage from "./InstallPage";
 
@@ -55,14 +56,15 @@ function App() {
       />
       <Routes>
         {/* Root route renders dynamically based on standalone mode */}
-        <Route path="/" element={isStandalone ? <AIhubHere /> : <AIhubHere />} />
+        <Route path="/" element={isStandalone ? <HomeTennisX /> : <HomeTennisX />} />
         <Route path="/login" element={<Login />} />
                 <Route path="/GymList" element={<GymList />} />
                 <Route path="/home" element={<HomeScreen />} />
                 <Route path="/settings" element={<SettingScreen />} />
                
         <Route path="/register-screen" element={<GymRegistration />} />
-       
+               <Route path="/home-screen" element={<HomeTennisX />} />
+
         <Route path="/install_page" element={<InstallPage />} />
               
     

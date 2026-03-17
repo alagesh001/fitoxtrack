@@ -1,0 +1,1215 @@
+import { motion } from "framer-motion";
+import { Activity, BarChart3, Target,Star } from "lucide-react";
+import { useState, useEffect,useRef } from "react";
+import xlogo from "./assets/logo.webp";
+import img1 from "./assets/tennis1.webp";
+import img2 from "./assets/tennis2.webp";
+import img3 from "./assets/tennis3.webp";
+import { useNavigate } from "react-router-dom";
+
+export default function HomeTennisX() {
+  const [showModal, setShowModal] = useState(false);
+const [submitted, setSubmitted] = useState(false);
+const images = [img1, img2, img3];
+  const [showDialog, setShowDialog] = useState(false);
+const [showFreeTrialBox, setShowFreeTrialBox] = useState(false);
+const [loadingTRequest, setLoadingTRequest] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [loadingpay, setLoadingPay] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [mobile, setMobile] = useState("");
+const [couponCode, setCouponCode] = useState("");
+const [couponStatus, setCouponStatus] = useState(null);
+const [couponLoading, setCouponLoading] = useState(false);
+const [appliedCoupon, setAppliedCoupon] = useState(null);
+const [verifiedCoupon, setVerifiedCoupon] = useState(null);
+const [couponApplied, setCouponApplied] = useState(false);
+const [currency, setCurrency] = useState("INR");
+const [loading, setLoading] = useState(false);
+
+const [uniqueId, setDeviceId] = useState(null);
+
+  const navigate = useNavigate();
+ useEffect(() => {
+
+ sendSessionEvent("HomeScreen");
+
+}, []);
+
+   useEffect(() => {
+       
+
+       const isLoggedIn = localStorage.getItem("isLoggedInWeb");
+const mobileSaved = localStorage.getItem("mobileIs");
+const accessToken = localStorage.getItem("accessToken");
+
+if (isLoggedIn === "true" && mobileSaved && accessToken) {
+  navigate("/ai-hub");
+  return;
+}
+
+          const did = Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+                                            setDeviceId(did);
+  localStorage.setItem("device_idfitox", did);
+
+         // console.log("✅uidaaa",did);
+    }, []);
+const coupon = {
+  code: "FIRST1000",
+  name: "First Time User Offer",
+  discount: {
+    INR: 1000,
+    USD: 12
+  }
+};
+  const pricing = {
+     trial: {
+    INR: { display: "₹0" },
+    USD: { display: "$0" },
+  },
+  strokesM: {
+      INR: { display: "₹3999", amount: 399900 },
+      USD: { display: "$45", amount: 4500 }
+    },
+    strokesY: {
+      INR: { display: "₹14999", amount: 1499900 },
+      USD: { display: "$162", amount: 16200 }
+    },
+    radar: {
+      INR: { display: "₹22999", amount: 2299900 },
+      USD: { display: "$300", amount: 30000 }
+    }
+  };
+const verifyCoupon = () => {
+
+  if (couponCode === "FIRST1000") {
+    setVerifiedCoupon({
+      code: "FIRST1000",
+      name: "First Time User Offer",
+      discount: 1000
+    });
+    setCouponStatus(null);
+  } else {
+    setVerifiedCoupon(null);
+    setCouponStatus({
+      type: "error",
+      message: "Invalid coupon"
+    });
+  }
+
+};
+const isLoggedIn = localStorage.getItem("isLoggedInWeb") === "true";
+
+const [selectedPlan, setSelectedPlan] = useState(
+  isLoggedIn ? "strokes" : "trial"
+);
+const [current, setCurrent] = useState(0);
+ const storedGym = localStorage.getItem("selectedGym");
+const startFreeTrial = async (name, email, mobile) => {
+
+  if (!name || !email || !mobile) {
+    alert("Please enter name, email and mobile number");
+    return;
+  }
+  setLoadingTRequest(true);
+
+  setShowDialog(false);
+
+  const trialData = localStorage.getItem("tennisx_free_trial");
+
+  if (trialData) {
+    const parsed = JSON.parse(trialData);
+
+    if (Date.now() < parsed.expiry) {
+          setLoadingTRequest(false);
+
+      setShowFreeTrialBox({
+        status: "exists",
+        message:
+          "Your free trial request has already been sent. Please wait for activation."
+      });
+      
+      return;
+    }
+  }
+
+  try {
+
+    const res = await fetch(
+      "https://tennisx.in/api/razorpay/create-order",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          email,
+          mobile,
+          plan: "trial"
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.success) {
+
+      const trial = {
+        requested: true,
+        expiry: Date.now() + (2 * 24 * 60 * 60 * 1000)
+      };
+
+      localStorage.setItem(
+        "tennisx_free_trial",
+        JSON.stringify(trial)
+      );
+
+      setShowFreeTrialBox({
+        status: "sent",
+        message:
+          "Your request for free trial has been sent. Once activated, you will receive login credentials for the same."
+      });
+
+    } else {
+
+      setShowFreeTrialBox({
+        status: "error",
+        message: data.message || "Unable to process free trial request."
+      });
+
+    }
+
+  } catch (err) {
+
+    console.error(err);
+
+    setShowFreeTrialBox({
+      status: "error",
+      message: "Network error. Please try again later."
+    });
+
+  }
+    setLoadingTRequest(false);
+
+};
+function sendSessionEvent(pageName) {
+  let sessionId = localStorage.getItem("tx_session");
+
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    localStorage.setItem("tx_session", sessionId);
+  }
+
+  fetch("https://tennisx.in/api/session", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      isp: "TennisX",
+      session_id: sessionId,
+      page: pageName
+    })
+  }).catch(() => {});
+}
+
+const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    if (document.getElementById("razorpay-script")) {
+      resolve(true);
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = "razorpay-script";
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
+const handlePayment = async (name, email, mobile) => {
+  if (!name || !email || !mobile) {
+    alert("Please enter name, email and mobile number");
+    return;
+  }
+   
+ setLoadingPay(true);
+  // Ensure mobile is 10 digits only
+  mobile = mobile.replace(/\D/g, "").slice(-10);
+
+  const sdkLoaded = await loadRazorpayScript();
+
+  if (!sdkLoaded) {
+    setLoadingPay(false);
+    alert("Razorpay SDK failed to load.");
+    return;
+  }
+
+  try {
+    // 🔹 Create order from backend
+    const orderRes = await fetch(
+      "https://tennisx.in/api/razorpay/create-order",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+body: JSON.stringify({
+  name,
+  email,
+  mobile,
+  currency,
+  plan: selectedPlan,
+  couponApplied
+}),     }
+    );
+
+    if (!orderRes.ok) {
+      setLoadingPay(false);
+      throw new Error("Order creation request failed");
+    }
+
+    const order = await orderRes.json();
+
+    if (!order || !order.id) {
+      setLoadingPay(false);
+      alert("Order creation failed");
+      return;
+    }
+setLoadingPay(false);
+    const options = {
+      key: "rzp_live_SM3qfZ3C7cCTQ5",
+      amount: order.amount,
+      currency: order.currency,
+      order_id: order.id,
+
+      name: "Oxad Media",
+      description: "TennisX",
+
+      prefill: {
+        name,
+        email,
+        contact: mobile,
+      },
+
+      notes: {
+        name,
+        email,
+        mobile,
+      },
+  modal: {
+    ondismiss: function () {
+      console.log("Payment popup closed");
+      setLoadingPay(false); // ✅ Stop loading if user cancels
+    }
+  },
+      theme: {
+        color: "#2ef02e",
+      },
+
+      handler: async function (response) {
+        try {
+          setLoadingPay(false);
+          const verifyRes = await fetch(
+            "https://tennisx.in/api/razorpay/verify-payment",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                name,
+                email,
+                mobile,
+              }),
+            }
+          );
+
+          if (!verifyRes.ok) {
+            
+            throw new Error("Verification request failed");
+          }
+
+          const data = await verifyRes.json();
+
+          if (data.success) {
+            // ✅ Mark login
+            //localStorage.setItem("isLoggedInWeb", "true");
+
+            // ✅ Close dialog
+             const expiryTime = Date.now() + (2 * 24 * 60 * 60 * 1000); // 2 days in ms
+
+  const paymentData = {
+    verified: true,
+    expiresAt: expiryTime
+  };
+
+  localStorage.setItem("paymentStatus", JSON.stringify(paymentData));
+            if (typeof setShowDialog === "function") {
+              setShowDialog(false);
+            }
+
+            // ✅ Start recording
+            // if (typeof startRecording === "function") {
+            //   startRecording();
+            // }
+setShowSuccessDialog(true);
+
+           // alert("Payment Successful!");
+          } else {
+            alert("Payment verification failed.");
+          }
+            setLoadingPay(false);
+        } catch (err) {
+          setLoadingPay(false);
+          console.error("Verification error:", err);
+          alert("Verification error.");
+        }
+      },
+    };
+
+    const paymentObject = new window.Razorpay(options);
+
+    paymentObject.on("payment.failed", function (response) {
+      console.error("Payment Failed:", response.error);
+      alert("Payment Failed. Please try again.");
+    });
+
+    paymentObject.open();
+
+  } catch (error) {
+    console.error("Payment error:", error);
+    alert("Something went wrong. Please try again.");
+  }
+};
+
+// auto slide
+useEffect(() => {
+  const timer = setInterval(() => {
+    setCurrent((prev) => (prev + 1) % images.length);
+  }, 3500);
+  return () => clearInterval(timer);
+}, []);
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-950 text-white">
+      {/* Navbar */}
+     <nav className="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
+  
+  <div className="flex items-center gap-3">
+  <img
+      src={xlogo}
+      alt="TennisX Logo"
+      className="max-w-[200px] h-auto object-contain"
+    />
+  </div>
+
+</nav>
+{loadingTRequest && (
+  <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+    
+    <div className="bg-white rounded-2xl shadow-xl px-8 py-6 flex flex-col items-center gap-4">
+      
+      {/* Spinner */}
+      <div className="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+
+      {/* Message */}
+      <p className="text-gray-700 text-sm font-medium">
+        Sending trial request...
+      </p>
+
+    </div>
+
+  </div>
+)}
+
+{showFreeTrialBox && (
+  <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+    <div className="bg-white rounded-2xl p-6 max-w-sm text-center shadow-xl">
+
+      <h3 className="text-lg font-semibold mb-3">
+        Free Trial
+      </h3>
+
+      <p className="text-gray-600 text-sm mb-5">
+        {showFreeTrialBox.message}
+      </p>
+
+      <button
+        onClick={() => setShowFreeTrialBox(false)}
+        className="bg-black text-white px-6 py-2 rounded-lg"
+      >
+        OK
+      </button>
+
+    </div>
+  </div>
+)}
+
+      {showSuccessDialog && (
+  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm 
+                  flex items-center justify-center z-50 px-4">
+
+    <div className="bg-white rounded-3xl shadow-2xl 
+                    max-w-md w-full p-8 text-center animate-fadeIn">
+
+      {/* Animated Tick */}
+      <div className="w-20 h-20 mx-auto mb-6 
+                      rounded-full bg-green-100 
+                      flex items-center justify-center">
+
+        <svg
+          className="w-10 h-10 text-green-600 animate-scaleIn"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="3"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M5 13l4 4L19 7"
+          />
+        </svg>
+      </div>
+
+      {/* Title */}
+      <h2 className="text-2xl font-bold text-gray-800 mb-3">
+        Payment Successful 🎾
+      </h2>
+
+      {/* Message */}
+      
+   <p className="text-gray-600 text-sm leading-relaxed mb-6">
+  Your payment has been received. Login credentials will be shared 
+  <span className="text-red-500 font-semibold"> within 24 hours </span> 
+  following account verification to ensure secure account setup.
+  <br /><br />
+  Please check your email for the payment receipt.
+  <br /><br />
+  Our team will also contact you to assist with onboarding, if required.
+  <br /><br />
+  For any queries or feedback, please contact us at 
+  <span className="font-semibold text-gray-800"> oxadmedia@gmail.com</span>.
+</p>
+
+      {/* Button */}
+      <button
+        onClick={() => setShowSuccessDialog(false)}
+        className="w-full bg-gradient-to-r 
+                   from-green-500 to-emerald-600 
+                   text-white py-3 rounded-xl font-semibold
+                   hover:scale-105 transition duration-300"
+      >
+        Continue
+      </button>
+
+    </div>
+  </div>
+)}
+
+{loadingpay && (
+  <div className="fixed inset-0 bg-black flex flex-col 
+                  items-center justify-center z-[9999] text-center">
+
+    {/* Tennis Ball */}
+   <div className="relative mb-10">
+  <div className="relative w-20 h-20 bg-yellow-400 rounded-full 
+                  shadow-2xl animate-tennis overflow-hidden">
+
+    {/* Left curve */}
+    <div className="absolute w-24 h-24 border-[6px] border-white 
+                    rounded-full -left-10 top-0"></div>
+
+    {/* Right curve */}
+    <div className="absolute w-24 h-24 border-[6px] border-white 
+                    rounded-full -right-10 top-0"></div>
+  </div>
+
+  {/* Shadow */}
+  <div className="w-16 h-4 bg-black/40 rounded-full 
+                  absolute left-1/2 -translate-x-1/2 top-20 
+                  blur-sm animate-pulse"></div>
+</div>
+
+    <h2 className="text-white text-2xl font-semibold mb-2">
+      Connecting to your bank...
+    </h2>
+
+    <p className="text-gray-400">
+      Securing your payment 🎾
+    </p>
+  </div>
+)}
+      {showDialog && (
+   <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end justify-center z-50">
+      <div className="w-full max-w-md bg-white rounded-t-3xl p-6 shadow-2xl max-h-[95vh] overflow-y-auto">
+
+        {/* Header */}
+        <div className="text-center mb-4">
+          <h2 className="text-2xl font-bold text-gray-800">
+            Upgrade TennisX Pro
+          </h2>
+          <p className="text-gray-500 text-sm mt-1">Plans</p>
+        </div>
+
+        {/* Currency Toggle */}
+        {isLoggedIn && (
+
+        <div className="flex justify-center mb-6">
+          <div className="relative flex bg-gray-100 rounded-full p-1 shadow-inner">
+
+            <div
+              className={`absolute top-1 bottom-1 w-1/2 rounded-full bg-black transition-all duration-300 ${
+                currency === "USD" ? "translate-x-full" : ""
+              }`}
+            />
+
+            <button
+              onClick={() => setCurrency("INR")}
+              className={`relative z-10 px-6 py-1.5 text-sm font-medium ${
+                currency === "INR" ? "text-white" : "text-gray-600"
+              }`}
+            >
+              ₹ INR
+            </button>
+
+            <button
+              onClick={() => setCurrency("USD")}
+              className={`relative z-10 px-6 py-1.5 text-sm font-medium ${
+                currency === "USD" ? "text-white" : "text-gray-600"
+              }`}
+            >
+              $ USD
+            </button>
+
+          </div>
+        </div>
+        )}
+
+        {/* Plans */}
+        <div className="space-y-4 mb-6">
+{!isLoggedIn && (
+<div
+  onClick={() => setSelectedPlan("trial")}
+  className={`relative border-2 rounded-2xl p-5 cursor-pointer transition transform hover:scale-[1.03] ${
+    selectedPlan === "trial"
+      ? "border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-xl"
+      : "border-gray-200 hover:border-blue-400 hover:shadow-lg"
+  }`}
+>
+  {/* Badge */}
+  <span className="absolute -top-3 left-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs px-3 py-1 rounded-full shadow">
+    Limited Free Trial
+  </span>
+
+  <div className="flex justify-between items-start">
+    <div>
+      <h3 className="font-bold text-lg text-gray-900 flex items-center gap-2">
+        🎾 2-Day Free Trial
+      </h3>
+
+      {/* <p className="text-sm text-gray-600 mt-1">
+        Improve your tennis strokes with AI Tracking in just a few days.
+      </p> */}
+
+      {/* Trust signal */}
+      <p className="text-xs text-green-600 font-medium mt-1">
+        ✔ No card required
+      </p>
+
+      {/* Skill roadmap */}
+     
+
+      {/* Features */}
+      {/* <ul className="text-xs text-gray-500 mt-3 space-y-1">
+        <li>✔ AI Motion Recording</li>
+        <li>✔ Footwork Analysis</li>
+        <li>✔ Biomechanics Breakdown</li>
+        <li>✔ Skeleton Comparison</li>
+        <li>✔ Advanced Playback</li>
+      </ul> */}
+    </div>
+
+    <div className="text-right">
+      <p className="text-2xl font-bold text-blue-600">FREE</p>
+      <p className="text-xs text-gray-500">for 2 days</p>
+    </div>
+  </div>
+</div>
+)}
+          {/* Strokes Plan */}
+          {/* <div
+            onClick={() => setSelectedPlan("strokes")}
+            className={`border-2 rounded-2xl p-4 cursor-pointer transition ${
+              selectedPlan === "strokes"
+                ? "border-green-500 bg-green-50"
+                : "border-gray-200 hover:border-green-400"
+            }`}
+          >
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="font-semibold text-gray-800">
+                 TennisX Pro
+                </h3>
+                 
+                <p className="text-xs text-gray-500 mt-1">
+                  Unlimited Motion Recording • Footwork Analysis • Biomechanics Breakdown • Skeleton Comparison • Advanced Playback Control
+                </p>
+              </div>
+
+              <div className="text-right">
+                <p className="text-lg font-bold text-gray-900">
+                  {pricing.strokes[currency].display}
+                </p>
+                <p className="text-xs text-gray-500">/ year</p>
+              </div>
+            </div>
+            <div className="mt-4">
+
+  <div className="flex gap-2">
+    <input
+      type="text"
+      placeholder="Enter coupon code"
+      value={couponCode}
+      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+      className="flex-1 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500"
+    />
+
+    <button
+      onClick={verifyCoupon}
+      className="bg-green-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-600"
+    >
+      {couponLoading ? "Checking..." : "Apply"}
+    </button>
+  </div>
+
+  {couponStatus && (
+    <p
+      className={`text-xs mt-2 ${
+        couponStatus.type === "success"
+          ? "text-green-600"
+          : "text-red-500"
+      }`}
+    >
+      {couponStatus.message}
+    </p>
+  )}
+
+</div>
+          </div> */}
+                         
+  
+          <div
+  onClick={() => setSelectedPlan("strokesM")}
+  className={`border-2 rounded-2xl p-4 cursor-pointer transition ${
+    selectedPlan === "strokesM"
+      ? "border-green-500 bg-green-50"
+      : "border-gray-200 hover:border-green-400"
+  }`}
+>
+  <div className="flex justify-between items-center">
+    <div>
+      <h3 className="font-semibold text-gray-800">
+        TennisX Pro Monthly
+      </h3>
+
+      <p className="text-xs text-gray-500 mt-1">
+        Unlimited Motion Recording • Footwork Analysis • Biomechanics Breakdown • Skeleton Comparison • Advanced Playback Control 
+      </p>
+    </div>
+ {/* <div className="mt-3 text-xs space-y-1">
+        <p className="text-gray-700 font-medium">What you'll improve:</p>
+       <ul className="text-gray-600 space-y-1">
+  <li>🎯 Forehand improvement</li>
+  <li>🎯 Backhand consistency</li>
+  <li>🎯 Powerful Serve</li>
+  <li>🎯 Faster Footwork</li>
+</ul>
+      </div> */}
+    <div className="text-right">
+      <p className="text-lg font-bold text-gray-900">
+        {pricing.strokesM[currency].display}
+      </p>
+      <p className="text-xs text-gray-500"> / month</p>
+    </div>
+  </div>
+</div>
+       
+                      
+<div
+  onClick={() => setSelectedPlan("strokesY")}
+  className={`relative border-2 rounded-2xl p-4 cursor-pointer transition shadow-sm ${
+    selectedPlan === "strokesY"
+      ? "border-green-600 bg-green-50"
+      : "border-orange-200 bg-gradient-to-br from-orange-50 to-white hover:border-orange-400"
+  }`}
+>
+
+  {/* Best Value Badge */}
+  <span className="absolute -top-2 right-3 bg-green-600 text-white text-[10px] font-semibold px-2 py-1 rounded-full shadow">
+    Best Value
+  </span>
+
+  <div className="flex justify-between items-center">
+    <div>
+      <h3 className="font-semibold text-gray-800">
+        TennisX Pro Annual
+      </h3>
+
+      <p className="text-xs text-gray-500 mt-1">
+        Unlimited Motion Recording • Footwork Analysis • Biomechanics Breakdown • Skeleton Comparison • Advanced Playback Control • Priority Customer Support
+      </p>
+    </div>
+
+    <div className="text-right">
+  <p className="text-lg font-bold text-green-700">
+    {pricing.strokesY[currency].display}
+  </p>
+
+  {/* <p className="text-xs text-gray-500">
+    ({currency === "INR" ? "₹1249" : "$13.5"} / month)
+  </p> */}
+</div>
+  </div>
+</div>
+
+         
+{selectedPlan === "strokesY" && (
+  <div className="mt-4">
+
+    {!couponApplied ? (
+      <div className="flex justify-between items-center bg-green-50 border border-green-200 rounded-lg p-3">
+
+        <div>
+          <p className="text-sm font-semibold text-green-700">
+            {coupon.code}
+          </p>
+
+          <p className="text-xs text-gray-500">
+            {coupon.name} 
+            {" "}
+            -{currency === "INR" ? "₹" : "$"}
+            {coupon.discount[currency]}
+          </p>
+        </div>
+
+        <button
+          onClick={() => setCouponApplied(true)}
+          className="text-xs bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700"
+        >
+          Apply
+        </button>
+
+      </div>
+    ) : (
+      <div className="flex justify-between items-center bg-green-100 border border-green-300 rounded-lg p-3">
+
+        <div className="text-sm text-green-800">
+          {coupon.code} — {coupon.name}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="font-semibold text-green-700">
+            -{currency === "INR" ? "₹" : "$"}
+            {coupon.discount[currency]}
+          </span>
+
+          <button
+            onClick={() => setCouponApplied(false)}
+            className="text-xs text-gray-500 hover:text-red-500"
+          >
+            Cancel
+          </button>
+        </div>
+
+      </div>
+    )}
+
+  </div>
+)}
+         
+          {/* Radar Plan (Locked) */}
+          {/* <div className="border-2 border-gray-200 rounded-2xl p-4 bg-gray-100 opacity-80 cursor-not-allowed">
+            <div className="flex justify-between items-center">
+              <div>
+                <h3 className="font-semibold text-gray-700">
+                  Radar Speed & Fault Detector
+                </h3>
+                <p className="text-xs text-red-500 font-medium">
+                  Physical setup assistance required
+                </p>
+              </div>
+
+              <div className="text-right">
+                <p className="text-lg font-bold text-gray-800">
+                  {pricing.radar[currency].display}
+                </p>
+              </div>
+            </div>
+          </div> */}
+
+        </div>
+
+        {/* Inputs */}
+       <input
+  type="text"
+  placeholder="Full Name*"
+  value={name}
+  onChange={(e) => setName(e.target.value)}
+className="w-full border border-gray-200
+             text-black
+             placeholder-gray-400
+             focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200
+             p-3 rounded-xl mb-3 outline-none transition"  />
+
+        <input
+          type="email"
+          placeholder="Email Address*"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+className="w-full border border-gray-200
+             text-black
+             placeholder-gray-400
+             focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200
+             p-3 rounded-xl mb-3 outline-none transition"          />
+
+        <input
+          type="tel"
+          placeholder="Mobile Number*"
+          value={mobile}
+          onChange={(e) => setMobile(e.target.value)}
+className="w-full border border-gray-200
+             text-black
+             placeholder-gray-400
+             focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200
+             p-3 rounded-xl mb-3 outline-none transition"          />
+
+        {/* Upgrade Button */}
+      <button
+ onClick={() => {
+
+  if (selectedPlan === "trial") {
+      sendSessionEvent("Trial Clicked");
+
+    startFreeTrial(name, email, mobile);
+  } else {
+      sendSessionEvent("Payment Clicked");
+
+    handlePayment(name, email, mobile);
+  }
+}}
+  disabled={loading}
+  className="w-full bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-xl font-semibold hover:scale-105 transition duration-300 disabled:opacity-50"
+>
+  {loading
+    ? "Processing..."
+    : selectedPlan === "trial"
+    ? "Improve NOW!"
+    : "Upgrade Now!"}
+</button>
+
+        <button
+          onClick={() => setShowDialog(false)}
+          className="w-full mt-4 text-gray-400 text-sm"
+        >
+          Cancel
+        </button>
+
+      </div>
+    </div>
+)}
+      {/* Hero Section */}
+   {showModal && (
+  <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+    <div className="bg-white text-black p-8 rounded-3xl w-full max-w-md shadow-2xl">
+      
+      {!submitted ? (
+        <>
+          <h3 className="text-2xl font-bold mb-6 text-center">
+            TennisX Motion Tracker
+          </h3>
+
+          <form
+            className="space-y-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              setSubmitted(true);
+            }}
+          >
+            <input
+              type="text"
+              placeholder="Full Name"
+              required
+              className="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:border-green-500"
+            />
+
+            <input
+              type="tel"
+              placeholder="Mobile Number"
+              required
+              className="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:border-green-500"
+            />
+
+            <input
+              type="email"
+              placeholder="Email Address"
+              required
+              className="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:border-green-500"
+            />
+
+            <button
+              type="submit"
+              className="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-semibold transition"
+            >
+              Start Free Trial
+            </button>
+          </form>
+
+          <button
+            onClick={() => setShowModal(false)}
+            className="mt-4 w-full text-gray-500 hover:text-black"
+          >
+            Cancel
+          </button>
+        </>
+      ) : (
+        <>
+          <h3 className="text-2xl font-bold text-center mb-4">
+            Thank You!
+          </h3>
+          <p className="text-center text-gray-700">
+            Our team will contact you regarding account activation.
+          </p>
+
+          <button
+            onClick={() => setShowModal(false)}
+            className="mt-6 w-full bg-green-500 hover:bg-green-400 text-white py-3 rounded-xl font-semibold transition"
+          >
+            Close
+          </button>
+        </>
+      )}
+
+    </div>
+  </div>
+)}
+      <section className="max-w-7xl mx-auto px-8 mt-5 pb-10 grid lg:grid-cols-3 gap-12 items-center">
+
+
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <h2 className="text-5xl md:text-6xl font-extrabold leading-tight">
+            Master Your <span className="text-green-400">Tennis Strokes</span>
+          </h2>
+          <p className="mt-6 text-lg text-gray-300 max-w-xl">
+           TennisX is an advanced motion tracker that analyzes your swing and lets you compare it with professional benchmarks to better understand and refine your technique.
+
+          </p>
+
+          <div className="mt-8 flex gap-4">
+    <button
+  onClick={() => {
+        const stored = JSON.parse(localStorage.getItem("paymentStatus") || "{}");
+ sendSessionEvent("HomeScreen Buy Clicked");
+
+        if (stored.verified && stored.expiresAt > Date.now()) {
+          setShowDialog(false);
+          setShowSuccessDialog(true);
+          return;
+        }
+
+        if (stored.expiresAt && stored.expiresAt <= Date.now()) {
+          localStorage.removeItem("paymentStatus");
+        }
+
+        setShowDialog(true);
+      }
+    }
+  className="bg-green-500 hover:bg-green-400 text-black px-8 py-4 rounded-2xl text-lg font-semibold shadow-xl transition"
+>
+  Buy Now
+</button>
+            <button
+               onClick={() => {
+  sendSessionEvent("HomeScreen Login Clicked");
+  navigate("/login");
+}}
+            className="border border-gray-600 px-8 py-4 rounded-2xl text-lg hover:bg-gray-800 transition">
+              Login
+            </button>
+          </div>
+        </motion.div>
+        <div className="relative overflow-hidden rounded-3xl shadow-2xl touch-pan-y">
+  <motion.div
+    className="flex"
+    animate={{ x: `-${current * 100}%` }}
+    transition={{ type: "spring", stiffness: 260, damping: 30 }}
+    drag="x"
+    dragElastic={0.2}
+    dragConstraints={{ left: 0, right: 0 }}
+    onDragEnd={(e, info) => {
+      if (info.offset.x < -60) {
+        setCurrent((prev) => (prev + 1) % images.length);
+      } else if (info.offset.x > 60) {
+        setCurrent((prev) =>
+          prev === 0 ? images.length - 1 : prev - 1
+        );
+      }
+    }}
+  >
+    {images.map((img, i) => (
+      <img
+        key={i}
+        src={img}
+        alt="Tennis training"
+        className="w-full h-[420px] object-cover flex-shrink-0"
+        draggable="false"
+      />
+    ))}
+  </motion.div>
+
+  {/* gradient overlay */}
+  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"></div>
+
+  {/* dots */}
+  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+    {images.map((_, i) => (
+      <div
+        key={i}
+        className={`h-2 w-2 rounded-full transition ${
+          i === current ? "bg-green-400 scale-125" : "bg-white/50"
+        }`}
+      />
+    ))}
+  </div>
+</div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="bg-gray-800/40 backdrop-blur-lg p-8 rounded-3xl shadow-2xl"
+        >
+          <div className="space-y-6">
+            <div className="flex items-center gap-4">
+              <Activity className="text-green-400" size={32} />
+              <div>
+                <h3 className="text-xl font-semibold">Real-Time Motion Tracking</h3>
+                <p className="text-gray-400">AI-powered swing detection.</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <BarChart3 className="text-green-400" size={32} />
+              <div>
+                <h3 className="text-xl font-semibold">Stroke Comparison</h3>
+                <p className="text-gray-400">Compare your strokes with pro-level mechanics.</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <Target className="text-green-400" size={32} />
+              <div>
+                <h3 className="text-xl font-semibold">Precision Improvement</h3>
+                <p className="text-gray-400">Identify flaws and optimize every movement.</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="bg-black/60">
+  <div className="max-w-6xl mx-auto px-8 text-center">
+    <h2 className="text-4xl font-bold">
+      Take Your Game to the Next Level
+    </h2>
+
+    <p className="mt-4 text-gray-400">
+      Join thousands of players improving their performance with TennisX.
+    </p>
+
+    {/* Reviews */}
+    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 py-10">
+      
+      {/* Review 1 */}
+      <div className="bg-gray-900 p-6 rounded-2xl shadow-lg text-left">
+          <div className="flex text-yellow-400 mb-2">
+    {[...Array(5)].map((_, i) => (
+      <Star key={i} size={18} fill="currentColor" strokeWidth={0} />
+    ))}
+  </div>
+        <p className="text-gray-300">
+          “My serve speed improved and my technique feels more professional.”
+        </p>
+        <div className="mt-4 font-semibold">Rahul Sharma</div>
+        <div className="text-sm text-gray-500">Club Player</div>
+      </div>
+
+      {/* Review 2 */}
+     <div className="bg-gray-900 p-6 rounded-2xl shadow-lg text-left">
+  
+  <div className="flex text-yellow-400 mb-2">
+    {[...Array(5)].map((_, i) => (
+      <Star key={i} size={18} fill="currentColor" strokeWidth={0} />
+    ))}
+  </div>
+
+  <p className="text-gray-300">
+    “The swing comparison feature is like having a personal coach.”
+  </p>
+
+  <div className="mt-4 font-semibold">Ankit Verma</div>
+  <div className="text-sm text-gray-500">State Level Player</div>
+
+</div>
+
+      {/* Review 3 */}
+      <div className="bg-gray-900 p-6 rounded-2xl shadow-lg text-left">
+          <div className="flex text-yellow-400 mb-2">
+    {[...Array(5)].map((_, i) => (
+      <Star key={i} size={18} fill="currentColor" strokeWidth={0} />
+    ))}
+  </div>
+        <p className="text-gray-300">
+          “I corrected my backhand in just two weeks using the feedback.”
+        </p>
+        <div className="mt-4 font-semibold">Neha Kapoor</div>
+        <div className="text-sm text-gray-500">Tennis Coach</div>
+      </div>
+
+      {/* Review 4 */}
+      <div className="bg-gray-900 p-6 rounded-2xl shadow-lg text-left">
+          <div className="flex text-yellow-400 mb-2">
+    {[...Array(5)].map((_, i) => (
+      <Star key={i} size={18} fill="currentColor" strokeWidth={0} />
+    ))}
+  </div>
+        <p className="text-gray-300">
+          “This technology gives insights I never noticed before.”
+        </p>
+        <div className="mt-4 font-semibold">Arjun Mehta</div>
+        <div className="text-sm text-gray-500">Competitive Player</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+      {/* Footer */}
+      <footer className="py-8 text-center text-gray-500 border-t border-gray-800">
+        © {new Date().getFullYear()} TennisX. All rights reserved.
+      </footer>
+    </div>
+  );
+}

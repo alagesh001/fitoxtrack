@@ -238,7 +238,7 @@ useEffect(() => {
                 <p className="text-gray-600 mt-2">Tennis Stroke Motion Tracker</p>
 <div className="flex justify-center mt-6">
   <button
-    onClick={() => navigate("/ai-hub")}
+    onClick={() => navigate("/home-screen")}
     className="px-8 py-3 rounded-xl font-bold text-white text-lg
                bg-gradient-to-r from-purple-600 via-pink-500 to-red-500
                hover:scale-105
@@ -246,7 +246,7 @@ useEffect(() => {
                shadow-lg hover:shadow-2xl
                animate-pulse"
   >
-    🎾 Use for Free
+    🎾 Home
   </button>
 </div>
                 <div className="mt-6">
