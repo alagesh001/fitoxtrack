@@ -249,7 +249,7 @@ const startFreeTrial = async (name, email, mobile) => {
       setShowFreeTrialBox({
         status: "exists",
         message:
-          "Your free trial request has already been sent. Please wait for activation."
+          "Your request has already been sent. Please wait for activation."
       });
       
       return;
@@ -291,14 +291,14 @@ const startFreeTrial = async (name, email, mobile) => {
       setShowFreeTrialBox({
         status: "sent",
         message:
-          "Your request for free trial has been sent. Once activated, you will receive login credentials for the same."
+          "Your request has been sent. Once activated, you will receive login credentials for the same."
       });
 
     } else {
 
       setShowFreeTrialBox({
         status: "error",
-        message: data.message || "Unable to process free trial request."
+        message: data.message || "Unable to process the request."
       });
 
     }
@@ -533,7 +533,11 @@ const refs = {
   lateralSide:lateralSideRef
 };
 const workouts = [
-  {
+
+
+  ...(isLoggedIn
+    ? [
+       {
     key: "lateral",
     name: "Perfect your strokes",
     tier: "PRO",
@@ -541,9 +545,6 @@ const workouts = [
     description:
       "Real-time skeletal tracking powered by TennisX AI. Analyze and compare joint movements to optimize your forehand, backhand, and serve.",
   },
-
-  ...(isLoggedIn
-    ? [
         {
           key: "speeddet",
           name: "Find your serve speed",
@@ -607,11 +608,13 @@ const workouts = [
  
 //   // Add more workouts here
 // ];
+
 useEffect(() => {
   if (workouts.length && active === null) {
-    setActive(workouts[0].key);
+   // setActive(workouts[0].key);
   }
 }, [workouts]);
+
 useEffect(() => {
   if (active === "squat") {
     setTimeout(() => {
@@ -1726,10 +1729,10 @@ return (
       className={`w-full text-left rounded-xl px-5 py-4 border transition-all duration-300 shadow-sm
       ${
         active === w.key
-          ? "bg-gradient-to-br from-[#1b1e2d] to-[#131522] border-indigo-500/50 shadow-[0_0_18px_rgba(99,102,241,0.4)]"
+          ? "bg-[#0f111a]/80 border-indigo-500/30 hover:border-indigo-400/60 hover:bg-[#171924] shadow-[0_0_12px_rgba(139,92,246,0.2)]"
           : w.tier === "PRO"
           ? "bg-[#0f111a]/80 border-indigo-500/30 hover:border-indigo-400/60 hover:bg-[#171924] shadow-[0_0_12px_rgba(139,92,246,0.2)]"
-          : "bg-[#0f111a]/80 border-white hover:bg-[#171924] hover:border-[#3d4160]"
+          : "bg-[#0f111a]/80 border-indigo-500/30 hover:border-indigo-400/60 hover:bg-[#171924] shadow-[0_0_12px_rgba(139,92,246,0.2)]"
       }`}
     >
       <div className="flex items-center justify-between">
@@ -1759,7 +1762,7 @@ return (
         </div>
 
         {/* TIER BADGE */}
-        <span
+        {/* <span
           className={`text-[10px] px-3 py-1 rounded-full font-semibold tracking-wide
           ${
             w.tier === "PRO"
@@ -1768,7 +1771,7 @@ return (
           }`}
         >
           {w.tier}
-        </span>
+        </span> */}
       </div>
     </button>
 
@@ -1851,7 +1854,7 @@ return (
     </a>
   </p> */}
 
-  <a
+  {/* <a
     href="https://wa.me/918595509389"
     target="_blank"
     rel="noopener noreferrer"
@@ -1859,7 +1862,7 @@ return (
   >
     <FaWhatsapp size={28} />
     <span className="font-medium">Chat on WhatsApp</span>
-  </a>
+  </a> */}
 </div>
  
 </div>

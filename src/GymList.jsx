@@ -18,7 +18,7 @@ function GymList() {
         localStorage.setItem("selectedGym", JSON.stringify(gym));
        
 
-        navigate("/home");
+        navigate("/ai-hub");
     };
 
     return (

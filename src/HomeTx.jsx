@@ -2,23 +2,31 @@ import { motion } from "framer-motion";
 import { Activity, BarChart3, Target,Star } from "lucide-react";
 import { useState, useEffect,useRef } from "react";
 import xlogo from "./assets/logo.webp";
+import ylogo from "./assets/ylogo.webp";
+
 import img1 from "./assets/tennis1.webp";
 import img2 from "./assets/tennis2.webp";
 import img3 from "./assets/tennis3.webp";
 import { useNavigate } from "react-router-dom";
-
+import { indianStates } from "./helper/states";
 export default function HomeTennisX() {
   const [showModal, setShowModal] = useState(false);
 const [submitted, setSubmitted] = useState(false);
 const images = [img1, img2, img3];
   const [showDialog, setShowDialog] = useState(false);
+    const [showDialogNew, setShowDialogNew] = useState(false);
+
 const [showFreeTrialBox, setShowFreeTrialBox] = useState(false);
 const [loadingTRequest, setLoadingTRequest] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [loadingpay, setLoadingPay] = useState(false);
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("NA");
   const [mobile, setMobile] = useState("");
+  const [role, setRole] = useState("");
+  const [state, setState] = useState("");
+
+  
 const [couponCode, setCouponCode] = useState("");
 const [couponStatus, setCouponStatus] = useState(null);
 const [couponLoading, setCouponLoading] = useState(false);
@@ -30,6 +38,25 @@ const [loading, setLoading] = useState(false);
 
 const [uniqueId, setDeviceId] = useState(null);
 
+  const [showFree, setShowFree] = useState(false);
+
+useEffect(() => {
+  let timeout;
+
+  const loop = () => {
+    setShowFree(true); // show
+
+    timeout = setTimeout(() => {
+      setShowFree(false); // fade out
+
+      timeout = setTimeout(loop, 300); // wait for fade duration
+    }, 1000); // visible time
+  };
+
+  loop();
+
+  return () => clearTimeout(timeout);
+}, []);
   const navigate = useNavigate();
  useEffect(() => {
 
@@ -106,15 +133,15 @@ const [selectedPlan, setSelectedPlan] = useState(
 );
 const [current, setCurrent] = useState(0);
  const storedGym = localStorage.getItem("selectedGym");
-const startFreeTrial = async (name, email, mobile) => {
+const startFreeTrial = async (name, email, mobile,role,state) => {
 
-  if (!name || !email || !mobile) {
-    alert("Please enter name, email and mobile number");
+  if (!name || !email || !mobile || !role || !state) {
+    alert("Please fill all details");
     return;
   }
   setLoadingTRequest(true);
-
-  setShowDialog(false);
+setShowDialogNew(false);
+  //setShowDialog(false);
 
   const trialData = localStorage.getItem("tennisx_free_trial");
 
@@ -127,7 +154,7 @@ const startFreeTrial = async (name, email, mobile) => {
       setShowFreeTrialBox({
         status: "exists",
         message:
-          "Your free trial request has already been sent. Please wait for activation."
+          "Your request has already been sent. Please wait for activation."
       });
       
       return;
@@ -147,7 +174,9 @@ const startFreeTrial = async (name, email, mobile) => {
           name,
           email,
           mobile,
-          plan: "trial"
+          plan: "trial",
+          role,
+          state
         }),
       }
     );
@@ -169,7 +198,7 @@ const startFreeTrial = async (name, email, mobile) => {
       setShowFreeTrialBox({
         status: "sent",
         message:
-          "Your request for free trial has been sent. Once activated, you will receive login credentials for the same."
+          "Your request has been sent. Once activated, you will receive login credentials for the same."
       });
 
     } else {
@@ -351,9 +380,12 @@ setLoadingPay(false);
   };
 
   localStorage.setItem("paymentStatus", JSON.stringify(paymentData));
-            if (typeof setShowDialog === "function") {
-              setShowDialog(false);
+  if (typeof setShowDialogNew === "function") {
+              setShowDialogNew(false);
             }
+            // if (typeof setShowDialog === "function") {
+            //   setShowDialog(false);
+            // }
 
             // ✅ Start recording
             // if (typeof startRecording === "function") {
@@ -544,6 +576,122 @@ useEffect(() => {
     <p className="text-gray-400">
       Securing your payment 🎾
     </p>
+  </div>
+)}
+
+{showDialogNew && (
+  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end justify-center z-50">
+    <div className="w-full max-w-md bg-white rounded-t-3xl p-6 shadow-2xl max-h-[95vh] overflow-y-auto">
+
+      {/* Header */}
+      <div className="text-center mb-6">
+        <div className="flex justify-center mb-2">
+    <img
+      src={ylogo} // your logo import
+      alt="TennisX Logo"
+      className="h-12 object-contain"
+    />
+  </div>
+        <p className="text-green-600 text-sm font-semibold mt-1">
+          100% FREE Application
+        </p>
+        <p className="text-gray-500 text-xs mt-1">
+          AI powered tennis stroke & rally analysis
+        </p>
+      </div>
+
+      {/* Name */}
+      <input
+        type="text"
+        placeholder="Full Name*"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        className="w-full border border-gray-200 text-black placeholder-gray-400 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 p-3 rounded-xl mb-3 outline-none"
+      />
+
+      {/* Email */}
+      {/* <input
+        type="email"
+        placeholder="Email Address*"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="w-full border border-gray-200 text-black placeholder-gray-400 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 p-3 rounded-xl mb-3 outline-none"
+      /> */}
+
+      {/* Mobile */}
+      <input
+        type="tel"
+        placeholder="Mobile Number*"
+        value={mobile}
+        onChange={(e) => setMobile(e.target.value)}
+        className="w-full border border-gray-200 text-black placeholder-gray-400 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 p-3 rounded-xl mb-3 outline-none"
+      />
+
+      {/* Role */}
+      <div className="mb-4">
+  <p className="text-sm font-medium text-gray-700 mb-2">
+    Select Role*
+  </p>
+
+  <div className="flex gap-3">
+    
+    <div
+      onClick={() => setRole("player")}
+      className={`flex-1 border rounded-xl p-3 text-black cursor-pointer text-center transition ${
+        role === "player"
+          ? "border-green-400 bg-green-50"
+          : "border-gray-200"
+      }`}
+    >
+      Player
+    </div>
+
+    <div
+      onClick={() => setRole("coach")}
+      className={`flex-1 border rounded-xl text-black p-3 cursor-pointer text-center transition ${
+        role === "coach"
+          ? "border-green-400 bg-green-50"
+          : "border-gray-200"
+      }`}
+    >
+      Coach
+    </div>
+
+  </div>
+</div>
+
+      {/* State */}
+   <select
+  value={state}
+  onChange={(e) => setState(e.target.value)}
+  className="w-full border border-gray-200 text-black p-3 rounded-xl mb-4 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 outline-none"
+>
+  <option value="">Select State*</option>
+
+  {indianStates.map((s, index) => (
+    <option key={index} value={s}>
+      {s}
+    </option>
+  ))}
+</select>
+
+      {/* Start Button */}
+      <button
+        onClick={() => startFreeTrial(name, email, mobile, role, state)}
+        className="w-full bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-xl font-semibold hover:scale-105 transition"
+      >
+        Start Using TennisX
+      </button>
+
+      {/* Cancel */}
+      <button
+        onClick={() => setShowDialogNew(false)}
+        className="w-full mt-4 text-gray-400 text-sm"
+      >
+        Cancel
+      </button>
+
+    </div>
   </div>
 )}
       {showDialog && (
@@ -1010,35 +1158,20 @@ className="w-full border border-gray-200
           <h2 className="text-5xl md:text-6xl font-extrabold leading-tight">
             Master Your <span className="text-green-400">Tennis Strokes</span>
           </h2>
-          <p className="mt-6 text-lg text-gray-300 max-w-xl">
-           TennisX is an advanced motion tracker that analyzes your swing and lets you compare it with professional benchmarks to better understand and refine your technique.
-
-          </p>
+          <p className="mt-6 text-lg text-gray-300 max-w-xl leading-relaxed">
+      TennisX is a{" "}
+   <span
+  className={`font-bold text-3xl text-green-400 transition-all duration-300 ${
+    showFree ? "opacity-100 scale-100" : "opacity-0 scale-90"
+  }`}
+>
+  FREE
+</span>{" "}
+      advanced motion tracker that analyzes your swing and lets you compare it with professional benchmarks to better understand and refine your technique.
+    </p>
 
           <div className="mt-8 flex gap-4">
-    <button
-  onClick={() => {
-        const stored = JSON.parse(localStorage.getItem("paymentStatus") || "{}");
- sendSessionEvent("HomeScreen Buy Clicked");
-
-        if (stored.verified && stored.expiresAt > Date.now()) {
-          setShowDialog(false);
-          setShowSuccessDialog(true);
-          return;
-        }
-
-        if (stored.expiresAt && stored.expiresAt <= Date.now()) {
-          localStorage.removeItem("paymentStatus");
-        }
-
-        setShowDialog(true);
-      }
-    }
-  className="bg-green-500 hover:bg-green-400 text-black px-8 py-4 rounded-2xl text-lg font-semibold shadow-xl transition"
->
-  Buy Now
-</button>
-            <button
+                   <button
                onClick={() => {
   sendSessionEvent("HomeScreen Login Clicked");
   navigate("/login");
@@ -1046,6 +1179,48 @@ className="w-full border border-gray-200
             className="border border-gray-600 px-8 py-4 rounded-2xl text-lg hover:bg-gray-800 transition">
               Login
             </button>
+    <button
+  onClick={() => {
+    const stored = JSON.parse(localStorage.getItem("paymentStatus") || "{}");
+    sendSessionEvent("HomeScreen Buy Clicked");
+
+    if (stored.verified && stored.expiresAt > Date.now()) {
+      setShowDialogNew(false);
+      setShowSuccessDialog(true);
+      return;
+    }
+
+    if (stored.expiresAt && stored.expiresAt <= Date.now()) {
+      localStorage.removeItem("paymentStatus");
+    }
+
+    setShowDialogNew(true);
+  }}
+  className="relative w-full bg-gradient-to-r from-green-400 via-lime-400 to-green-500 
+             text-black px-8 py-4 rounded-2xl text-lg font-semibold 
+             shadow-[0_10px_30px_rgba(34,197,94,0.4)]
+             
+             hover:shadow-[0_20px_50px_rgba(34,197,94,0.7)]
+             hover:scale-105 hover:-translate-y-1
+             
+             active:scale-95 active:translate-y-0 active:shadow-[0_5px_15px_rgba(34,197,94,0.4)]
+             
+             transition-all duration-300 ease-out overflow-hidden group"
+>
+  <span className="relative z-10 flex items-center justify-center gap-2">
+    🚀 Start Now
+  </span>
+
+  {/* Shine sweep effect */}
+  <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500
+                   bg-gradient-to-r from-transparent via-white/40 to-transparent
+                   -translate-x-full group-hover:translate-x-full">
+  </span>
+
+  {/* Glow pulse layer */}
+  <span className="absolute inset-0 rounded-2xl bg-green-400 opacity-0 group-hover:opacity-20 blur-xl transition duration-500"></span>
+</button>
+     
           </div>
         </motion.div>
         <div className="relative overflow-hidden rounded-3xl shadow-2xl touch-pan-y">

@@ -205,7 +205,7 @@ const refreshAccessToken = async () => {
         const gymName = selectedGym?.GymName || "Unknown Gym";
         const gymId = selectedGym?.GymId || "N/A";
 
-        const prefilledMessage = `Hi, I need help with my account.\n\n🏋️ Gym Name: ${gymName}\n🆔 Gym ID: ${gymId}`;
+        const prefilledMessage = `Hi, I need help with my account.\n\n🏋️ Name: ${gymName}\n🆔 ID: ${gymId}`;
         const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(prefilledMessage)}`;
         window.open(whatsappURL, "_blank"); // Open WhatsApp in new tab
     };
