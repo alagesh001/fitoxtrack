@@ -9,6 +9,9 @@ import img2 from "./assets/tennis2.webp";
 import img3 from "./assets/tennis3.webp";
 import { useNavigate } from "react-router-dom";
 import { indianStates } from "./helper/states";
+import { worldCountries } from "./helper/states";
+import { reviews } from "./helper/states";
+
 export default function HomeTennisX() {
   const [showModal, setShowModal] = useState(false);
 const [submitted, setSubmitted] = useState(false);
@@ -25,6 +28,7 @@ const [loadingTRequest, setLoadingTRequest] = useState(false);
   const [mobile, setMobile] = useState("");
   const [role, setRole] = useState("");
   const [state, setState] = useState("");
+  const [country, setCountry] = useState("");
 
   
 const [couponCode, setCouponCode] = useState("");
@@ -133,9 +137,9 @@ const [selectedPlan, setSelectedPlan] = useState(
 );
 const [current, setCurrent] = useState(0);
  const storedGym = localStorage.getItem("selectedGym");
-const startFreeTrial = async (name, email, mobile,role,state) => {
+const startFreeTrial = async (name, email, mobile,role,state,country) => {
 
-  if (!name || !email || !mobile || !role || !state) {
+  if (!name || !email || !mobile || !role || !state ||!country) {
     alert("Please fill all details");
     return;
   }
@@ -176,7 +180,8 @@ setShowDialogNew(false);
           mobile,
           plan: "trial",
           role,
-          state
+          state,
+          country
         }),
       }
     );
@@ -659,26 +664,49 @@ useEffect(() => {
 
   </div>
 </div>
-
-      {/* State */}
+ {/* Country */}
    <select
-  value={state}
-  onChange={(e) => setState(e.target.value)}
+  value={country}
+  onChange={(e) => setCountry(e.target.value)}
   className="w-full border border-gray-200 text-black p-3 rounded-xl mb-4 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 outline-none"
 >
-  <option value="">Select State*</option>
+  <option value="">Select Country*</option>
 
-  {indianStates.map((s, index) => (
+  {worldCountries.map((s, index) => (
     <option key={index} value={s}>
       {s}
     </option>
   ))}
 </select>
+      {/* State */}
+{country === "India" && (
+  <select
+    value={state}
+    onChange={(e) => setState(e.target.value)}
+    className="w-full border border-gray-200 text-black p-3 rounded-xl mb-4 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-200 outline-none"
+  >
+    <option value="">Select State*</option>
+
+    {indianStates.map((s, index) => (
+      <option key={index} value={s}>
+        {s}
+      </option>
+    ))}
+  </select>
+)}
 
       {/* Start Button */}
       <button
-        onClick={() => startFreeTrial(name, email, mobile, role, state)}
-        className="w-full bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-xl font-semibold hover:scale-105 transition"
+onClick={() =>
+  startFreeTrial(
+    name,
+    email,
+    mobile,
+    role,
+    country === "India" ? state : "NA",
+    country
+  )
+}        className="w-full bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-xl font-semibold hover:scale-105 transition"
       >
         Start Using TennisX
       </button>
@@ -1314,69 +1342,30 @@ className="w-full border border-gray-200
     </p>
 
     {/* Reviews */}
-    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 py-10">
-      
-      {/* Review 1 */}
-      <div className="bg-gray-900 p-6 rounded-2xl shadow-lg text-left">
-          <div className="flex text-yellow-400 mb-2">
-    {[...Array(5)].map((_, i) => (
-      <Star key={i} size={18} fill="currentColor" strokeWidth={0} />
-    ))}
-  </div>
-        <p className="text-gray-300">
-          “My serve speed improved and my technique feels more professional.”
-        </p>
-        <div className="mt-4 font-semibold">Rahul Sharma</div>
-        <div className="text-sm text-gray-500">Club Player</div>
+<div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 py-10">
+  {reviews.map((review, index) => (
+    <div
+      key={index}
+      className="bg-gray-900 p-6 rounded-2xl shadow-lg text-left"
+    >
+      <div className="flex text-yellow-400 mb-2">
+        {[...Array(5)].map((_, i) => (
+          <Star key={i} size={18} fill="currentColor" strokeWidth={0} />
+        ))}
       </div>
 
-      {/* Review 2 */}
-     <div className="bg-gray-900 p-6 rounded-2xl shadow-lg text-left">
-  
-  <div className="flex text-yellow-400 mb-2">
-    {[...Array(5)].map((_, i) => (
-      <Star key={i} size={18} fill="currentColor" strokeWidth={0} />
-    ))}
-  </div>
+      <p className="text-gray-300">“{review.text}”</p>
 
-  <p className="text-gray-300">
-    “The swing comparison feature is like having a personal coach.”
-  </p>
-
-  <div className="mt-4 font-semibold">Ankit Verma</div>
-  <div className="text-sm text-gray-500">State Level Player</div>
-
-</div>
-
-      {/* Review 3 */}
-      <div className="bg-gray-900 p-6 rounded-2xl shadow-lg text-left">
-          <div className="flex text-yellow-400 mb-2">
-    {[...Array(5)].map((_, i) => (
-      <Star key={i} size={18} fill="currentColor" strokeWidth={0} />
-    ))}
-  </div>
-        <p className="text-gray-300">
-          “I corrected my backhand in just two weeks using the feedback.”
-        </p>
-        <div className="mt-4 font-semibold">Neha Kapoor</div>
-        <div className="text-sm text-gray-500">Tennis Coach</div>
+      <div className="mt-4 font-semibold">
+        {review.name}<span className="ml-1 font-sans">{review.flag}</span>
       </div>
 
-      {/* Review 4 */}
-      <div className="bg-gray-900 p-6 rounded-2xl shadow-lg text-left">
-          <div className="flex text-yellow-400 mb-2">
-    {[...Array(5)].map((_, i) => (
-      <Star key={i} size={18} fill="currentColor" strokeWidth={0} />
-    ))}
-  </div>
-        <p className="text-gray-300">
-          “This technology gives insights I never noticed before.”
-        </p>
-        <div className="mt-4 font-semibold">Arjun Mehta</div>
-        <div className="text-sm text-gray-500">Competitive Player</div>
+      <div className="text-sm text-gray-500">
+        {review.role} • {review.country}
       </div>
-
     </div>
+  ))}
+</div>
   </div>
 </section>
 
