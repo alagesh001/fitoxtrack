@@ -29,6 +29,20 @@ const [loadingTRequest, setLoadingTRequest] = useState(false);
   const [role, setRole] = useState("");
   const [state, setState] = useState("");
   const [country, setCountry] = useState("");
+const phrases = [
+  { text: "Forehand", days: "4 Days" },
+  { text: "Backhand", days: "7 Days" },
+  { text: "Service", days: "10 Days" },
+];
+ const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % phrases.length);
+    }, 2000); // change every 2 sec
+
+    return () => clearInterval(interval);
+  }, []);
 
   
 const [couponCode, setCouponCode] = useState("");
@@ -1183,9 +1197,10 @@ className="w-full border border-gray-200
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h2 className="text-5xl md:text-6xl font-extrabold leading-tight">
-           Coach with <span className="text-green-400">World Class </span>Players
-          </h2>
+          <h2 className="text-5xl md:text-6xl font-extrabold leading-tight text-left">
+      Learn {phrases[index].text} in{" "}
+      <span className="text-green-400">{phrases[index].days}</span>
+    </h2>
           <p className="mt-6 text-lg text-gray-300 max-w-xl leading-relaxed">
       TennisX is a{" "}
    <span
@@ -1236,7 +1251,7 @@ className="w-full border border-gray-200
              transition-all duration-300 ease-out overflow-hidden group"
 >
   <span className="relative z-10 flex items-center justify-center gap-2">
-    🚀 FREE Install
+    ⚡ Start NOW
   </span>
 
   {/* Shine sweep effect */}
