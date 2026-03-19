@@ -1197,9 +1197,14 @@ className="w-full border border-gray-200
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h2 className="text-5xl md:text-6xl font-extrabold leading-tight text-left">
+          {/* <h2 className="text-5xl md:text-6xl font-extrabold leading-tight text-left">
       Learn {phrases[index].text} in{" "}
       <span className="text-green-400">{phrases[index].days}</span>
+    </h2> */}
+
+     <h2 className="text-5xl md:text-6xl font-extrabold leading-tight text-left">
+      Improve your Tennis in
+      <span className="text-green-400"> 24 Hours</span>
     </h2>
           <p className="mt-6 text-lg text-gray-300 max-w-xl leading-relaxed">
       TennisX is a{" "}
