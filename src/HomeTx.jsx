@@ -1184,7 +1184,7 @@ className="w-full border border-gray-200
           transition={{ duration: 0.8 }}
         >
           <h2 className="text-5xl md:text-6xl font-extrabold leading-tight">
-            Master Your <span className="text-green-400">Tennis Strokes</span>
+           Coach with <span className="text-green-400">World Class </span>Players
           </h2>
           <p className="mt-6 text-lg text-gray-300 max-w-xl leading-relaxed">
       TennisX is a{" "}
@@ -1195,7 +1195,7 @@ className="w-full border border-gray-200
 >
   FREE
 </span>{" "}
-      advanced motion tracker that analyzes your swing and lets you compare it with professional benchmarks to better understand and refine your technique.
+      advanced motion tracker that analyzes your swing and lets you compare it with the World class professionals to better understand and refine your technique.
     </p>
 
           <div className="mt-8 flex gap-4">
@@ -1236,7 +1236,7 @@ className="w-full border border-gray-200
              transition-all duration-300 ease-out overflow-hidden group"
 >
   <span className="relative z-10 flex items-center justify-center gap-2">
-    🚀 Start Now
+    🚀 FREE Install
   </span>
 
   {/* Shine sweep effect */}
@@ -1306,7 +1306,7 @@ className="w-full border border-gray-200
             <div className="flex items-center gap-4">
               <Activity className="text-green-400" size={32} />
               <div>
-                <h3 className="text-xl font-semibold">Real-Time Motion Tracking</h3>
+                <h3 className="text-xl font-semibold">Forehand & Backhand</h3>
                 <p className="text-gray-400">AI-powered swing detection.</p>
               </div>
             </div>
@@ -1314,15 +1314,15 @@ className="w-full border border-gray-200
             <div className="flex items-center gap-4">
               <BarChart3 className="text-green-400" size={32} />
               <div>
-                <h3 className="text-xl font-semibold">Stroke Comparison</h3>
-                <p className="text-gray-400">Compare your strokes with pro-level mechanics.</p>
+                <h3 className="text-xl font-semibold">Weaponize Serves</h3>
+                <p className="text-gray-400">Compare your serves with pro-level mechanics.</p>
               </div>
             </div>
 
             <div className="flex items-center gap-4">
               <Target className="text-green-400" size={32} />
               <div>
-                <h3 className="text-xl font-semibold">Precision Improvement</h3>
+                <h3 className="text-xl font-semibold">Fast Footwork</h3>
                 <p className="text-gray-400">Identify flaws and optimize every movement.</p>
               </div>
             </div>
