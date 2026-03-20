@@ -4,9 +4,9 @@ import { useState, useEffect,useRef } from "react";
 import xlogo from "./assets/logo.webp";
 import ylogo from "./assets/ylogo.webp";
 
-import img1 from "./assets/tennis1.webp";
-import img2 from "./assets/tennis2.webp";
-import img3 from "./assets/tennis3.webp";
+import img1 from "./assets/tennis6.webp";
+import img2 from "./assets/tennis4.webp";
+import img3 from "./assets/tennis5.webp";
 import { useNavigate } from "react-router-dom";
 import { indianStates } from "./helper/states";
 import { worldCountries } from "./helper/states";
@@ -612,7 +612,7 @@ useEffect(() => {
     />
   </div>
         <p className="text-green-600 text-sm font-semibold mt-1">
-          100% FREE Application
+          Trained & Tested
         </p>
         <p className="text-gray-500 text-xs mt-1">
           AI powered tennis stroke & rally analysis
@@ -1207,13 +1207,13 @@ className="w-full border border-gray-200
       <span className="text-green-400"> 24 Hours</span>
     </h2>
           <p className="mt-6 text-lg text-gray-300 max-w-xl leading-relaxed">
-      TennisX is a{" "}
+      TennisX is an{" "}
    <span
   className={`font-bold text-3xl text-green-400 transition-all duration-300 ${
     showFree ? "opacity-100 scale-100" : "opacity-0 scale-90"
   }`}
 >
-  FREE
+  AI
 </span>{" "}
       advanced motion tracker that analyzes your swing and lets you compare it with the World class professionals to better understand and refine your technique.
     </p>
@@ -1342,7 +1342,7 @@ className="w-full border border-gray-200
             <div className="flex items-center gap-4">
               <Target className="text-green-400" size={32} />
               <div>
-                <h3 className="text-xl font-semibold">Fast Footwork</h3>
+                <h3 className="text-xl font-semibold">Smooth Footwork</h3>
                 <p className="text-gray-400">Identify flaws and optimize every movement.</p>
               </div>
             </div>
