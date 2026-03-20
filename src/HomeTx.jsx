@@ -1204,7 +1204,7 @@ className="w-full border border-gray-200
 
      <h2 className="text-5xl md:text-6xl font-extrabold leading-tight text-left">
       Improve your Tennis in
-      <span className="text-green-400"> 24 Hours</span>
+      <span className="text-green-400"> 5 Minutes</span>
     </h2>
           <p className="mt-6 text-lg text-gray-300 max-w-xl leading-relaxed">
       TennisX is an{" "}
