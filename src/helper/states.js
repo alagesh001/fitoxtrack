@@ -29,7 +29,18 @@ export const indianStates = [
   "West Bengal",
   "Delhi"
 ];
-
+export const topCities = [
+  "Delhi",
+  "Mumbai",
+  "Bangalore",
+  "Hyderabad",
+  "Chennai",
+  "Kolkata",
+  "Pune",
+  "Ahmedabad",
+  "Jaipur",
+  "Chandigarh",
+];
 export const worldCountries = [
   "India",
   "United States",

@@ -6,6 +6,7 @@ import SettingScreen from "./settingScreen";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HomeScreen from "./HomeScreen";
+import CoachingList from "./analyzers/CoachList";
 
 
 
@@ -61,7 +62,8 @@ function App() {
                 <Route path="/GymList" element={<GymList />} />
                 <Route path="/home" element={<HomeScreen />} />
                 <Route path="/settings" element={<SettingScreen />} />
-               
+                               <Route path="/coach_list" element={<CoachingList />} />
+
         <Route path="/register-screen" element={<GymRegistration />} />
                <Route path="/home-screen" element={<HomeTennisX />} />
 

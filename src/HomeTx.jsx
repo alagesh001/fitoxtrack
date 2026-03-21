@@ -3,9 +3,9 @@ import { Activity, BarChart3, Target,Star } from "lucide-react";
 import { useState, useEffect,useRef } from "react";
 import xlogo from "./assets/logo.webp";
 import ylogo from "./assets/ylogo.webp";
-
+import { Menu, X } from "lucide-react";
 import img1 from "./assets/tennis6.webp";
-import img2 from "./assets/tennis4.webp";
+import img2 from "./assets/tennis1.webp";
 import img3 from "./assets/tennis5.webp";
 import { useNavigate } from "react-router-dom";
 import { indianStates } from "./helper/states";
@@ -18,6 +18,7 @@ const [submitted, setSubmitted] = useState(false);
 const images = [img1, img2, img3];
   const [showDialog, setShowDialog] = useState(false);
     const [showDialogNew, setShowDialogNew] = useState(false);
+  const [open, setOpen] = useState(false);
 
 const [showFreeTrialBox, setShowFreeTrialBox] = useState(false);
 const [loadingTRequest, setLoadingTRequest] = useState(false);
@@ -452,14 +453,108 @@ useEffect(() => {
       {/* Navbar */}
      <nav className="flex justify-between items-center px-8 py-6 max-w-7xl mx-auto">
   
-  <div className="flex items-center gap-3">
-  <img
-      src={xlogo}
-      alt="TennisX Logo"
-      className="max-w-[200px] h-auto object-contain"
-    />
-  </div>
+<div className="flex flex-col md:flex-row md:items-center md:justify-between w-full">
 
+  {/* Logo */}
+  <div className="w-full px-4 py-3 flex items-center justify-between">
+
+      {/* Logo */}
+      <img
+        src={xlogo}
+        alt="TennisX Logo"
+        className="max-w-[140px] md:max-w-[180px]"
+      />
+
+      {/* Desktop Buttons */}
+      <div className="hidden md:flex gap-4">
+        <button
+          onClick={() => {
+            sendSessionEvent("HomeScreen Login Clicked");
+            navigate("/login");
+          }}
+          className="border border-gray-600 px-6 py-2 rounded-xl hover:bg-gray-800 transition"
+        >
+          Login
+        </button>
+
+        <button
+          onClick={() => {
+            const stored = JSON.parse(localStorage.getItem("paymentStatus") || "{}");
+            sendSessionEvent("HomeScreen Buy Clicked");
+
+            if (stored.verified && stored.expiresAt > Date.now()) {
+              setShowDialogNew(false);
+              setShowSuccessDialog(true);
+              return;
+            }
+
+            if (stored.expiresAt && stored.expiresAt <= Date.now()) {
+              localStorage.removeItem("paymentStatus");
+            }
+
+            setShowDialogNew(true);
+          }}
+          className="bg-green-400 text-black px-6 py-2 rounded-xl font-semibold hover:scale-105 transition"
+        >
+          ⚡ Register
+        </button>
+      </div>
+
+      {/* Mobile Hamburger */}
+      <button
+        className="md:hidden"
+        onClick={() => setOpen(!open)}
+      >
+        {open ? <X size={28} /> : <Menu size={28} />}
+      </button>
+
+      {/* Mobile Menu */}
+     {open && (
+  <div className="absolute right-4 top-16 w-56 bg-black border border-gray-800 
+                  rounded-2xl mt-6 shadow-2xl flex flex-col gap-2 p-3 md:hidden z-50
+                  animate-in fade-in zoom-in-95 duration-200">
+
+    {/* Login */}
+    <button
+      onClick={() => {
+        sendSessionEvent("HomeScreen Login Clicked");
+        navigate("/login");
+        setOpen(false);
+      }}
+      className="w-full text-left px-4 py-2 rounded-xl hover:bg-gray-800 transition"
+    >
+      Login
+    </button>
+
+    {/* Register / CTA */}
+    <button
+      onClick={() => {
+        const stored = JSON.parse(localStorage.getItem("paymentStatus") || "{}");
+        sendSessionEvent("HomeScreen Buy Clicked");
+
+        if (stored.verified && stored.expiresAt > Date.now()) {
+          setShowDialogNew(false);
+          setShowSuccessDialog(true);
+        } else {
+          if (stored.expiresAt && stored.expiresAt <= Date.now()) {
+            localStorage.removeItem("paymentStatus");
+          }
+          setShowDialogNew(true);
+        }
+
+        setOpen(false);
+      }}
+      className="w-full text-left px-4 py-2 rounded-xl 
+                 bg-green-400 text-black font-semibold 
+                 hover:brightness-95 transition"
+    >
+      ⚡ Register
+    </button>
+
+  </div>
+)}
+    </div>
+</div>
 </nav>
 {loadingTRequest && (
   <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
@@ -1203,8 +1298,8 @@ className="w-full border border-gray-200
     </h2> */}
 
      <h2 className="text-5xl md:text-6xl font-extrabold leading-tight text-left">
-      Improve your Tennis in
-      <span className="text-green-400"> 5 Minutes</span>
+      Find nearby AI powered
+      <span className="text-green-400"> Tennis Coaching</span>
     </h2>
           <p className="mt-6 text-lg text-gray-300 max-w-xl leading-relaxed">
       TennisX is an{" "}
@@ -1219,30 +1314,17 @@ className="w-full border border-gray-200
     </p>
 
           <div className="mt-8 flex gap-4">
-                   <button
+                   {/* <button
                onClick={() => {
   sendSessionEvent("HomeScreen Login Clicked");
   navigate("/login");
 }}
             className="border border-gray-600 px-8 py-4 rounded-2xl text-lg hover:bg-gray-800 transition">
               Login
-            </button>
+            </button> */}
     <button
   onClick={() => {
-    const stored = JSON.parse(localStorage.getItem("paymentStatus") || "{}");
-    sendSessionEvent("HomeScreen Buy Clicked");
-
-    if (stored.verified && stored.expiresAt > Date.now()) {
-      setShowDialogNew(false);
-      setShowSuccessDialog(true);
-      return;
-    }
-
-    if (stored.expiresAt && stored.expiresAt <= Date.now()) {
-      localStorage.removeItem("paymentStatus");
-    }
-
-    setShowDialogNew(true);
+     navigate("/coach_list");
   }}
   className="relative w-full bg-gradient-to-r from-green-400 via-lime-400 to-green-500 
              text-black px-8 py-4 rounded-2xl text-lg font-semibold 
@@ -1256,7 +1338,7 @@ className="w-full border border-gray-200
              transition-all duration-300 ease-out overflow-hidden group"
 >
   <span className="relative z-10 flex items-center justify-center gap-2">
-    ⚡ Start NOW
+    ⚡ Find Nearby Coach
   </span>
 
   {/* Shine sweep effect */}
