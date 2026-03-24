@@ -3,6 +3,8 @@ import { topCities } from "../helper/states";
 
 export default function CoachingList() {
   const [data, setData] = useState([]);
+    const [visiblePhone, setVisiblePhone] = useState(null);
+
   const [filters, setFilters] = useState({
     rating: "",
     state: "",
@@ -117,15 +119,17 @@ export default function CoachingList() {
 </div>
 
     {/* 🏸 List */}
-    <div className="grid md:grid-cols-3 gap-6">
+     <div className="flex flex-col gap-6">
       {data.map((item) => (
-        <div 
-          key={item.id} 
-          className="bg-white p-5 rounded-2xl shadow-sm border hover:shadow-lg transition duration-300"
+        <div
+          key={item.id}
+          className="w-full bg-white p-6 rounded-2xl shadow-sm border hover:shadow-lg transition duration-300"
         >
-          
+          {/* Header */}
           <div className="flex justify-between items-center">
-            <h2 className="text-lg font-bold text-gray-800">{item.name}</h2>
+            <h2 className="text-xl font-bold text-gray-800">
+              {item.name}
+            </h2>
 
             {item.is_verified && (
               <span className="text-green-600 text-sm font-medium">
@@ -134,11 +138,13 @@ export default function CoachingList() {
             )}
           </div>
 
-          <p className="text-gray-500 mt-1 text-sm">
-            {item.city}, {item.state}
+          {/* Address */}
+          <p className="text-gray-500 mt-2 text-sm">
+            📍 {item.address}
           </p>
 
-          <div className="mt-3 flex items-center gap-2">
+          {/* Rating + Experience */}
+          <div className="mt-3 flex items-center gap-4">
             <span className="text-yellow-500 font-semibold">
               ⭐ {item.rating}
             </span>
@@ -148,9 +154,36 @@ export default function CoachingList() {
             </span>
           </div>
 
+          {/* Type */}
           <p className="text-sm text-gray-500 mt-2 capitalize">
             {item.type}
           </p>
+ <div className="mt-4">
+              <a
+                href={`tel:${item.phone}`}
+                className="text-blue-600 font-medium"
+              >
+                📞 {item.phone}
+              </a>
+              </div>
+          {/* Mobile */}
+          {/* <div className="mt-4">
+            {visiblePhone === item.id ? (
+              <a
+                href={`tel:${item.phone}`}
+                className="text-blue-600 font-medium"
+              >
+                📞 {item.phone}
+              </a>
+            ) : (
+              <button
+                onClick={() => setVisiblePhone(item.id)}
+                className="px-4 py-2 bg-green-500 text-white rounded-lg text-sm hover:bg-green-600"
+              >
+                Show Contact
+              </button>
+            )}
+          </div> */}
         </div>
       ))}
     </div>
