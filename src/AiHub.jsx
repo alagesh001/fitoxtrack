@@ -31,7 +31,7 @@ const [couponStatus, setCouponStatus] = useState(null);
 const [couponLoading, setCouponLoading] = useState(false);
 const [appliedCoupon, setAppliedCoupon] = useState(null);
 const [selectedPlan, setSelectedPlan] = useState(
-  isLoggedIn ? "strokes" : "trial"
+  isLoggedIn ? "strokesY" : "trial"
 );
     const [showExpireBlock, setShowExpireBlock] = useState(false);
       const [typeIs, setTypeIs] = useState("");
@@ -1314,7 +1314,7 @@ return (
   className={`relative border-2 rounded-2xl p-4 cursor-pointer transition shadow-sm ${
     selectedPlan === "strokesY"
       ? "border-green-600 bg-green-50"
-      : "border-orange-200 bg-gradient-to-br from-orange-50 to-white hover:border-orange-400"
+      :  "border-gray-200 hover:border-green-400"
   }`}
 >
 

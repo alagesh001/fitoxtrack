@@ -147,7 +147,7 @@ const verifyCoupon = () => {
 const isLoggedIn = localStorage.getItem("isLoggedInWeb") === "true";
 
 const [selectedPlan, setSelectedPlan] = useState(
-  isLoggedIn ? "strokes" : "trial"
+  isLoggedIn ? "strokesY" : "trial"
 );
 const [current, setCurrent] = useState(0);
  const storedGym = localStorage.getItem("selectedGym");
@@ -937,7 +937,7 @@ onClick={() =>
   className={`relative border-2 rounded-2xl p-4 cursor-pointer transition shadow-sm ${
     selectedPlan === "strokesY"
       ? "border-green-600 bg-green-50"
-      : "border-orange-200 bg-gradient-to-br from-orange-50 to-white hover:border-orange-400"
+      : "border-gray-200 hover:border-green-400"
   }`}
 >
 
@@ -1202,10 +1202,10 @@ className="w-full border border-gray-200
       <span className="text-green-400">{phrases[index].days}</span>
     </h2> */}
 
-     <h2 className="text-5xl md:text-6xl font-extrabold leading-tight text-left">
-      Improve your Tennis in
-      <span className="text-green-400"> 5 Minutes</span>
-    </h2>
+    <h2 className="text-5xl md:text-6xl font-extrabold leading-tight text-left">
+  Help Your Students Improve Faster &
+  <span className="text-green-400">  Stay Longer</span>
+</h2>
           <p className="mt-6 text-lg text-gray-300 max-w-xl leading-relaxed">
       TennisX is an{" "}
    <span
@@ -1215,7 +1215,7 @@ className="w-full border border-gray-200
 >
   AI
 </span>{" "}
-      advanced motion tracker that analyzes your swing and lets you compare it with the World class professionals to better understand and refine your technique.
+      advanced motion tracker that analyzes the swing and lets you compare it with the World class professionals to better understand and refine the technique.
     </p>
 
           <div className="mt-8 flex gap-4">
@@ -1354,11 +1354,11 @@ className="w-full border border-gray-200
       <section className="bg-black/60">
   <div className="max-w-6xl mx-auto px-8 text-center">
     <h2 className="text-4xl font-bold">
-      Take Your Game to the Next Level
+      Take Your Coaching to the Next Level
     </h2>
 
     <p className="mt-4 text-gray-400">
-      Join thousands of players improving their performance with TennisX.
+      Join thousands of trainers improving their coaching with TennisX.
     </p>
 
     {/* Reviews */}
