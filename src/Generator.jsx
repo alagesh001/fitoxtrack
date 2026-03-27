@@ -14,8 +14,8 @@ import { useLocation,useNavigate } from "react-router-dom";
 export default function HappyBirthdayImageGenerator() {
   const canvasRef = useRef(null);
         const location = useLocation();
-  
-  const [name, setName] = useState("Friend");
+  const [bgImage, setBgImage] = useState(null);
+  const [name, setName] = useState("Name");
   const [autoGenerate, setAutoGenerate] = useState(true);
   const [bgPreset, setBgPreset] = useState(0);
   const [emoji, setEmoji] = useState("🎉");
@@ -144,7 +144,7 @@ useEffect(() => {
     };
   }
 
-  function drawImage() {
+  async function drawImage() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     canvas.width = width * 2; // draw at 2x for crispness on high-dpi
@@ -158,13 +158,46 @@ useEffect(() => {
     const rng = seededRNG(seed);
 
     // background
-    const [a, b] = bgPresets[bgPreset % bgPresets.length];
-    const grad = ctx.createLinearGradient(0, 0, width, height);
-    grad.addColorStop(0, a);
-    grad.addColorStop(1, b);
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, width, height);
+   if (bgImage) {
+  const img = new Image();
+  img.src = bgImage;
 
+  await new Promise((res) => {
+    img.onload = res;
+  });
+
+  // draw image full canvas
+ const scale = Math.max(width / img.width, height / img.height);
+const x = (width - img.width * scale) / 2;
+const y = (height - img.height * scale) / 2;
+
+ctx.drawImage(
+  img,
+  x,
+  y,
+  img.width * scale,
+  img.height * scale
+);
+
+  // optional: overlay gradient (pro look 🔥)
+  const overlay = ctx.createLinearGradient(0, 0, width, height);
+  overlay.addColorStop(0, "rgba(0,0,0,0.2)");
+  overlay.addColorStop(1, "rgba(0,0,0,0.6)");
+
+  ctx.fillStyle = overlay;
+  ctx.fillRect(0, 0, width, height);
+
+} else {
+  // fallback to your gradient
+  const [a, b] = bgPresets[bgPreset % bgPresets.length];
+  const grad = ctx.createLinearGradient(0, 0, width, height);
+
+  grad.addColorStop(0, a);
+  grad.addColorStop(1, b);
+
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, width, height);
+}
     // soft overlay circles
     for (let i = 0; i < 6; i++) {
       ctx.beginPath();
@@ -332,8 +365,8 @@ if (fromText) {
   };
   useEffect(() => {
       
-    const timer = setTimeout(() => {
-drawImage();
+    const timer = setTimeout(async () => {
+      await drawImage();
       setLoading(false);        // stop loader
     }, 2000);
   
@@ -416,7 +449,62 @@ drawImage();
                   ))}
                 </div>
               </label>
+<label className="flex flex-col gap-2">
+  <span className="text-sm font-medium">Background</span>
 
+  {/* Upload Box */}
+  <div
+    className="relative flex items-center justify-center h-32 w-full rounded-xl border-2 border-dashed cursor-pointer overflow-hidden bg-gray-50 hover:bg-gray-100 transition"
+  >
+    <input
+      type="file"
+      accept="image/*"
+      onChange={(e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const url = URL.createObjectURL(file);
+          setBgImage(url);
+        }
+      }}
+      className="absolute inset-0 opacity-0 cursor-pointer"
+    />
+
+    {!bgImage ? (
+      <div className="text-center text-gray-500 text-sm">
+        <p className="font-medium">Click or upload image</p>
+        <p className="text-xs">PNG, JPG</p>
+      </div>
+    ) : (
+      <img
+        src={bgImage}
+        alt="preview"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+    )}
+  </div>
+
+  {/* Actions */}
+  {bgImage && (
+    <div className="flex justify-between items-center">
+      {/* <button
+        onClick={() => setBgImage(null)}
+        className="text-xs px-3 py-1.5 rounded-md bg-gray-200 hover:bg-gray-300 transition"
+      >
+        Remove
+      </button> */}
+
+      <button
+        onClick={() => {
+          setBgImage(null);
+          setBgPreset(0);
+        }}
+        className="text-xs px-3 py-1.5 rounded-md bg-red-500 text-white hover:bg-red-600 transition"
+      >
+        Remove
+      </button>
+    </div>
+  )}
+</label>
               <label className="flex flex-col">
                 <span className="text-sm">Font</span>
    <select

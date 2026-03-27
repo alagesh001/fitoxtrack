@@ -431,7 +431,7 @@ return (
     <nav className="flex flex-col gap-14">
 
       {/* ---------------- PREMIUM SECTION (DARK THEME) ---------------- */}
-      <div className="bg-[#0b0c12]/60 border border-[#191c29] rounded-2xl p-6 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+      {/* <div className="bg-[#0b0c12]/60 border border-[#191c29] rounded-2xl p-6 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
 
         <h2
           className="text-lg font-bold mb-5 tracking-wide
@@ -518,7 +518,7 @@ return (
           ))}
 
         </div>
-      </div>
+      </div> */}
 
 
       {/* ---------------- EXTRAS SECTION (LIGHT THEME) ---------------- */}

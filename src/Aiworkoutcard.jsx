@@ -17,7 +17,7 @@ const [goal, setGoal] = useState("Balanced");
 const [mode, setMode] = useState("separate");
  const [selectedGym, setSelectedGym] = useState(null);
 const [fromText, setFromText] = useState("");
-const [name, setName] = useState("");
+const [name, setName] = useState("Name");
 const [loading, setLoading] = useState(true);
 const storedGym = JSON.parse(localStorage.getItem("selectedGymai") || "{}");
   const gymid = storedGym?.GymId;
@@ -346,11 +346,7 @@ function generateWeeklyPlan(seedVal = Date.now()) {
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0,0,width,height);
       // Name
-  ctx.textAlign = 'left';
-
-ctx.font = `700 16px 'Poppins', sans-serif`;
-    ctx.fillStyle = '#d11717ff';
-    ctx.fillText(`Name: ${name}`, 40, 48);
+ 
   // 🕒 Add Date and Time on top right below title
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-IN', {
@@ -378,10 +374,19 @@ ctx.font = `700 16px 'Poppins', sans-serif`;
     ctx.fillStyle = '#0c0c0cff';
     ctx.fillText(`From ${fromText}`, width/2, 110);
 
+const gradient = ctx.createLinearGradient(0, 0, 300, 0);
+
+gradient.addColorStop(0, "#1900ff");   // start color
+gradient.addColorStop(1, "#ffd000");   // end color
+
+ctx.font = `700 30px 'Poppins', sans-serif`;
+ctx.fillStyle = gradient;
+
+    ctx.fillText(`${name}`, width/2, 150);
     
     // layout: 7 day boxes vertically spaced
     const margin = 36;
-    const contentTop = 140;
+    const contentTop = 170;
     const contentBottom = height - 48;
     const contentH = contentBottom - contentTop;
     const boxH = Math.floor(contentH / 7) - 8;

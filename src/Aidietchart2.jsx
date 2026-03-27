@@ -24,7 +24,7 @@ export default function MealOptionsSelector() {
   const [fromText, setFromText] = useState("");
    const [selectedGym, setSelectedGym] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [name, setName] = useState("");
+  const [name, setName] = useState("Name");
   const storedGym = JSON.parse(localStorage.getItem("selectedGymai") || "{}");
     const gymid = storedGym?.GymId;
     const [showAuthBlock, setShowAuthBlock] = useState(false);
@@ -115,17 +115,13 @@ const renderCanvas = () => {
   ctx.scale(DPR, DPR);
 
   // Background
-  ctx.fillStyle = "#fefefe";
+  ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, width, estimatedHeight);
 
 
 
 
-   ctx.textAlign = 'left';
 
-ctx.font = `700 16px 'Poppins', sans-serif`;
-    ctx.fillStyle = '#d11717ff';
-    ctx.fillText(`Name: ${name}`, 60, y);
   // 🕒 Add Date and Time on top right below title
   const now = new Date();
   const dateStr = now.toLocaleDateString('en-IN', {
@@ -154,10 +150,25 @@ y += 35;
     ctx.fillStyle = '#0c0c0cff';
     ctx.fillText(`From ${fromText}`, width/2, y);
   y += 35;
+const text = name;
+ctx.font = `700 30px 'Poppins', sans-serif`;
 
+const textWidth = ctx.measureText(text).width;
+
+// center start position
+const x = width / 2 - textWidth / 2;
+
+const gradient = ctx.createLinearGradient(x, 0, x + textWidth, 0);
+
+gradient.addColorStop(0, "#ff660d");
+gradient.addColorStop(1, "#ff8e31");
+
+ctx.fillStyle = gradient;
+ctx.fillText(text, width/2, 170);
+
+    y += 35;
 ctx.textAlign = 'start';
 
-  
 
   result.forEach((day) => {
     // Day header
@@ -183,16 +194,16 @@ ctx.textAlign = 'start';
         ctx.fillText(item.name, padding + 160, y);
 
        // Macros in columns
-        // ctx.fillStyle = "#1a1a1aff"; // calories green
-        // ctx.fillText(`per 100g`, padding + 350, y);
-        // ctx.fillStyle = "#059669"; // calories green
-        // ctx.fillText(`${item.c}kcal`, padding + 450, y);
-        // ctx.fillStyle = "#f59e0b"; // protein yellow
-        // ctx.fillText(`Protein: ${item.p}`, padding + 520, y);
-        // ctx.fillStyle = "#3b82f6"; // carbs blue
-        // ctx.fillText(`Carbs: ${item.cb}`, padding + 620, y);
-        // ctx.fillStyle = "#ef4444"; // fat red
-        // ctx.fillText(`Fat: ${item.f}`, padding + 720, y);
+        ctx.fillStyle = "#1a1a1aff"; // calories green
+        ctx.fillText(`per 100g`, padding + 350, y);
+        ctx.fillStyle = "#059669"; // calories green
+        ctx.fillText(`${item.c}kcal`, padding + 450, y);
+        ctx.fillStyle = "#f59e0b"; // protein yellow
+        ctx.fillText(`Protein: ${item.p}`, padding + 520, y);
+        ctx.fillStyle = "#3b82f6"; // carbs blue
+        ctx.fillText(`Carbs: ${item.cb}`, padding + 620, y);
+        ctx.fillStyle = "#ef4444"; // fat red
+        ctx.fillText(`Fat: ${item.f}`, padding + 720, y);
       }
       y += lineHeight + 5;
     });
@@ -223,6 +234,7 @@ ctx.textAlign = 'start';
     ctx.textAlign = 'center';
     ctx.fillText('Generated with ❤️ — Fitox AI Diet Chart', width/2, y+15);
   // Convert canvas to high-quality PNG
+
   setPreviewUrl(canvas.toDataURL("image/png", 1.0)); // 1.0 = max quality
 };
   const [firstloading, setfirstLoading] = useState(true);
