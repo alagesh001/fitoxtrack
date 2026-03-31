@@ -1,5 +1,4 @@
 import { useRef, useState,useEffect } from "react";
-import jsPDF from "jspdf";
 
 export default function CanvasInvoice() {
   const canvasRef = useRef(null);
@@ -464,26 +463,7 @@ ctx.fillText("Powered by Fitox ❤️", centerX, bottomY);
 
   const downloadImage = () => {
     const link = document.createElement("a");
-    link.download = "invoice.png";
-    link.href = canvasRef.current.toDataURL();
-    link.click();
-  };
-  const getPreviousReceipt = (receipt) => {
-  const num = parseInt(receipt.replace(/\D/g, "")) || 1;
-  return "REC-" + (num - 1);
-};
-const downloadPDF = () => {
-  const canvas = canvasRef.current;
-
-const imgData = canvas.toDataURL("image/jpeg", 0.7); // 🔥 huge reduction
-  const pdf = new jsPDF("p", "pt", "a4");
-
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
-
-  pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight);
-
-  // 🔥 Short Gym Name
+    //   // 🔥 Short Gym Name
   const shortGym = (data.gym || "Gym")
     .split(" ")[0]
     .replace(/[^a-zA-Z0-9]/g, "");
@@ -497,10 +477,45 @@ const invoiceNo = getPreviousReceipt(data.receipt);
     .replace(/[^a-zA-Z0-9]/g, "");
 
   // 🔥 Final File Name
-  const fileName = `${shortGym}_${shortLocation}_${invoiceNo}.pdf`;
+  const fileName = `${shortGym}_${shortLocation}_${invoiceNo}.png`;
 
-  pdf.save(fileName);
+    link.download = fileName;
+    link.href = canvasRef.current.toDataURL();
+    link.click();
+  };
+  const getPreviousReceipt = (receipt) => {
+  const num = parseInt(receipt.replace(/\D/g, "")) || 1;
+  return "REC-" + (num - 1);
 };
+// const downloadPDF = () => {
+//   const canvas = canvasRef.current;
+
+// const imgData = canvas.toDataURL("image/jpeg", 0.7); // 🔥 huge reduction
+//   const pdf = new jsPDF("p", "pt", "a4");
+
+//   const pageWidth = pdf.internal.pageSize.getWidth();
+//   const pageHeight = pdf.internal.pageSize.getHeight();
+
+//   pdf.addImage(imgData, "PNG", 0, 0, pageWidth, pageHeight);
+
+//   // 🔥 Short Gym Name
+//   const shortGym = (data.gym || "Gym")
+//     .split(" ")[0]
+//     .replace(/[^a-zA-Z0-9]/g, "");
+
+//   // 🔥 Invoice Number
+// const invoiceNo = getPreviousReceipt(data.receipt);
+//   // 🔥 Short Location (first word)
+//   const shortLocation = (data.address || "Location")
+//     .split(",")[0] // take first part
+//     .split(" ")[0] // first word
+//     .replace(/[^a-zA-Z0-9]/g, "");
+
+//   // 🔥 Final File Name
+//   const fileName = `${shortGym}_${shortLocation}_${invoiceNo}.pdf`;
+
+//   pdf.save(fileName);
+// };
   return (
     <div className="grid md:grid-cols-2 gap-6 p-6">
 
@@ -707,12 +722,12 @@ const invoiceNo = getPreviousReceipt(data.receipt);
   </button>
 
   <button
-    onClick={downloadPDF}
+    onClick={downloadImage}
     className="bg-green-500 text-white px-5 py-2 rounded-lg 
                shadow-md hover:bg-green-600 
                active:scale-95 transition-all duration-150"
   >
-    Download PDF
+    Download
   </button>
 </div>
       </div>
