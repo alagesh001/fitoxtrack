@@ -103,6 +103,13 @@ const aiTools = [
     description:
       "Showcase transformation stories with AI-crafted posters.",
   },
+{
+  key: "invoice",
+  icon: "🧾",
+  title: "Smart Invoice Generator",
+  description:
+    "Create professional invoices and export them as PDF in seconds.",
+}
 ];
 
 const refs = {
@@ -257,6 +264,7 @@ if (type === "bicep") navigate("/bicep-ai", { state: { fromButton: true } });
  if (type === "squat") navigate("/squat-ai", { state: { fromButton: true, facing:facingMode } });
    if (type === "lateral") navigate("/lateral-ai", { state: { fromButton: true, facing:facingMode } });
    if (type === "lateralSide") navigate("/lateralside-ai", { state: { fromButton: true,facing:facingMode } });
+   if (type === "invoice") navigate("/invoice-ai", { state: { fromButton: true,facing:facingMode } });
 
 
 }, 1000);
@@ -539,7 +547,7 @@ return (
       <div className="bg-white/40 mb-5 rounded-2xl p-6 shadow-md">
 
         <h2 className="text-lg font-bold text-white mb-5 tracking-wide">
-          🏋️ GYM AI Generator
+          🏋️ Choose to generate
         </h2>
 
       <div className="space-y-7">

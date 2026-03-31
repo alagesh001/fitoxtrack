@@ -12,6 +12,7 @@ import HappyBirthdayImageGenerator from "./Generator";
 import AIWorkoutCardGenerator from "./Aiworkoutcard";
 import AIDietChartGenerator from "./Aidietchart2";
 import TransformationImageGenerator from "./AiTransform";
+import InvoiceGenerator from "./Invoice";
 
 
 import GymRegistration from "./NewRegisterscreen";
@@ -58,7 +59,8 @@ function App() {
                 <Route path="/offer-ai" element={<GymOfferCanvasOne />} />
                 <Route path="/diet-ai" element={<AIDietChartGenerator />} />
                 {/* <Route path="/transform-ai" element={<ImageCropper />} /> */}
-    
+                    <Route path="/invoice-ai" element={<InvoiceGenerator />} />
+
 
                 <Route path="/ai-hub" element={<AIhubHere />} />
                 <Route path="/transform-ai" element={<TransformationImageGenerator />} />
