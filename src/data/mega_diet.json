@@ -2,31 +2,33 @@
   "north": {
     "veg": {
       "breakfast": [
-        {
-          "name": "Poha",
-          "c": 110,
-          "p": 2.5,
-          "cb": 25,
-          "f": 1.5,
-          "dsf": false,
-          "psf": false,
-          "fsf": true
-        },
+       {
+  "name": "Poha",
+  "c": 350,
+  "p": 6.7,
+  "cb": 76.9,
+  "f": 1.2,
+  "dsf": false,
+  "psf": false,
+  "fsf": true
+},
          {
-    "name": "Stuffed Gobhi Paratha",
-    "c": 240,
-    "p": 7,
-    "cb": 34,
-    "f": 9,
+  
+  "name": "Stuffed Gobhi Paratha",
+  "c": 260,
+  "p": 6,
+  "cb": 36,
+  "f": 10,
+
     "dsf": false,
     "psf": false,
     "fsf": true
   },
   {
-    "name": "Stuffed Mooli Paratha",
-    "c": 250,
-    "p": 8,
-    "cb": 35,
+   "name": "Stuffed Mooli Paratha",
+  "c": 255,
+  "p": 6,
+  "cb": 36,
     "f": 10,
     "dsf": false,
     "psf": false,
@@ -124,10 +126,10 @@
         },
         {
           "name": "Aloo Paratha",
-          "c": 150,
-          "p": 6,
-          "cb": 25,
-          "f": 4,
+  "c": 270,
+  "p": 5,
+  "cb": 38,
+  "f": 11,
           "dsf": false,
           "psf": false,
           "fsf": true

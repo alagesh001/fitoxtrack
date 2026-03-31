@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { UserPlusIcon } from "@heroicons/react/24/outline";
-import myBackground from "./assets/fitgymbg.png";
+import myBackground from "./assets/fitgymbg.webp";
 //import UpgradeDialog from "./UpgradeDialog";
 import Swal from 'sweetalert2';
 import clientIcon from "./assets/clienticn.png"; // adjust path to match your project

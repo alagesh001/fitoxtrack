@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { showUpgradePopup } from './helper/reuse.js';
 import { toast } from "react-toastify";
-import myBackground from "./assets/fitgymbg.png";
+import myBackground from "./assets/fitgymbg.webp";
+import wicon from "./assets/wapp_icn.png";
 
 export default function AIhubHere() {
   const [active, setActive] = useState(null);
@@ -15,7 +16,20 @@ const [accessToken, setAccessToken] = useState(null);
 const [authErrorMsg, setAuthErrorMsg] = useState("");
   const token = localStorage.getItem("accessToken");
   const storedGym = localStorage.getItem("selectedGymai");
+ const [open, setOpen] = useState(false);
+  const [phone, setPhone] = useState("");
 
+  const handleSend = () => {
+    if (!phone) return alert("Enter phone number");
+
+    // Format: remove spaces, ensure country code
+    const formatted = phone.replace(/\s+/g, "");
+
+    const message = encodeURIComponent("Hi!");
+    const url = `https://wa.me/${formatted}?text=${message}`;
+
+    window.open(url, "_blank");
+  };
 useEffect(() => {
 
   if (storedGym) {
@@ -57,35 +71,35 @@ const aiTools = [
   {
     key: "workout",
     icon: "📝",
-    title: "Workout Card AI",
+    title: "Workout Card",
     description:
       "Instantly create personalized workout plans powered by smart AI.",
   },
   {
     key: "diet",
     icon: "🥗",
-    title: "Diet AI",
+    title: "Diet Card",
     description:
       "Deliver personalized AI-powered diet plans crafted for fitness and health.",
   },
   {
     key: "birthday",
     icon: "🎉",
-    title: "Birthday Card AI",
+    title: "Birthday Card",
     description:
       "Surprise members with AI-generated birthday messages that feel personal.",
   },
   {
     key: "poster",
     icon: "🎨",
-    title: "Offer Post Design AI",
+    title: "Minimalist Post Design",
     description:
       "Create premium offer posters for Instagram, WhatsApp, and print instantly.",
   },
   {
     key: "transform",
     icon: "🎨",
-    title: "Transformation Post Design AI",
+    title: "Transformation Post Design",
     description:
       "Showcase transformation stories with AI-crafted posters.",
   },
@@ -537,7 +551,7 @@ return (
         onClick={() => {
           const newActive = active === tool.key ? null : tool.key;
           setActive(newActive);
-
+ setOpen(false);
           if (newActive !== null) {
             setTimeout(() => {
               panelRefs.current[newActive]?.scrollIntoView({
@@ -603,7 +617,50 @@ return (
 
 
       </div>
+<div className="fixed bottom-6 right-6">
+      {!open ? (
+         <button
+          onClick={() => setOpen(true)}
+          className="bg-white p-3 rounded-full shadow-lg hover:scale-105 transition"
+        >
+          <img
+            src= {wicon}
+            alt="WhatsApp"
+            className="w-8 h-8"
+          />
+        </button>
+      ) : (
+        <div className="bg-white p-4 rounded-2xl shadow-xl w-72">
+          <p className="text-sm text-gray-600 mb-2">
+            Send WhatsApp message without saving contact
+          </p>
 
+          <input
+            type="text"
+            placeholder="Enter number (e.g. 919876543210)"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            className="w-full border p-2 rounded-lg mb-3 outline-none focus:ring-2 focus:ring-green-400"
+          />
+
+          <div className="flex gap-2">
+            <button
+              onClick={handleSend}
+              className="flex-1 bg-green-500 text-white py-2 rounded-lg hover:bg-green-600"
+            >
+              Send
+            </button>
+
+            <button
+              onClick={() => setOpen(false)}
+              className="flex-1 bg-gray-200 py-2 rounded-lg"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
     </nav>
 
 </div>
