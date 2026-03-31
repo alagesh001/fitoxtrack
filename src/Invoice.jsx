@@ -1,20 +1,42 @@
-import { useRef, useState } from "react";
+import { useRef, useState,useEffect } from "react";
 
 export default function CanvasInvoice() {
   const canvasRef = useRef(null);
 const [width] = useState(600);
   const [height] = useState(1200);
 
- const storedGym = JSON.parse(localStorage.getItem("selectedGymai"));
-  
- 
+const [storedGym, setStoredGym] = useState(() =>
+  JSON.parse(localStorage.getItem("selectedGymai"))
+);useEffect(() => {
+  if (!storedGym?.Id) return;
+
+  const key = `invoiceSettings_${storedGym.Id}`;
+  const saved = localStorage.getItem(key);
+
+  if (saved) {
+    const parsed = JSON.parse(saved);
+
+    setData((prev) => ({
+      ...prev,
+      ...parsed,
+    }));
+  }
+}, [storedGym]);
+ const receiptNo = 1001;
+
   const [data, setData] = useState({
     gym: storedGym?.GymName,
     address: storedGym?.Location,
     client: "",
-    mobile: "",
+    mobile: "",  
+    gstNumber: "",
+    gst: 5,
+    saveOnCreate: true,
+     isGstEnabled: false,
+  isGstIncluded: false,
     date: new Date().toISOString().split("T")[0],
-    receipt: "INV-" + Math.floor(Math.random() * 100000),
+    receiptNo,
+    receipt: "INV-" + receiptNo,
     items: [{ name: "", price: 0, qty: 1 }],
   });
 
@@ -37,6 +59,44 @@ const removeLastItem = () => {
     ...data,
     items: data.items.slice(0, -1),
   });
+};
+
+const saveSettings = () => {
+  if (!storedGym?.Id) return;
+const nextNo = data.receiptNo + 1;
+const nextReceipt = "INV-" + nextNo;
+
+// ✅ Update state
+setData((prev) => ({
+  ...prev,
+  receiptNo: nextNo,
+  receipt: nextReceipt,
+}));
+
+// ✅ Use SAME values for saving
+const settings = {
+  gstNumber: data.gstNumber,
+  gst: data.gst,
+  isGstEnabled: data.isGstEnabled,
+  isGstIncluded: data.isGstIncluded,
+  receiptNo: nextNo,
+  receipt: nextReceipt,
+};
+
+  const key = `invoiceSettings_${storedGym.Id}`;
+  localStorage.setItem(key, JSON.stringify(settings));
+
+  //alert("Settings Saved ✅");
+};
+
+const handleCreateInvoice = () => {
+  // 👉 your existing invoice logic here
+
+  if (data.saveOnCreate) {
+    saveSettings();
+  }
+drawInvoice();
+  // continue invoice generation...
 };
 const drawInvoice = () => {
   const canvas = canvasRef.current;
@@ -63,14 +123,18 @@ const drawInvoice = () => {
   let y = 0;
 
   // ================= HEADER =================
-  const headerHeight = 120;
+  let headerHeight = 120;
 
   const gradient = ctx.createLinearGradient(0, 0, width, 0);
   gradient.addColorStop(0, "#4f46e5");
   gradient.addColorStop(1, "#06b6d4");
 
   ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, width, headerHeight);
+  if (data.gstNumber && data.gstNumber.trim() !== "") {
+  ctx.fillRect(0, 0, width, headerHeight + 25);
+headerHeight += 25;
+  }
+      ctx.fillRect(0, 0, width, headerHeight);
 
   ctx.fillStyle = "#fff";
   ctx.font = "bold 30px Arial";
@@ -79,8 +143,12 @@ const drawInvoice = () => {
   ctx.font = "14px Arial";
   ctx.fillText(data.address, padding, 95);
 
-  // Right side invoice meta
-  ctx.textAlign = "right";
+
+if (data.gstNumber && data.gstNumber.trim() !== "") {
+  ctx.fillText(`GSTIN: ${data.gstNumber}`, padding, 120);
+} 
+
+ctx.textAlign = "right";
   ctx.font = "bold 16px Arial";
   ctx.fillText("RECEIPT", width - padding, 50);
 
@@ -171,20 +239,86 @@ ctx.strokeRect(tableX, y - rowHeight, tableWidth, tableHeight);
 
 y += rowHeight * data.items.length + 50;
   // ================= TOTAL BOX =================
-  const totalBoxWidth = 220;
-  const totalBoxHeight = 70;
+// ===== CALCULATIONS =====
+// ===== CALCULATIONS =====
+let baseAmount = totalAmount; // total from items
+let subtotal = baseAmount;
+let gstAmount = 0;
+let finalTotal = baseAmount;
 
-  const totalX = width - padding - totalBoxWidth;
+if (data.isGstEnabled) {
+  const gstRate = Number(data.gst) || 0;
 
-  ctx.fillStyle = "#4f46e5";
-  ctx.fillRect(totalX, y, totalBoxWidth, totalBoxHeight);
+  if (data.isGstIncluded) {
+    // GST already included in total
+    gstAmount = baseAmount - baseAmount / (1 + gstRate / 100);
+    subtotal = baseAmount - gstAmount;
+    finalTotal = baseAmount; // already includes GST
+  } else {
+    // GST extra
+    gstAmount = (baseAmount * gstRate) / 100;
+    subtotal = baseAmount;
+    finalTotal = baseAmount + gstAmount;
+  }
+}
 
-  ctx.fillStyle = "#fff";
-  ctx.font = "bold 16px Arial";
-  ctx.fillText("Total", totalX + 20, y + 30);
+// ===== BOX SIZE =====
+const lineHeight = 24;
+let lines = 2; // Subtotal + Total
 
-  ctx.font = "bold 20px Arial";
-  ctx.fillText(totalAmount, totalX + 20, y + 55);
+if (data.isGstEnabled) lines += 1;
+
+const totalBoxWidth = 250;
+const totalBoxHeight = lines * lineHeight + 30;
+
+const totalX = width - padding - totalBoxWidth;
+
+// ===== BOX BACKGROUND =====
+ctx.fillStyle = "#4f46e5";
+ctx.fillRect(totalX, y, totalBoxWidth, totalBoxHeight);
+
+// ===== TEXT STYLE =====
+ctx.fillStyle = "#fff";
+ctx.font = "14px Arial";
+
+let textY = y + 25;
+
+// Subtotal
+ctx.fillText(
+  `Subtotal: ₹${subtotal.toFixed(2)}`,
+  totalX + 20,
+  textY
+);
+
+// GST
+if (data.isGstEnabled) {
+  textY += lineHeight;
+  ctx.fillText(
+    `GST (${data.gst}%): ₹${gstAmount.toFixed(2)}`,
+    totalX + 20,
+    textY
+  );
+}
+
+// Divider
+textY += lineHeight;
+
+ctx.beginPath();
+ctx.moveTo(totalX + 15, textY - 10);
+ctx.lineTo(totalX + totalBoxWidth - 15, textY - 10);
+ctx.strokeStyle = "rgba(255,255,255,0.6)";
+ctx.lineWidth = 1;
+ctx.stroke();
+
+// Final Total
+ctx.font = "bold 18px Arial";
+ctx.fillText(
+  `Total: ₹${finalTotal.toFixed(2)}`,
+  totalX + 20,
+  textY +15
+);
+
+
 
   y += totalBoxHeight + 80;
 
@@ -232,7 +366,53 @@ ctx.fillText("Powered by Fitox ❤️", centerX, bottomY);
           onChange={(e) => setData({ ...data, mobile: e.target.value })}
           className="w-full border p-2 mb-2"
         />
+          <input
+          placeholder="GSTIN"
+          value={data.gstNumber}
+          onChange={(e) => setData({ ...data, gstNumber: e.target.value })}
+          className="w-full border p-2 mb-2"
+        />
+ <div className="border p-3 rounded mb-3">
 
+  {/* GST Enable */}
+  <label className="flex items-center gap-2 mb-2">
+    <input
+      type="checkbox"
+      checked={data.isGstEnabled}
+      onChange={(e) =>
+        setData({ ...data, isGstEnabled: e.target.checked })
+      }
+    />
+    Apply GST
+  </label>
+
+  {/* GST Rate (only show if enabled) */}
+  {data.isGstEnabled && (
+    <input
+      type="number"
+      placeholder="GST % (e.g. 18)"
+      value={data.gst}
+      onChange={(e) =>
+        setData({ ...data, gst: e.target.value })
+      }
+      className="w-full border p-2 mb-2"
+    />
+  )}
+
+  {/* Inclusive Checkbox */}
+  {data.isGstEnabled && (
+    <label className="flex items-center gap-2">
+      <input
+        type="checkbox"
+        checked={data.isGstIncluded}
+        onChange={(e) =>
+          setData({ ...data, isGstIncluded: e.target.checked })
+        }
+      />
+      GST Included in Price
+    </label>
+  )}
+</div>
         <div className="flex gap-2 mb-2">
           <input
             type="date"
@@ -276,15 +456,29 @@ ctx.fillText("Powered by Fitox ❤️", centerX, bottomY);
           </div>
         ))}
 
-        <button onClick={addItem} className="text-blue-600 text-sm">
-          + Add Item
-        </button>
- <button onClick={removeLastItem} className="text-blue-600 text-sm">
-          - Remove Item
-        </button>
+       <div className="flex  gap-2">
+  <button onClick={addItem} className="text-blue-600 text-sm">
+    + Add Item
+  </button>
+
+  <button onClick={removeLastItem} className="text-red-600 text-sm">
+    − Remove Item
+  </button>
+</div>
+
+<label className="flex items-center gap-2 mt-2">
+  <input
+    type="checkbox"
+    checked={data.saveOnCreate}
+    onChange={(e) =>
+      setData({ ...data, saveOnCreate: e.target.checked })
+    }
+  />
+  Save details
+</label>
         <div className="flex gap-2 mt-4">
           <button
-            onClick={drawInvoice}
+            onClick={handleCreateInvoice}
             className="bg-blue-500 text-white px-4 py-2 rounded"
           >
             Generate
