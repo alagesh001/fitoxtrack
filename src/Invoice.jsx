@@ -4,9 +4,13 @@ export default function CanvasInvoice() {
   const canvasRef = useRef(null);
 const [width] = useState(600);
   const [height] = useState(1200);
+
+ const storedGym = JSON.parse(localStorage.getItem("selectedGymai"));
+  
+ 
   const [data, setData] = useState({
-    gym: "FitoX AI Fitness",
-    address: "Your Gym Address",
+    gym: storedGym?.GymName,
+    address: storedGym?.Location,
     client: "",
     mobile: "",
     date: new Date().toISOString().split("T")[0],
@@ -26,86 +30,178 @@ const [width] = useState(600);
       items: [...data.items, { name: "", price: 0, qty: 1 }],
     });
   };
+const removeLastItem = () => {
+  if (data.items.length === 0) return;
 
+  setData({
+    ...data,
+    items: data.items.slice(0, -1),
+  });
+};
 const drawInvoice = () => {
   const canvas = canvasRef.current;
   const ctx = canvas.getContext("2d");
 
   const DPR = Math.min(window.devicePixelRatio, 2);
 
-  // ✅ A4 ratio (scaled down for performance)
-  const width = 794;   // A4 @ 96 DPI
+  const width = 794;
   const height = 1123;
 
   canvas.width = width * DPR;
   canvas.height = height * DPR;
 
-  // ✅ Responsive display
   canvas.style.width = "100%";
   canvas.style.height = "auto";
 
   ctx.scale(DPR, DPR);
 
   // Background
-  ctx.fillStyle = "#ffffff";
+  ctx.fillStyle = "#f5f7fb";
   ctx.fillRect(0, 0, width, height);
 
-  // 🔥 Padding & layout
   const padding = 40;
-  let y = 60;
+  let y = 0;
 
-  // Header
-  ctx.fillStyle = "#000";
-  ctx.font = "bold 28px Arial";
-  ctx.fillText("FitoX AI Fitness", padding, y);
+  // ================= HEADER =================
+  const headerHeight = 120;
 
-  y += 30;
+  const gradient = ctx.createLinearGradient(0, 0, width, 0);
+  gradient.addColorStop(0, "#4f46e5");
+  gradient.addColorStop(1, "#06b6d4");
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, headerHeight);
+
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 30px Arial";
+  ctx.fillText(data.gym, padding, 70);
+
   ctx.font = "14px Arial";
-  ctx.fillText("Gym Address Here", padding, y);
+  ctx.fillText(data.address, padding, 95);
 
-  // Line
-  y += 20;
-  ctx.beginPath();
-  ctx.moveTo(padding, y);
-  ctx.lineTo(width - padding, y);
-  ctx.stroke();
-
-  // Client Info
-  y += 40;
-  ctx.fillText(`Client: John Doe`, padding, y);
-  ctx.fillText(`Mobile: 9876543210`, padding, y + 20);
-
-  ctx.fillText(`Date: 31-03-2026`, width - 250, y);
-  ctx.fillText(`Receipt: INV-1234`, width - 250, y + 20);
-
-  // Table Header
-  y += 60;
+  // Right side invoice meta
+  ctx.textAlign = "right";
   ctx.font = "bold 16px Arial";
+  ctx.fillText("RECEIPT", width - padding, 50);
 
-  ctx.fillText("Item", padding, y);
-  ctx.fillText("Qty", width / 2, y);
-  ctx.fillText("Price", width / 2 + 80, y);
-  ctx.fillText("Total", width - 120, y);
+  ctx.font = "13px Arial";
+  ctx.fillText(data.receipt, width - padding, 75);
+  ctx.fillText(data.date, width - padding, 95);
 
-  y += 20;
+  ctx.textAlign = "left";
+
+  y = headerHeight + 30;
+
+  // ================= CARD (CLIENT INFO) =================
+  const cardX = padding;
+  const cardY = y;
+  const cardWidth = width - padding * 2;
+  const cardHeight = 100;
+
+  // shadow
+  ctx.shadowColor = "rgba(0,0,0,0.08)";
+  ctx.shadowBlur = 10;
+
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(cardX, cardY, cardWidth, cardHeight);
+
+  ctx.shadowBlur = 0;
+
+  ctx.fillStyle = "#000";
+  ctx.font = "bold 16px Arial";
+  ctx.fillText("Billed To:", cardX + 20, cardY + 30);
 
   ctx.font = "14px Arial";
+  ctx.fillText(data.client, cardX + 20, cardY + 55);
+  ctx.fillText(data.mobile, cardX + 20, cardY + 75);
 
-  // Example row
-  ctx.fillText("Workout Plan", padding, y);
-  ctx.fillText("1", width / 2, y);
-  ctx.fillText("1000", width / 2 + 80, y);
-  ctx.fillText("1000", width - 120, y);
+  y += cardHeight + 40;
 
-  // Total
-  y += 60;
+  // ================= TABLE =================
+  const tableX = padding;
+  const tableWidth = width - padding * 2;
+  const rowHeight = 40;
+
+  // Header row
+  ctx.fillStyle = "#eef2ff";
+  ctx.fillRect(tableX, y, tableWidth, rowHeight);
+
+  ctx.fillStyle = "#000";
+  ctx.font = "bold 14px Arial";
+
+  ctx.fillText("Item", tableX + 20, y + 25);
+  ctx.fillText("Qty", tableX + tableWidth / 2, y + 25);
+  ctx.fillText("Price", tableX + tableWidth / 2 + 80, y + 25);
+  ctx.fillText("Total", tableX + tableWidth - 100, y + 25);
+
+  y += rowHeight;
+
+  // Row
+  ctx.font = "14px Arial";
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(tableX, y, tableWidth, rowHeight);
+
+  ctx.fillStyle = "#000";
+ctx.font = "14px Arial";
+
+let totalAmount = 0;
+
+data.items.forEach((item, index) => {
+  const rowY = y + index * rowHeight;
+
+  const itemTotal = item.qty * item.price;
+  totalAmount += itemTotal;
+
+  // Row background (alternate color)
+  ctx.fillStyle = index % 2 === 0 ? "#ffffff" : "#f9fafb";
+  ctx.fillRect(tableX, rowY, tableWidth, rowHeight);
+
+  ctx.fillStyle = "#000";
+
+  ctx.fillText(item.name || "Item", tableX + 20, rowY + 25);
+  ctx.fillText(item.qty.toString(), tableX + tableWidth / 2, rowY + 25);
+  ctx.fillText(item.price.toString(), tableX + tableWidth / 2 + 80, rowY + 25);
+  ctx.fillText(itemTotal.toString(), tableX + tableWidth - 100, rowY + 25);
+  
+});
+const tableHeight = rowHeight * (data.items.length + 1); // + header
+  // Table borders
+ ctx.strokeStyle = "#e5e7eb";
+ctx.strokeRect(tableX, y - rowHeight, tableWidth, tableHeight);
+
+y += rowHeight * data.items.length + 50;
+  // ================= TOTAL BOX =================
+  const totalBoxWidth = 220;
+  const totalBoxHeight = 70;
+
+  const totalX = width - padding - totalBoxWidth;
+
+  ctx.fillStyle = "#4f46e5";
+  ctx.fillRect(totalX, y, totalBoxWidth, totalBoxHeight);
+
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 16px Arial";
+  ctx.fillText("Total", totalX + 20, y + 30);
+
   ctx.font = "bold 20px Arial";
-  ctx.fillText("Total: ₹1000", width - 200, y);
+  ctx.fillText(totalAmount, totalX + 20, y + 55);
 
-  // Footer
-  y += 80;
-  ctx.font = "14px Arial";
-  ctx.fillText("Thank you 💪", padding, y);
+  y += totalBoxHeight + 80;
+
+  // ================= FOOTER =================
+  ctx.fillStyle = "#6b7280";
+  ctx.font = "13px Arial";
+ctx.fillText(
+  `Thank you for choosing ${data.gym}, ${data.address} 💪`,
+  padding,
+  y
+);
+ctx.textAlign = "right";
+  ctx.fillStyle = "#b4b6b9";
+
+const centerX = width - 20 ;
+const bottomY = height - 30; // adjust margin if needed
+ctx.fillText("Powered by Fitox ❤️", centerX, bottomY);
 };
 
   const downloadImage = () => {
@@ -122,19 +218,6 @@ const drawInvoice = () => {
       <div className="bg-white p-4 rounded shadow">
         <h2 className="font-bold mb-3">Invoice Details</h2>
 
-        <input
-          placeholder="Gym Name"
-          value={data.gym}
-          onChange={(e) => setData({ ...data, gym: e.target.value })}
-          className="w-full border p-2 mb-2"
-        />
-
-        <input
-          placeholder="Address"
-          value={data.address}
-          onChange={(e) => setData({ ...data, address: e.target.value })}
-          className="w-full border p-2 mb-2"
-        />
 
         <input
           placeholder="Client Name"
@@ -196,7 +279,9 @@ const drawInvoice = () => {
         <button onClick={addItem} className="text-blue-600 text-sm">
           + Add Item
         </button>
-
+ <button onClick={removeLastItem} className="text-blue-600 text-sm">
+          - Remove Item
+        </button>
         <div className="flex gap-2 mt-4">
           <button
             onClick={drawInvoice}
