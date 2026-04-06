@@ -539,15 +539,15 @@ const workouts = [
     ? [
        {
     key: "lateral",
-    name: "Perfect your strokes",
+    name: "Stroke Progress Report",
     tier: "PRO",
     icon: "biomech",
     description:
-      "Real-time skeletal tracking powered by TennisX AI. Analyze and compare joint movements to optimize your forehand, backhand, and serve.",
+        "Comprehensive session tracking with progress metrics, notes, and timestamps to monitor player development over time."
   },
         {
           key: "speeddet",
-          name: "Find your serve speed",
+          name: "Speed Checker",
           tier: "FREE",
           icon: "speed",
           description:
