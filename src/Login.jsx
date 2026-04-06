@@ -18,28 +18,28 @@ function Login() {
     let mobileSaved = null;
 
 const [uniqueId, setDeviceId] = useState(null);
-useEffect(() => {
+// useEffect(() => {
 
-  let sessionId = localStorage.getItem("tx_session");
+//   let sessionId = localStorage.getItem("tx_session");
 
-  if (!sessionId) {
-    sessionId = crypto.randomUUID();
-    localStorage.setItem("tx_session", sessionId);
-  }
+//   if (!sessionId) {
+//     sessionId = crypto.randomUUID();
+//     localStorage.setItem("tx_session", sessionId);
+//   }
 
-  fetch("https://tennisx.in/api/session", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      isp: "TennisX",
-      session_id: sessionId,
-      page: window.location.pathname
-    })
-  }).catch(() => {});
+//   fetch("https://tennisx.in/api/session", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json"
+//     },
+//     body: JSON.stringify({
+//       isp: "TennisX",
+//       session_id: sessionId,
+//       page: window.location.pathname
+//     })
+//   }).catch(() => {});
 
-}, []);
+// }, []);
     useEffect(() => {
         const isLoggedIn = localStorage.getItem("isLoggedInWeb");
         const roleType = localStorage.getItem("type");

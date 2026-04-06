@@ -21,6 +21,7 @@ const [mobile, setMobile] = useState("");
 const [currency, setCurrency] = useState("INR");
 const [arcEnabled, setArcEnabled] = useState(false);
 const [arcEnabledC, setArcEnabledC] = useState(false);
+const [progressUI, setProgressUI] = useState(0);
 
    const pricing = {
      trial: {
@@ -49,28 +50,28 @@ const [arcEnabledC, setArcEnabledC] = useState(false);
       USD: 12
     }
   };
-   useEffect(() => {
+  //  useEffect(() => {
   
-    let sessionId = localStorage.getItem("tx_session");
+  //   let sessionId = localStorage.getItem("tx_session");
   
-    if (!sessionId) {
-      sessionId = crypto.randomUUID();
-      localStorage.setItem("tx_session", sessionId);
-    }
+  //   if (!sessionId) {
+  //     sessionId = crypto.randomUUID();
+  //     localStorage.setItem("tx_session", sessionId);
+  //   }
   
-    fetch("https://tennisx.in/api/session", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        isp: "TennisX",
-        session_id: sessionId,
-        page: "ai-tracker"
-      })
-    }).catch(() => {});
+  //   fetch("https://tennisx.in/api/session", {
+  //     method: "POST",
+  //     headers: {
+  //       "Content-Type": "application/json"
+  //     },
+  //     body: JSON.stringify({
+  //       isp: "TennisX",
+  //       session_id: sessionId,
+  //       page: "ai-tracker"
+  //     })
+  //   }).catch(() => {});
   
-  }, []);
+  // }, []);
   const [showMetrics, setShowMetrics] = useState(false);
   const showMetricsRef = useRef(false);
   const [metricsUI, setMetricsUI] = useState(false);
@@ -87,6 +88,8 @@ const playbackIndexRef = useRef(0);
 const isRecordingRef = useRef(false);
 const trainerIndexRef = useRef(0);
 const [showDialog, setShowDialog] = useState(false);
+const [detailshowDialog, setdetailShowDialog] = useState(false);
+
 const [loading, setLoading] = useState(false);
 const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 const playbackSpeedRef = useRef(1);
@@ -992,24 +995,24 @@ setShowSuccessDialog(true);
   }
 };
 function sendSessionEvent(pageName) {
-  let sessionId = localStorage.getItem("tx_session");
+  // let sessionId = localStorage.getItem("tx_session");
 
-  if (!sessionId) {
-    sessionId = crypto.randomUUID();
-    localStorage.setItem("tx_session", sessionId);
-  }
+  // if (!sessionId) {
+  //   sessionId = crypto.randomUUID();
+  //   localStorage.setItem("tx_session", sessionId);
+  // }
 
-  fetch("https://tennisx.in/api/session", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      isp: "TennisX",
-      session_id: sessionId,
-      page: pageName
-    })
-  }).catch(() => {});
+  // fetch("https://tennisx.in/api/session", {
+  //   method: "POST",
+  //   headers: {
+  //     "Content-Type": "application/json"
+  //   },
+  //   body: JSON.stringify({
+  //     isp: "TennisX",
+  //     session_id: sessionId,
+  //     page: pageName
+  //   })
+  // }).catch(() => {});
 }
 
 const checkLogin = () => {
@@ -1662,7 +1665,7 @@ const MAX_PATH = 40;
 const currentPathRefC = useRef([]);
 const allPathsRefC = useRef([]);
 const recordingTimeRefC = useRef(null);
-const drawPlaybackC = (landmarks, canvas) => {
+const drawPlaybackC = (landmarks, canvas,fromdownload = false) => {
   if (!landmarks || !canvas) return;
 
   const ctx = canvas.getContext("2d");
@@ -1673,52 +1676,107 @@ const drawPlaybackC = (landmarks, canvas) => {
   y: landmarks[i].y * height
 });
   ctx.clearRect(0, 0, width, height);
-// 🧾 Get stored values
-  const now = recordingTimeRefC.current || new Date();
-  const name = recordingNameRefC.current || "Client";
+  if(fromdownload){
+// 🧾 Get values
+const now = recordingTimeRefC.current || new Date();
+const name = recordingNameRefC.current || "Client";
+const note = recordingNoteRefC.current || "";
+const progress = recordingProgressRefC.current || 0;
 
-  // 📅 Format date
-  const day = now.getDate().toString().padStart(2, "0");
-  const month = (now.getMonth() + 1).toString().padStart(2, "0");
-  const year = now.getFullYear();
+// 📅 Date formatting
+const day = now.getDate().toString().padStart(2, "0");
+const month = (now.getMonth() + 1).toString().padStart(2, "0");
+const year = now.getFullYear();
 
-  const dateStr = `${day}/${month}/${year}`;
+const dateStr = `${day}/${month}/${year}`;
+const timeStr = now.toLocaleTimeString([], {
+  hour: "2-digit",
+  minute: "2-digit",
+});
 
-  const timeStr = now.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+const dateTimeText = `${dateStr} ${timeStr}`;
 
-  const dateTimeText = `${dateStr} ${timeStr}`;
+const padding = 12;
 
-  const padding = 10;
+// 👉 Measure text
+ctx.font = "16px Arial";
+const nameWidth = ctx.measureText(name).width;
 
-  // 👉 Measure text widths
-  ctx.font = "14px Arial";
-  const dateWidth = ctx.measureText(dateTimeText).width;
+ctx.font = "14px Arial";
+const dateWidth = ctx.measureText(dateTimeText).width;
+const noteWidth = ctx.measureText(note).width;
 
-  ctx.font = "16px Arial";
-  const nameWidth = ctx.measureText(name).width;
+const textWidth = Math.max(nameWidth, dateWidth, noteWidth);
 
-  const boxWidth = Math.max(dateWidth, nameWidth) + padding * 2;
+// 👉 Layout
+const circleRadius = 18;
+const circleDiameter = circleRadius * 2;
 
-  const x = canvas.width - boxWidth - padding;
-  const y = canvas.height - 60;
+const boxWidth = textWidth + circleDiameter + padding * 4;
+const boxHeight = 70;
 
-  // 🟫 Background box
-  ctx.fillStyle = "rgba(0,0,0,0.6)";
-  ctx.fillRect(x, y, boxWidth, 50);
+const x = canvas.width - boxWidth - 10;
+const y = canvas.height - boxHeight - 10;
 
-  // 🧑 Name (top)
-  ctx.textAlign = "right"; // 👈 key line
+// 🟫 Background
+ctx.fillStyle = "rgba(0,0,0,0.6)";
+ctx.fillRect(x, y, boxWidth, boxHeight);
 
-  ctx.fillStyle = "white";
-  ctx.font = "16px Arial";
-  ctx.fillText(name, x + boxWidth - padding, y + 20);
- 
-  // 🕒 Date-Time (bottom)
-  ctx.font = "14px Arial";
-  ctx.fillText(dateTimeText, x + boxWidth - padding, y + 40);
+// =======================
+// 🔵 Circular Progress
+// =======================
+
+const cx = x + padding + circleRadius;
+const cy = y + boxHeight / 2;
+
+// Background circle
+ctx.beginPath();
+ctx.arc(cx, cy, circleRadius, 0, Math.PI * 2);
+ctx.strokeStyle = "#444";
+ctx.lineWidth = 4;
+ctx.stroke();
+
+// Progress arc
+const endAngle = (progress / 100) * Math.PI * 2;
+
+ctx.beginPath();
+ctx.arc(cx, cy, circleRadius, -Math.PI / 2, endAngle - Math.PI / 2);
+ctx.strokeStyle = "#00ff88"; // green
+ctx.lineWidth = 4;
+ctx.stroke();
+
+// Progress text
+ctx.fillStyle = "white";
+ctx.font = "12px Arial";
+ctx.textAlign = "center";
+ctx.textBaseline = "middle";
+ctx.fillText(`${progress}%`, cx, cy);
+
+// =======================
+// 📝 Text Content
+// =======================
+
+const textX = cx + circleRadius + padding;
+let textY = y + 20;
+
+ctx.textAlign = "left";
+ctx.textBaseline = "alphabetic";
+
+// Name
+ctx.font = "16px Arial";
+ctx.fillText(name, textX, textY);
+
+// Note
+ctx.font = "13px Arial";
+ctx.fillStyle = "#ccc";
+ctx.fillText(note, textX, textY + 18);
+
+// Date
+ctx.font = "12px Arial";
+ctx.fillStyle = "#aaa";
+ctx.fillText(dateTimeText, textX, textY + 34);
+  }
+
   // ---- Connection Groups ----
   const LEFT_CONNECTIONS = [
     [11, 13], [13, 15],       // left arm
@@ -2085,7 +2143,16 @@ const clearClientCanvas = () => {
 };
 const [isDownloadingC, setIsDownloadingC] = useState(false);
 const recordingNameRefC = useRef("");
+const recordingNoteRefC = useRef("");
+const recordingProgressRefC = useRef(0);
+
+const fetchdetailsofClient = async () => {
+setdetailShowDialog(true);
+}
+
 const downloadClientPlayback = async () => {
+              setdetailShowDialog(false);
+
   const canvas = playbackCanvasClientRef.current;
   const now = new Date();
 recordingTimeRefC.current = now;
@@ -2105,11 +2172,7 @@ recordingTimeRefC.current = now;
   const frames = recordedFramesClientRef.current;
 
   if (!canvas || !frames.length) return;
-  const name = prompt("Enter name for this session:", "Client");
 
-  if (!name) return; // cancel if empty
-
-  recordingNameRefC.current = name;
   setIsDownloadingC(true);
 
   // 📱 Portrait size (same as your player)
@@ -2144,7 +2207,7 @@ recordingTimeRefC.current = now;
         return;
       }
 
-      drawPlaybackC(frames[i], canvas);
+      drawPlaybackC(frames[i], canvas,true);
       i++;
     }, intervalMs);
   });
@@ -2446,7 +2509,61 @@ const stopClient = () => {
   </div>
 )}
 
+{detailshowDialog && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+    <div className="bg-white rounded-2xl p-6 w-full max-w-md space-y-4">
+      <h2 className="text-xl font-semibold">New Session</h2>
 
+      <input
+        placeholder="Enter name"
+        defaultValue="Client"
+        onChange={(e) => (recordingNameRefC.current = e.target.value)}
+        className="w-full border rounded-xl px-3 py-2"
+      />
+
+      <textarea
+        placeholder="Enter note"
+        onChange={(e) => (recordingNoteRefC.current = e.target.value)}
+        className="w-full border rounded-xl px-3 py-2"
+      />
+
+     <input
+  type="range"
+  min="0"
+  max="100"
+  defaultValue="0"
+  onChange={(e) => {
+    const val = Number(e.target.value);
+    recordingProgressRefC.current = val; // your logic
+    setProgressUI(val); // just for display
+  }}
+  className="w-full"
+/>
+
+<p className="text-sm text-gray-600">
+  Progress: {progressUI}%
+</p>
+
+      <div className="flex justify-end gap-2">
+        <button
+          onClick={() => setdetailShowDialog(false)}
+          className="px-4 py-2 border rounded-xl"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={downloadClientPlayback}
+
+          
+          className="px-4 py-2 bg-black text-white rounded-xl"
+        >
+          Start
+        </button>
+      </div>
+    </div>
+  </div>
+)}
       {showDialog && (
    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end justify-center z-50">
       <div className="w-full max-w-md bg-white rounded-t-3xl p-6 shadow-2xl max-h-[95vh] overflow-y-auto">
@@ -3151,7 +3268,7 @@ setShowDialog(true)
   )}
 </button>
 <button
-  onClick={downloadClientPlayback}
+  onClick={fetchdetailsofClient}
   disabled={recordedFramesClientRef.current.length === 0 || isDownloadingC}
   className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-40"
 >

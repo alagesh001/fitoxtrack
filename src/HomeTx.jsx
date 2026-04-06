@@ -243,24 +243,24 @@ setShowDialogNew(false);
 
 };
 function sendSessionEvent(pageName) {
-  let sessionId = localStorage.getItem("tx_session");
+  // let sessionId = localStorage.getItem("tx_session");
 
-  if (!sessionId) {
-    sessionId = crypto.randomUUID();
-    localStorage.setItem("tx_session", sessionId);
-  }
+  // if (!sessionId) {
+  //   sessionId = crypto.randomUUID();
+  //   localStorage.setItem("tx_session", sessionId);
+  // }
 
-  fetch("https://tennisx.in/api/session", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      isp: "TennisX",
-      session_id: sessionId,
-      page: pageName
-    })
-  }).catch(() => {});
+  // fetch("https://tennisx.in/api/session", {
+  //   method: "POST",
+  //   headers: {
+  //     "Content-Type": "application/json"
+  //   },
+  //   body: JSON.stringify({
+  //     isp: "TennisX",
+  //     session_id: sessionId,
+  //     page: pageName
+  //   })
+  // }).catch(() => {});
 }
 
 const loadRazorpayScript = () => {
