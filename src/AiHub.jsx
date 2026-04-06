@@ -553,14 +553,14 @@ const workouts = [
           description:
             "Precision serve speed measurement using baseline-to-net trajectory tracking. Advanced frame-based motion analysis delivers accurate velocity metrics for performance benchmarking.",
         },
-        {
-          key: "lateralupload",
-          name: "Perfect your rally",
-          tier: "PRO",
-          icon: "analysis",
-          description:
-            "Upload match or training footage for advanced skeletal overlay and biomechanical breakdown. Analyze footwork, posture, swing path, and kinetic chain alignment frame-by-frame.",
-        },
+        // {
+        //   key: "lateralupload",
+        //   name: "Perfect your rally",
+        //   tier: "PRO",
+        //   icon: "analysis",
+        //   description:
+        //     "Upload match or training footage for advanced skeletal overlay and biomechanical breakdown. Analyze footwork, posture, swing path, and kinetic chain alignment frame-by-frame.",
+        // },
       ]
     : []),
 ];

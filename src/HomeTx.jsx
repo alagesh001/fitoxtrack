@@ -722,7 +722,7 @@ onClick={() =>
   )
 }        className="w-full bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-xl font-semibold hover:scale-105 transition"
       >
-        Start Using TennisX
+        Proceed
       </button>
 
       {/* Cancel */}
@@ -1203,8 +1203,8 @@ className="w-full border border-gray-200
     </h2> */}
 
     <h2 className="text-5xl md:text-6xl font-extrabold leading-tight text-left">
-  Help Your Students Improve Faster &
-  <span className="text-green-400">  Stay Longer</span>
+  Now Improve your game 
+  <span className="text-green-400">  with AI</span>
 </h2>
           <p className="mt-6 text-lg text-gray-300 max-w-xl leading-relaxed">
       TennisX is an{" "}
@@ -1256,7 +1256,7 @@ className="w-full border border-gray-200
              transition-all duration-300 ease-out overflow-hidden group"
 >
   <span className="relative z-10 flex items-center justify-center gap-2">
-    ⚡ Start NOW
+   Buy Now
   </span>
 
   {/* Shine sweep effect */}
@@ -1342,7 +1342,7 @@ className="w-full border border-gray-200
             <div className="flex items-center gap-4">
               <Target className="text-green-400" size={32} />
               <div>
-                <h3 className="text-xl font-semibold">Smooth Footwork</h3>
+                <h3 className="text-xl font-semibold">Smoother Footwork</h3>
                 <p className="text-gray-400">Identify flaws and optimize every movement.</p>
               </div>
             </div>
@@ -1354,11 +1354,11 @@ className="w-full border border-gray-200
       <section className="bg-black/60">
   <div className="max-w-6xl mx-auto px-8 text-center">
     <h2 className="text-4xl font-bold">
-      Take Your Coaching to the Next Level
+      Take Your Game to the Next Level
     </h2>
 
     <p className="mt-4 text-gray-400">
-      Join thousands of trainers improving their coaching with TennisX.
+      Redefine how you train, coach, and improve — TennisX.
     </p>
 
     {/* Reviews */}

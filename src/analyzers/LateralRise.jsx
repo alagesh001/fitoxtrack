@@ -1549,7 +1549,58 @@ ctx.fillText(
 }
 };
 
+const aplayTrainer = async () => {
+  const canvas = playbackCanvasRef.current;
+  const frames = trainerFramesRef.current;
 
+  if (!canvas || !frames.length) return;
+
+  // 🎥 Capture canvas stream
+  const fps = trainerFpsRef.current || 30;
+  canvas.width = 300;
+canvas.height = 534;
+  const stream = canvas.captureStream(fps);
+
+  const recorder = new MediaRecorder(stream, {
+    mimeType: "video/webm"
+  });
+
+  const chunks = [];
+
+  recorder.ondataavailable = (e) => {
+    if (e.data.size > 0) chunks.push(e.data);
+  };
+
+  recorder.onstop = () => {
+    const blob = new Blob(chunks, { type: "video/webm" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "trainer-playback.webm";
+    a.click();
+
+    URL.revokeObjectURL(url);
+  };
+
+  recorder.start();
+
+  // ▶️ Play frames while recording
+  let i = 0;
+  const speed = playbackSpeedRef.current || 1;
+  const intervalMs = (1000 / fps) / speed;
+
+  const interval = setInterval(() => {
+    if (!frames[i]) {
+      clearInterval(interval);
+      recorder.stop();
+      return;
+    }
+
+    drawPlayback(frames[i], canvas);
+    i++;
+  }, intervalMs);
+};
 const playTrainer = () => {
 //loadSelectedTrainerSession();
   // 🛑 Guard: prevent multiple intervals
@@ -1610,6 +1661,7 @@ const MAX_PATH = 40;
 
 const currentPathRefC = useRef([]);
 const allPathsRefC = useRef([]);
+const recordingTimeRefC = useRef(null);
 const drawPlaybackC = (landmarks, canvas) => {
   if (!landmarks || !canvas) return;
 
@@ -1621,7 +1673,41 @@ const drawPlaybackC = (landmarks, canvas) => {
   y: landmarks[i].y * height
 });
   ctx.clearRect(0, 0, width, height);
+const now = recordingTimeRefC.current || new Date();
 
+const day = now.getDate().toString().padStart(2, "0");
+const month = (now.getMonth() + 1).toString().padStart(2, "0");
+const year = now.getFullYear();
+
+const dateStr = `${day}/${month}/${year}`;
+
+const timeStr = now.toLocaleTimeString([], {
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+const text = `${dateStr} ${timeStr}`;
+const padding = 10;
+
+ctx.font = "14px Arial";
+const textWidth = ctx.measureText(text).width;
+
+// background
+ctx.fillStyle = "rgba(0,0,0,0.6)";
+ctx.fillRect(
+  canvas.width - textWidth - padding * 2,
+  canvas.height - 30 - padding,
+  textWidth + padding * 2,
+  30
+);
+
+// text
+ctx.fillStyle = "white";
+ctx.fillText(
+  text,
+  canvas.width - textWidth - padding,
+  canvas.height - 10
+);
   // ---- Connection Groups ----
   const LEFT_CONNECTIONS = [
     [11, 13], [13, 15],       // left arm
@@ -1977,8 +2063,93 @@ ctx.fillText(
 }
 
 };
+const clearClientCanvas = () => {
+  const canvas = playbackCanvasClientRef.current;
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0); // reset scale
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+};
+const [isDownloadingC, setIsDownloadingC] = useState(false);
+const downloadClientPlayback = async () => {
+  const canvas = playbackCanvasClientRef.current;
+  const now = new Date();
+recordingTimeRefC.current = now;
+
+    // 🛑 Stop current playback
+  if (clientIntervalRef.current) {
+    clearInterval(clientIntervalRef.current);
+    clientIntervalRef.current = null;
+  }
+
+  setClientPlaying(false);
+  setClientPaused(false);
+  clientIndexRef.current = 0;
+
+  // 🧹 Clear canvas before recording
+  clearClientCanvas();
+  const frames = recordedFramesClientRef.current;
+
+  if (!canvas || !frames.length) return;
+
+  setIsDownloadingC(true);
+
+  // 📱 Portrait size (same as your player)
+  canvas.width = 300;
+  canvas.height = 534;
+
+  const fps = 30;
+  const stream = canvas.captureStream(fps);
+
+  const recorder = new MediaRecorder(stream, {
+    mimeType: "video/webm"
+  });
+
+  const chunks = [];
+
+  recorder.ondataavailable = (e) => {
+    if (e.data.size > 0) chunks.push(e.data);
+  };
+
+  recorder.start();
+
+  // ▶️ Play frames manually for recording
+  let i = 0;
+  const speed = playbackSpeedRefClient.current || 1;
+  const intervalMs = (1000 / fps) / speed;
+
+  await new Promise((resolve) => {
+    const interval = setInterval(() => {
+      if (!frames[i]) {
+        clearInterval(interval);
+        resolve();
+        return;
+      }
+
+      drawPlaybackC(frames[i], canvas);
+      i++;
+    }, intervalMs);
+  });
+
+  recorder.stop();
+
+  recorder.onstop = () => {
+    const blob = new Blob(chunks, { type: "video/webm" });
+    const url = URL.createObjectURL(blob);
 
 
+    const a = document.createElement("a");
+    a.href = url;
+a.download = `c-${now.toISOString().slice(2,16).replace(/[-:T]/g,"")}.webm`;
+
+    a.click();
+
+    URL.revokeObjectURL(url);
+    setIsDownloadingC(false);
+  };
+};
 const playClient = () => {
    console.log("playClient" );
   const frames = recordedFramesClientRef.current;
@@ -2922,12 +3093,13 @@ setShowDialog(true)
 
       {/* Play Button */}
     <button
+    
   onClick={() => {
     if (!clientPlaying && !clientPaused) playClient();
     else if (clientPlaying) pauseClient();
     else playClient();
   }}
-  disabled={recordedFramesClientRef.current.length === 0}
+  disabled={recordedFramesClientRef.current.length === 0 || isDownloadingC}
   className={`w-full flex items-center text-white justify-center gap-2 py-3 rounded-xl font-semibold transition-all duration-200 ${
     clientPlaying
       ? "bg-yellow-500 hover:bg-yellow-600"
@@ -2948,6 +3120,21 @@ setShowDialog(true)
     <>
       <Play size={18} />
       Play
+    </>
+  )}
+</button>
+<button
+  onClick={downloadClientPlayback}
+  disabled={recordedFramesClientRef.current.length === 0 || isDownloadingC}
+  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-40"
+>
+  {isDownloadingC ? (
+    <>
+      ⏳ Downloading...
+    </>
+  ) : (
+    <>
+      ⬇️ Download Video
     </>
   )}
 </button>
