@@ -1673,41 +1673,52 @@ const drawPlaybackC = (landmarks, canvas) => {
   y: landmarks[i].y * height
 });
   ctx.clearRect(0, 0, width, height);
-const now = recordingTimeRefC.current || new Date();
+// 🧾 Get stored values
+  const now = recordingTimeRefC.current || new Date();
+  const name = recordingNameRefC.current || "Client";
 
-const day = now.getDate().toString().padStart(2, "0");
-const month = (now.getMonth() + 1).toString().padStart(2, "0");
-const year = now.getFullYear();
+  // 📅 Format date
+  const day = now.getDate().toString().padStart(2, "0");
+  const month = (now.getMonth() + 1).toString().padStart(2, "0");
+  const year = now.getFullYear();
 
-const dateStr = `${day}/${month}/${year}`;
+  const dateStr = `${day}/${month}/${year}`;
 
-const timeStr = now.toLocaleTimeString([], {
-  hour: "2-digit",
-  minute: "2-digit",
-});
+  const timeStr = now.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
-const text = `${dateStr} ${timeStr}`;
-const padding = 10;
+  const dateTimeText = `${dateStr} ${timeStr}`;
 
-ctx.font = "14px Arial";
-const textWidth = ctx.measureText(text).width;
+  const padding = 10;
 
-// background
-ctx.fillStyle = "rgba(0,0,0,0.6)";
-ctx.fillRect(
-  canvas.width - textWidth - padding * 2,
-  canvas.height - 30 - padding,
-  textWidth + padding * 2,
-  30
-);
+  // 👉 Measure text widths
+  ctx.font = "14px Arial";
+  const dateWidth = ctx.measureText(dateTimeText).width;
 
-// text
-ctx.fillStyle = "white";
-ctx.fillText(
-  text,
-  canvas.width - textWidth - padding,
-  canvas.height - 10
-);
+  ctx.font = "16px Arial";
+  const nameWidth = ctx.measureText(name).width;
+
+  const boxWidth = Math.max(dateWidth, nameWidth) + padding * 2;
+
+  const x = canvas.width - boxWidth - padding;
+  const y = canvas.height - 60;
+
+  // 🟫 Background box
+  ctx.fillStyle = "rgba(0,0,0,0.6)";
+  ctx.fillRect(x, y, boxWidth, 50);
+
+  // 🧑 Name (top)
+  ctx.textAlign = "right"; // 👈 key line
+
+  ctx.fillStyle = "white";
+  ctx.font = "16px Arial";
+  ctx.fillText(name, x + boxWidth - padding, y + 20);
+ 
+  // 🕒 Date-Time (bottom)
+  ctx.font = "14px Arial";
+  ctx.fillText(dateTimeText, x + boxWidth - padding, y + 40);
   // ---- Connection Groups ----
   const LEFT_CONNECTIONS = [
     [11, 13], [13, 15],       // left arm
@@ -2073,6 +2084,7 @@ const clearClientCanvas = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 };
 const [isDownloadingC, setIsDownloadingC] = useState(false);
+const recordingNameRefC = useRef("");
 const downloadClientPlayback = async () => {
   const canvas = playbackCanvasClientRef.current;
   const now = new Date();
@@ -2093,7 +2105,11 @@ recordingTimeRefC.current = now;
   const frames = recordedFramesClientRef.current;
 
   if (!canvas || !frames.length) return;
+  const name = prompt("Enter name for this session:", "Client");
 
+  if (!name) return; // cancel if empty
+
+  recordingNameRefC.current = name;
   setIsDownloadingC(true);
 
   // 📱 Portrait size (same as your player)
@@ -2139,14 +2155,25 @@ recordingTimeRefC.current = now;
     const blob = new Blob(chunks, { type: "video/webm" });
     const url = URL.createObjectURL(blob);
 
+const safeName = name
+  .toLowerCase()
+  .replace(/\s+/g, "-")       // spaces → hyphens
+  .replace(/[^a-z0-9\-]/g, ""); // remove special chars
+
+const fileName = `c-${safeName}-${now
+  .toISOString()
+  .slice(2,16)
+  .replace(/[-:T]/g,"")}.webm`;
 
     const a = document.createElement("a");
     a.href = url;
-a.download = `c-${now.toISOString().slice(2,16).replace(/[-:T]/g,"")}.webm`;
+a.download = fileName;
 
     a.click();
 
     URL.revokeObjectURL(url);
+     recordingNameRefC.current = "Client";
+  recordingTimeRefC.current = null;
     setIsDownloadingC(false);
   };
 };
