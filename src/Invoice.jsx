@@ -1,4 +1,5 @@
 import { useRef, useState,useEffect } from "react";
+//import jsPDF from "jspdf";
 
 export default function CanvasInvoice() {
   const canvasRef = useRef(null);
@@ -489,7 +490,7 @@ const invoiceNo = getPreviousReceipt(data.receipt);
 };
 // const downloadPDF = () => {
 //   const canvas = canvasRef.current;
-
+ 
 // const imgData = canvas.toDataURL("image/jpeg", 0.7); // 🔥 huge reduction
 //   const pdf = new jsPDF("p", "pt", "a4");
 
