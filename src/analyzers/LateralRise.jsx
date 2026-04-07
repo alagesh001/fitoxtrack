@@ -2531,24 +2531,26 @@ const stopClient = () => {
     <div className="bg-white rounded-2xl p-6 w-full max-w-md space-y-4">
       <h2 className="text-xl font-semibold">New Session</h2>
 
-      <input
-        placeholder="Enter name"
-        defaultValue=""
-        onChange={(e) => (recordingNameRefC.current = e.target.value)}
-        className="w-full border rounded-xl px-3 py-2"
-      />
+     <input
+  placeholder="Enter name (Max - 30)"
+  maxLength={30}
+  onChange={(e) => (recordingNameRefC.current = e.target.value)}
+  className="w-full border rounded-xl px-3 py-2"
+/>
 
-      <textarea
-        placeholder="Feedback"
-        onChange={(e) => (recordingNoteRefC.current = e.target.value)}
-        className="w-full border rounded-xl px-3 py-2"
-      />
- <input
-        placeholder="Academy/Coach"
-        defaultValue=""
-        onChange={(e) => (recordingCoachNameRefC.current = e.target.value)}
-        className="w-full border rounded-xl px-3 py-2"
-      />
+<textarea
+  placeholder="Feedback (Max - 30)"
+  maxLength={30}
+  onChange={(e) => (recordingNoteRefC.current = e.target.value)}
+  className="w-full border rounded-xl px-3 py-2"
+/>
+
+<input
+  placeholder="Academy/Coach (Max - 30)"
+  maxLength={30}
+  onChange={(e) => (recordingCoachNameRefC.current = e.target.value)}
+  className="w-full border rounded-xl px-3 py-2"
+/>
      <input
   type="range"
   min="0"
