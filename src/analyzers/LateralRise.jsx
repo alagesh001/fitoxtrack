@@ -1717,7 +1717,7 @@ const textWidth = Math.max(nameWidth, dateWidth, noteWidth,coachWidth);
 const circleRadius = 18;
 const circleDiameter = circleRadius * 2;
 
-const boxWidth = textWidth ;
+const boxWidth = textWidth + circleDiameter + padding * 4;
 const boxHeight = 70;
 
 const x = canvas.width - boxWidth - 10;
@@ -1731,8 +1731,8 @@ ctx.fillRect(x, y, boxWidth, boxHeight);
 // 🔵 Circular Progress
 // =======================
 
-const cx =  padding + circleRadius +5;
-const cy = y - 25;
+const cx = x + boxWidth - padding - circleRadius;
+const cy = y + boxHeight - padding - circleRadius;
 
 // Background circle
 ctx.beginPath();
@@ -1762,8 +1762,9 @@ ctx.fillText(`${progress}%`, cx, cy);
 // 📝 Text Content
 // =======================
 
-const textX = padding;
-let textY = y;
+const textX = x + circleRadius + padding;
+let textY = y ; // slightly tighter start
+
 ctx.textAlign = "left";
 ctx.textBaseline = "top"; // easier spacing control
 
