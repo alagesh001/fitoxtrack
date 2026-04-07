@@ -1680,6 +1680,9 @@ const drawPlaybackC = (landmarks, canvas,fromdownload = false) => {
 // 🧾 Get values
 const now = recordingTimeRefC.current || new Date();
 const name = recordingNameRefC.current || "Client";
+const coach_name = recordingCoachNameRefC.current || "Coach";
+
+
 const note = recordingNoteRefC.current || "";
 const progress = recordingProgressRefC.current || 0;
 
@@ -1705,14 +1708,16 @@ const nameWidth = ctx.measureText(name).width;
 ctx.font = "14px Arial";
 const dateWidth = ctx.measureText(dateTimeText).width;
 const noteWidth = ctx.measureText(note).width;
+const coachWidth = ctx.measureText(coach_name).width;
 
-const textWidth = Math.max(nameWidth, dateWidth, noteWidth);
+
+const textWidth = Math.max(nameWidth, dateWidth, noteWidth,coachWidth);
 
 // 👉 Layout
 const circleRadius = 18;
 const circleDiameter = circleRadius * 2;
 
-const boxWidth = textWidth + circleDiameter + padding * 4;
+const boxWidth = textWidth ;
 const boxHeight = 70;
 
 const x = canvas.width - boxWidth - 10;
@@ -1726,8 +1731,8 @@ ctx.fillRect(x, y, boxWidth, boxHeight);
 // 🔵 Circular Progress
 // =======================
 
-const cx = x + padding + circleRadius;
-const cy = y + boxHeight / 2;
+const cx =  padding + circleRadius +5;
+const cy = y - 25;
 
 // Background circle
 ctx.beginPath();
@@ -1745,6 +1750,7 @@ ctx.strokeStyle = "#00ff88"; // green
 ctx.lineWidth = 4;
 ctx.stroke();
 
+
 // Progress text
 ctx.fillStyle = "white";
 ctx.font = "12px Arial";
@@ -1756,25 +1762,33 @@ ctx.fillText(`${progress}%`, cx, cy);
 // 📝 Text Content
 // =======================
 
-const textX = cx + circleRadius + padding;
-let textY = y + 20;
-
+const textX = padding;
+let textY = y;
 ctx.textAlign = "left";
-ctx.textBaseline = "alphabetic";
+ctx.textBaseline = "top"; // easier spacing control
 
-// Name
-ctx.font = "16px Arial";
+// Name (Primary)
+ctx.font = "bold 16px Arial";
+ctx.fillStyle = "#ffffff";
 ctx.fillText(name, textX, textY);
 
-// Note
-ctx.font = "13px Arial";
-ctx.fillStyle = "#ccc";
-ctx.fillText(note, textX, textY + 18);
+// Coach (Highlight)
+textY += 20;
+ctx.font = "italic 14px Arial";
+ctx.fillStyle = "#d28cfa"; // purple highlight
+ctx.fillText(`${coach_name}`, textX, textY);
 
-// Date
+// Note (Secondary)
+textY += 18;
+ctx.font = "13px Arial";
+ctx.fillStyle = "#cccccc";
+ctx.fillText(note, textX, textY);
+
+// Date (Muted)
+textY += 18;
 ctx.font = "12px Arial";
-ctx.fillStyle = "#aaa";
-ctx.fillText(dateTimeText, textX, textY + 34);
+ctx.fillStyle = "#888888";
+ctx.fillText(dateTimeText, textX, textY);
   }
 
   // ---- Connection Groups ----
@@ -2145,6 +2159,7 @@ const [isDownloadingC, setIsDownloadingC] = useState(false);
 const recordingNameRefC = useRef("");
 const recordingNoteRefC = useRef("");
 const recordingProgressRefC = useRef(0);
+const recordingCoachNameRefC = useRef("");
 
 const fetchdetailsofClient = async () => {
 setdetailShowDialog(true);
@@ -2235,7 +2250,8 @@ a.download = fileName;
     a.click();
 
     URL.revokeObjectURL(url);
-     recordingNameRefC.current = "Client";
+     recordingNameRefC.current = "";
+     recordingCoachNameRefC.current = "";
   recordingTimeRefC.current = null;
     setIsDownloadingC(false);
   };
@@ -2516,17 +2532,22 @@ const stopClient = () => {
 
       <input
         placeholder="Enter name"
-        defaultValue="Client"
+        defaultValue=""
         onChange={(e) => (recordingNameRefC.current = e.target.value)}
         className="w-full border rounded-xl px-3 py-2"
       />
 
       <textarea
-        placeholder="Enter note"
+        placeholder="Feedback"
         onChange={(e) => (recordingNoteRefC.current = e.target.value)}
         className="w-full border rounded-xl px-3 py-2"
       />
-
+ <input
+        placeholder="Academy/Coach"
+        defaultValue=""
+        onChange={(e) => (recordingCoachNameRefC.current = e.target.value)}
+        className="w-full border rounded-xl px-3 py-2"
+      />
      <input
   type="range"
   min="0"
