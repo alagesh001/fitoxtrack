@@ -144,6 +144,8 @@ const verifyCoupon = () => {
   }
 
 };
+const isTrialEnabled = false;
+
 const isLoggedIn = localStorage.getItem("isLoggedInWeb") === "true";
 
 const [selectedPlan, setSelectedPlan] = useState(
@@ -421,6 +423,8 @@ setShowSuccessDialog(true);
           setLoadingPay(false);
           console.error("Verification error:", err);
           alert("Verification error.");
+        }finally{
+           setShowDialog(false);
         }
       },
     };
@@ -712,14 +716,15 @@ useEffect(() => {
       {/* Start Button */}
       <button
 onClick={() =>
-  startFreeTrial(
-    name,
-    email,
-    mobile,
-    role,
-    country === "India" ? state : "NA",
-    country
-  )
+  setShowDialog(true)
+  // startFreeTrial(
+  //   name,
+  //   email,
+  //   mobile,
+  //   role,
+  //   country === "India" ? state : "NA",
+  //   country
+  // )
 }        className="w-full bg-gradient-to-r from-yellow-400 to-green-500 text-black py-3 rounded-xl font-semibold hover:scale-105 transition"
       >
         Proceed
@@ -749,7 +754,7 @@ onClick={() =>
         </div>
 
         {/* Currency Toggle */}
-        {isLoggedIn && (
+        
 
         <div className="flex justify-center mb-6">
           <div className="relative flex bg-gray-100 rounded-full p-1 shadow-inner">
@@ -780,11 +785,13 @@ onClick={() =>
 
           </div>
         </div>
-        )}
+        
 
         {/* Plans */}
         <div className="space-y-4 mb-6">
-{!isLoggedIn && (
+        
+{!isLoggedIn && isTrialEnabled && (
+
 <div
   onClick={() => setSelectedPlan("trial")}
   className={`relative border-2 rounded-2xl p-5 cursor-pointer transition transform hover:scale-[1.03] ${
@@ -832,6 +839,7 @@ onClick={() =>
     </div>
   </div>
 </div>
+
 )}
           {/* Strokes Plan */}
           {/* <div
